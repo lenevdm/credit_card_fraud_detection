@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+tensorflow-venv/
+
+# Jupyter
+.ipynb_checkpoints
+
+# MLflow
+mlruns/
+
+# VS Code
+.vscode/
+
+# Dataset
+data/*.csv
+
+# Distribution
+dist/
+build/
+*.egg-info/
