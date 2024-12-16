@@ -1,6 +1,8 @@
-from src.data.data_preparation import DataPreparation
+# Import project modules
+from src.data.data_preparation import DataPreparation # Preprocessing pipeline to load and process data
 from src.models.baseline_model import FraudDetectionModel
 from config.model_config import ModelConfig
+# Other imports
 import pandas as pd
 import mlflow
 
@@ -10,24 +12,24 @@ def run_baseline_experiment():
     """
     # Prepare data
     print("Loading and preparing data...")
-    data_prep = DataPreparation()
-    data = data_prep.prepare_data('data/creditcard.csv')
+    data_prep = DataPreparation() # initialises data processing pipeline from data_prepartion
+    data = data_prep.prepare_data('data/creditcard.csv') # passes prepared data into a dataframe
     
     # Initialize model
     print("Initializing model...")
-    model = FraudDetectionModel()
+    model = FraudDetectionModel() # gets model from baseline_model.py: FraudDetectionModel
     
     # Train model
     print("Training model...")
     history = model.train(
         data['X_train'], data['y_train'],
         data['X_val'], data['y_val'],
-        "baseline_no_balancing"
+        "baseline_no_balancing" # experiment name for MLflow
     )
     
     # Evaluate model
     print("Evaluating model...")
-    test_results = model.evaluate(data['X_test'], data['y_test'])
+    test_results = model.evaluate(data['X_test'], data['y_test']) # from baseline_model
     
     # Print results
     print("\nTest Results:")
