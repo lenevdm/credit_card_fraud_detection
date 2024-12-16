@@ -11,6 +11,7 @@ class FraudDetectionModel:
     """
     
     def __init__(self):
+        # Set model configuration in model_config.py
         self.config = ModelConfig()
         self.model = self._build_model()
         
