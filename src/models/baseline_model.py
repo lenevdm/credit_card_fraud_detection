@@ -100,8 +100,9 @@ class FraudDetectionModel:
             dict: Dictionary containing detailed evaluation metrics
         """
         import numpy as np
-        from sklearn.metrics import classification_report, confusion_matrix, f1_score
-        
+        from sklearn.metrics import classification_report, confusion_matrix, f1_score, average_precision_score, roc_auc_score, precision_recall_curve, roc_curve
+        import matplotlib.pyplot as plt
+
         # Get model predictions
         y_pred_proba = self.model.predict(X_test, verbose=0)
         y_pred = (y_pred_proba > 0.5).astype(int)
@@ -109,11 +110,19 @@ class FraudDetectionModel:
         # Calculate confusion matrix
         tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
         
-        # Calculate metrics
+        # Calculate standard metrics
         accuracy = (tp + tn) / (tp + tn + fp + fn)
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0
         f1 = f1_score(y_test, y_pred)
+
+        # Calculate ROC AUC and ARPRC
+        roc_auc = roc_auc_score(y_test, y_pred_proba)
+        auprc = average_precision_score(y_test, y_pred_proba)
+
+        # Calculate curves for plotting
+        precision_curve, recall_curve, _ = precision(y_test, y_pred_proba)
+        fpr, tpr, _ = roc_curve(y_test, y_pred_proba)
         
         # Store all metrics
         metrics_dict = {
@@ -121,10 +130,16 @@ class FraudDetectionModel:
             'precision': precision,
             'recall': recall,
             'f1_score': f1,
+            'roc_auc': roc_auc,
+            'auprc': auprc,
             'true_positives': tp,
             'true_negatives': tn,
             'false_positives': fp,
-            'false_negatives': fn
+            'false_negatives': fn,
+            'curves': {
+                'pr': {'precision': precision_curve, 'recall': recall_curve},
+                'roc': {'fpr': fpr, 'tpr': tpr}
+            }
         }
         
         # Print detailed results
@@ -134,12 +149,15 @@ class FraudDetectionModel:
         print(f"Precision: {precision:.4f}")
         print(f"Recall: {recall:.4f}")
         print(f"F1 Score: {f1:.4f}")
+        print(f"ROC AUC: {roc_auc:.4f}")
+        print(f"AUPRC: {auprc:.4f}")
         print("\nConfusion Matrix:")
         print("-" * 40)
         print(f"True Negatives: {tn}")
         print(f"False Positives: {fp}")
         print(f"False Negatives: {fn}")
         print(f"True Positives: {tp}")
+        
         
         # Log to MLflow
         with ExperimentTracker("baseline_evaluation") as tracker:
