@@ -19,22 +19,34 @@ def run_baseline_experiment():
     print("Initializing model...")
     model = FraudDetectionModel() # gets model from baseline_model.py: FraudDetectionModel
     
-    # Train model
+    # Train model with experiment tracking
     print("Training model...")
-    history = model.train(
-        data['X_train'], data['y_train'],
-        data['X_val'], data['y_val'],
-        "baseline_no_balancing" # experiment name for MLflow
-    )
-    
-    # Evaluate model
-    print("Evaluating model...")
-    test_results = model.evaluate(data['X_test'], data['y_test']) # from baseline_model
-    
-    # Print results
-    print("\nTest Results:")
-    for metric, value in test_results.items():
-        print(f"{metric}: {value:.4f}")
+    with ExperimentTracker("baseline_experiment") as tracker:
+        # Log model params
+        tracker.log_parameters({
+            "model_type": "baseline_mlp",
+            "learning_rate": ModelConfig.LEARNING_RATE,
+            "batch_size": ModelConfig.BATCH_SIZE,
+            "dropout_rate": ModelConfig.DROPOUT_RATE
+        })
+        
+
+        # Train model
+        history = model.train(
+            data['X_train'], data['y_train'],
+            data['X_val'], data['y_val'],
+            "baseline_no_balancing" # experiment name for MLflow
+        )
+        
+        # Evaluate model
+        print("Evaluating model...")
+        test_results = model.evaluate(data['X_test'], data['y_test']) # from baseline_model
+        tracker.log_metrics(test_results)
+        
+        # Print results
+        print("\nTest Results:")
+        for metric, value in test_results.items():
+            print(f"{metric}: {value:.4f}")
     
     return test_results
 
