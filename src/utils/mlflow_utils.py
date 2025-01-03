@@ -16,20 +16,22 @@ class ExperimentTracker:
             mlflow.log_param(key, value)
     
     def log_metrics(self, metrics: Dict[str, float], step: int = None):
-        """Log multiple metrics to MLflow - exluding 'curves'"""
-
+        """Log multiple metrics to MLflow - excluding 'curves'"""
+    try:
         # Log scalar metrics
-        metrics_to_log = {k: v for k, v in metrics.items()
-                          if k != 'curves' and isinstance(v, (int,float))}
+        metrics_to_log = {k: v for k, v in metrics.items() 
+                         if k != 'curves' and isinstance(v, (int,float))}
         mlflow.log_metrics(metrics_to_log)
 
         # Create and log visualization artifacts
         if 'curves' in metrics:
-            self._log_visualization_artifacts(metrics)
+            self.log_visualization_artifacts(metrics)
+    except Exception as e:
+        print(f"Warning: Error during metric logging: {str(e)}")
 
     # mlflow.log_metrics(metrics, step=step)
     
-    def log_visualitzation_artifacts(self, metrics: Dict):
+    def log_visualization_artifacts(self, metrics: Dict):
         """Create and log visualization plots as artifacts"""
 
         # Generate plots
@@ -58,25 +60,28 @@ class ExperimentTracker:
                     mlflow.log_metrics(logs, step=epoch)
 
                     # Create and log learning curves periodically
-                    if epoch % 5 == 0: # Log every 5 epochs
-                        plt.figure(figsize=(10,6))
+                    if epoch % 5 == 0:  # Log every 5 epochs
+                        plt.figure(figsize=(10, 6))
                         metrics = ['loss', 'val_loss']
+                        has_data = False
                         for metric in metrics:
                             if metric in self.model.history.history:
                                 plt.plot(
                                     self.model.history.history[metric],
                                     label=metric
                                 )
+                                has_data = True
                         plt.title('Learning Curves')
                         plt.xlabel('Epoch')
-                        plt.ylable('Loss')
-                        plt.legend()
+                        plt.ylabel('Loss')
+                        if has_data:
+                            plt.legend()
                         plt.grid(True)
-
+                        
                         # Log the learning curve
                         mlflow.log_figure(
                             plt.gcf(),
-                            f"learning_curbe_epoch_{epoch}.png"
+                            f"learning_curve_epoch_{epoch}.png"
                         )
                         plt.close()
         
