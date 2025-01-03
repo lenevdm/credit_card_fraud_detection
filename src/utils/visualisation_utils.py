@@ -8,7 +8,7 @@ def plot_pr_curve(precision, recall, auprc):
     """Plot Precision-Recall curve"""
     plt.figure(figsize=(10, 6))
     plt.plot(recall, precision, color='blue', lw=2)
-    plt.axhline(y=sum(y_test)/len(y_test), color='r', linestyle='--', label='No Skill')
+    plt.axhline(y=no_skill_baseline, color='r', linestyle='--', label='No Skill')
     plt.xlabel('Recall')
     plt.ylabel('Precision')
     plt.title(f'Precision-Recall Curve (AUPRC = {auprc:.3f})')
