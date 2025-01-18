@@ -21,7 +21,23 @@ class BaselineExperiment:
         self.n_runs = n_runs if n_runs is not None else ModelConfig.N_RUNS
         self.data_prep = DataPreparation()
         self.metrics_list = []
-
+        
+        # Clean up any existing runs
+        mlflow.end_run()
+        
+        # Set up MLflow for local tracking
+        mlflow.set_tracking_uri("file:./mlruns")
+        self.experiment_name = "fraud_detection_baseline"
+        
+        # Create experiment if it doesn't exist
+        try:
+            self.experiment_id = mlflow.create_experiment(self.experiment_name)
+        except:
+            self.experiment_id = mlflow.get_experiment_by_name(self.experiment_name).experiment_id
+        
+        # Set the experiment
+        mlflow.set_experiment(self.experiment_name)
+        
     def run_experiment(self, data_path):
         """Run multiple training iterations and aggregate results"""
     
