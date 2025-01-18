@@ -11,6 +11,12 @@ class DataPreparation:
     def __init__(self, random_state=None):
         self.random_state = random_state or ModelConfig.RANDOM_SEED
         self.scaler = StandardScaler()
+
+        # Define selected features based on dual analysis
+        self.primary_features = [
+            'V14', 'V17', 'V12', 'V10', 'V3', 
+            'V7', 'V4', 'V16', 'V11'
+        ]
         
     def prepare_data(self, data_path):
         """
@@ -26,12 +32,11 @@ class DataPreparation:
         print("Loading data...")
         df = pd.read_csv(data_path)
         
-        # Select features (V1-V28 and Amount)
-        feature_columns = ['V%d' % i for i in range(1,29)] + ['Amount']
-        
-        # Separate features and target
-        X = df[feature_columns]
+        # Select features and scale Amount separately if needed
+        print("Selecting features...")
+        X = df[self.primary_features]
         y = df['Class']
+        # feature_columns = ['V%d' % i for i in range(1,29)] + ['Amount']
         
         # Scale the features
         print("Scaling features...")
@@ -67,7 +72,8 @@ class DataPreparation:
         print(f"Non-fraudulent: {(y_train == 0).sum()}")
         print(f"Fraudulent: {(y_train == 1).sum()}")
         print(f"\nFeature dimensionality: {X_train.shape[1]}")
-        print(f"Target shape: {y_train.shape}")
+        print(f"Target shape: {y_train.shape}") # remove this?
+        print(f"Selected features: {', '.join(self.primary_features)}")
         
         return {
             'X_train': X_train,
