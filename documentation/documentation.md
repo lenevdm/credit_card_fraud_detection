@@ -5,16 +5,38 @@ This project explores techniques for handling class imbalanced data in deep lear
 ## Project Structure
 
 ```mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'primaryColor': '#f3b1ce',
+      'primaryTextColor': '#000000',
+      'primaryBorderColor': '#f3d5e2',
+      'lineColor': '#ff338a',
+      'secondaryColor': '#006100',
+      'tertiaryColor': '#fff',
+      'fontFamily': 'Ariel, sans-serif"
+    }
+  }
+}%%
 graph TD
-    A[credit_card_fraud_detection/] 
-    A --> B[config/ <br> <i>Model configuration</i>]
-    A --> C[data/ <br> <i>Dataset storage</i>]
-    A --> D[notebooks/ <br> <i>Jupyter notebooks for analysis</i>]
-    A --> E[src/ <br> <i>Source code</i>]
-    E --> E1[data/ <br> <i>Data processing</i>]
-    E --> E2[models/ <br> <i>Model implementations</i>]
-    E --> E3[utils/ <br> <i>Utility functions</i>]
-    A --> F[tests/ <br> <i>Unit tests</i>]
+    A(credit_card_fraud_detection/) 
+    A --> B(config/ <br> <i>Model configuration</i>)
+    B --> J(model_config.py)
+    A --> C(data/ <br> <i>Dataset storage</i>)
+    C --> I(creditcard.csv)
+    A --> D(notebooks/ <br> <i>Jupyter notebooks for analysis</i>)
+    D --> H(exploratory_analysis.ipynb<br>feature_importance_analysis.ipynb)
+    A ----> E(src/ <br> <i>Source code</i>)
+    E --> E1(data/ <br> <i>Data processing</i>)
+    E --> E2(models/ <br> <i>Model implementations</i>)
+    E --> E3(utils/ <br> <i>Utility functions</i>)
+    A --> F(tests/ <br> <i>Unit tests</i>)
+    E1 --> G1(data_preparation.py)
+    E2 --> G2(baseline_model.py)
+    E3 --> G3(mlflow_utls.py <br> visualisation_utils.py)
+    A --------> K(baseline_experiment.py)
+
 
 ```
 
