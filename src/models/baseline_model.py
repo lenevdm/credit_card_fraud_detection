@@ -36,9 +36,11 @@ class FraudDetectionModel:
             # Output layer
             layers.Dense(1, activation='sigmoid')
         ])
+
+        optimizer = tf.keras.optimizers.Adam(learning_rate=self.config.LEARNING_RATE)
         
         model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=self.config.LEARNING_RATE),
+            optimizer=optimizer,
             loss='binary_crossentropy',
             metrics=[
                 'accuracy',
@@ -70,9 +72,22 @@ class FraudDetectionModel:
             tf.keras.callbacks.EarlyStopping(
                 monitor='val_loss',
                 patience=self.config.EARLY_STOPPING_PATIENCE,
+                min_delta=self.config.EARLY_STOPPING_MIN_DELTA,
                 restore_best_weights=True
             )
         )
+
+        # Add learning rate scheduler (if enabled)
+        if self.config.USE_LR_SCHEDULER:
+            callbacks.append(
+                tf.keras.callbacks.ReduceLROnPlatue(
+                    monitor='val_los',
+                    factor=self.config.LR_FACTOR,
+                    patience=self.config.LR_PATIENCE,
+                    min_lr=1e-6,
+                    verbose=1
+                )
+            )
         
         # Train model
         history = self.model.fit(
