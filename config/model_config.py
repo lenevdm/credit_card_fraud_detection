@@ -3,7 +3,7 @@ class ModelConfig:
     Configuration settings for the fraud detection model
     """
     # Network architecture
-    INPUT_DIM = 29
+    INPUT_DIM = 9 # Updated from 29 through feature selection process
     HIDDEN_LAYERS = [64, 32, 16]
     DROPOUT_RATE = 0.3
     
@@ -23,3 +23,19 @@ class ModelConfig:
     # Experiment tracking
     EXPERIMENT_NAME = "fraud_detection"
     MODEL_VERSION = "v1.0"
+
+    # Multiple runs configuration
+    N_RUNS = 10  # Number of training runs 
+    METRICS_OF_INTEREST = [   # Key metrics tracked across runs
+        'accuracy',
+        'precision',
+        'recall',
+        'f1_score',
+        'roc_auc',
+        'auprc'
+    ]
+    CONFIDENCE_LEVEL = 0.95 # For statistical intervals
+
+    # Visualization settings
+    SAVE_PLOTS = True  # Sets whether to save plots for each run or not
+    PLOT_FREQUENCY = 5  # Save plots every n epochs
