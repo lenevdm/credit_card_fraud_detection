@@ -7,6 +7,10 @@ import numpy as np
 def plot_pr_curve(precision, recall, auprc):
     """Plot Precision-Recall curve"""
     plt.figure(figsize=(10, 6))
+
+    # Calculate the no-skill baseline (proportion of positive class)
+    no_skill_baseline = len([x for x in recall if x > 0]) / len(recall)
+    
     plt.plot(recall, precision, color='blue', lw=2)
     plt.axhline(y=no_skill_baseline, color='r', linestyle='--', label='No Skill')
     plt.xlabel('Recall')
