@@ -31,11 +31,12 @@ graph TD
     E --> E1(data/ <br> <i>Data processing</i>)
     E --> E2(models/ <br> <i>Model implementations</i>)
     E --> E3(utils/ <br> <i>Utility functions</i>)
+    E --> E4(experiments/ <br> <i>Model implementations</i>)
     A --> F(tests/ <br> <i>Unit tests</i>)
     E1 --> G1(data_preparation.py)
     E2 --> G2(baseline_model.py)
     E3 --> G3(mlflow_utls.py <br> visualisation_utils.py)
-    A --------> K(baseline_experiment.py)
+    E4 --> G4(baseline_experiment.py <br> baseline_runs.py)
 
 
 ```
