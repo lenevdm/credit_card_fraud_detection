@@ -22,7 +22,7 @@ This project explores techniques for handling class imbalanced data in deep lear
 graph TD
     A(credit_card_fraud_detection/) 
     A --> B(config/ <br> <i>Model configuration</i>)
-    B --> J(model_config.py)
+    B --> J(model_config.py <br> experiment_config.py)
     A --> C(data/ <br> <i>Dataset storage</i>)
     C --> I(creditcard.csv)
     A --> D(notebooks/ <br> <i>Jupyter notebooks for analysis</i>)
@@ -31,12 +31,12 @@ graph TD
     E --> E1(data/ <br> <i>Data processing</i>)
     E --> E2(models/ <br> <i>Model implementations</i>)
     E --> E3(utils/ <br> <i>Utility functions</i>)
-    E --> E4(experiments/ <br> <i>Model implementations</i>)
+    E --> E4(experiments/ <br> <i>Experiment scripts</i>)
     A --> F(tests/ <br> <i>Unit tests</i>)
     E1 --> G1(data_preparation.py)
     E2 --> G2(baseline_model.py)
-    E3 --> G3(mlflow_utls.py <br> visualisation_utils.py)
-    E4 --> G4(baseline_experiment.py <br> baseline_runs.py)
+    E3 --> G3(mlflow_utils.py <br> visualisation_utils.py)
+    E4 --> G4(prototype_baseline_experiment.py <br> baseline_runs.py <br> base_experiment.py)
 
 
 ```
