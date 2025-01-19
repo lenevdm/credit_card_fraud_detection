@@ -41,3 +41,16 @@ class BaseExperiment(ABC):
             self.experiment_id = mlflow.get_experiment_by_name(self.experiment_name).experiment_id
 
         mlflow.set_experiment(self.experiment_name)
+
+    @abstractmethod
+    def preprocess_data(self, data):
+        """
+        Apply any technique-specific preprocessing
+        Args:
+            data: Dictionary containing train/val/test splits
+        Returns:
+            Preprocessed data dictionary
+        """
+        pass
+
+    
