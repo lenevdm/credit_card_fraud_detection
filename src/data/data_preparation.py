@@ -18,15 +18,15 @@ class DataPreparation:
             'V7', 'V4', 'V16', 'V11'
         ]
         
-    def prepare_data(self, data_path):
+    def load_and_split_data(self, data_path):
         """
-        Load and prepare data for training
+        Load data and perform train/val/test split before resampling
         
         Args:
             data_path: Path to the creditcard.csv file
             
         Returns:
-            dict: Dictionary containing train, validation, and test splits
+            dict: Dictionary containing data splits and additional metadata
         """
         # Load the data
         print("Loading data...")
@@ -62,18 +62,28 @@ class DataPreparation:
         y_train = np.expand_dims(y_train.values, axis=1)
         y_val = np.expand_dims(y_val.values, axis=1)
         y_test = np.expand_dims(y_test.values, axis=1)
-        
+
+        # Calculate class distribution information
+        class_dist = {
+            'train': {
+                'total': len(y_train),
+                'fraud': (y_train == 1).sum(),
+                'non_fraud': (y_train == 0).sum()
+            },
+            'val': {
+                'total': len(y_val),
+                'fraud': (y_val == 1).sum(),
+                'non_fraud': (y_val == 0).sum()
+            },
+            'test': {
+                'total': len(y_test),
+                'fraud': (y_test == 1).sum(),
+                'non_fraud': (y_test == 0).sum()
+            }
+        }
+
         # Print data split information
-        print("\nData split information:")
-        print(f"Training set size: {X_train.shape[0]}")
-        print(f"Validation set size: {X_val.shape[0]}")
-        print(f"Test set size: {X_test.shape[0]}")
-        print(f"\nTraining set fraud distribution:")
-        print(f"Non-fraudulent: {(y_train == 0).sum()}")
-        print(f"Fraudulent: {(y_train == 1).sum()}")
-        print(f"\nFeature dimensionality: {X_train.shape[1]}")
-        print(f"Target shape: {y_train.shape}") # remove this?
-        print(f"Selected features: {', '.join(self.primary_features)}")
+        self._print_split_info(class_dist)
         
         return {
             'X_train': X_train,
@@ -81,5 +91,29 @@ class DataPreparation:
             'X_test': X_test,
             'y_train': y_train,
             'y_val': y_val,
-            'y_test': y_test
+            'y_test': y_test,
+            'class_distribution': class_dist,
+            'feature_names': self.primary_features,
+            'scaler': self.scaler # Include scaler for potential inverse transformations
         }
+    
+    def prepare_data(self, data_path):
+        """
+        Legacy method to maintain compatibility with existing code
+        """
+
+        return self.load_and_split_data(data_path)
+
+        
+    def _print_split_info(self, class_dist):    
+        print("\nData split information:")
+        print("-" * 40)
+        for split_name, dist in class_dist.items():
+            print(f"\n{split_name.captialize()} set:")
+            print(f"Total samples: {dist['total']}")
+            print(f"Non-fraudulent: {dist['non_fraud']}")
+            print(f"Fraudulent: {dist['fraud']}")
+            print(f"Fraud ratio: {dist['fraud']/dist['total']:.4&}")
+
+        print(f"\nFeature dimentionality: {len(self.primary_features)}")
+        print(f"Selected features: {','.join(self.primary_features)}")
