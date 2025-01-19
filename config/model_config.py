@@ -23,23 +23,3 @@ class ModelConfig:
     
     # Random seed for reproducibility
     RANDOM_SEED = 42
-    
-    # Experiment tracking
-    EXPERIMENT_NAME = "fraud_detection"
-    MODEL_VERSION = "v1.0"
-
-    # Multiple runs configuration
-    N_RUNS = 30  # Number of training runs - 30 runs are common in ML research
-    METRICS_OF_INTEREST = [   # Key metrics tracked across runs
-        'accuracy',
-        'precision',
-        'recall',
-        'f1_score',
-        'roc_auc',
-        'auprc'
-    ]
-    CONFIDENCE_LEVEL = 0.95 # For statistical intervals
-
-    # Visualization settings
-    SAVE_PLOTS = True  # Sets whether to save plots for each run or not
-    PLOT_FREQUENCY = 5  # Save plots every n epochs
