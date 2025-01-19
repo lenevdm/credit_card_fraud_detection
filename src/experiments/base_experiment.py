@@ -53,4 +53,106 @@ class BaseExperiment(ABC):
         """
         pass
 
+    def run_experiment(self, data_path):
+        """Run multiple training iterations and aggregate results"""
+
+        if not os.path.exists(data_path):
+            raise FileNotFoundError(f"Data file not found at: {data_path}")
+        
+        with ExperimentTracker(self.experiment_name) as tracker:
+            try:
+                # Log experiment parameters
+                self.log_experiment_params(tracker)
+
+                successful_runs = 0
+                failed_runs = []
+
+                # Run multiple iterations
+                for run in range(self.n_runs):
+                    print(f"\nStarting Run {run + 1}/{self.n_runs}")
+
+                    try:
+                        # Prepare fresh data split
+                        data = self.data_prep.prepare_data(data_path)
+
+                        # Apply technique specific preprocessing
+                        processed_data = self.preprocess_data(data)
+
+                        # Initialize model
+                        model = FraudDetectionModel()
+
+                        # Create MLflow callback if plot saving is enabled
+                        callbacks = []
+                        if ExperimentConfig.SAVE_PLOTS:
+                            callbacks.append(tracker.create_keras_callback())
+
+                        # Train model
+                        history = model.train(
+                            processed_data['X_train'],
+                            processed_data['y_train'],
+                            processed_data['X_val'],
+                            processed_data['y_val'],
+                            callbacks=callbacks
+                        )
+
+                        # Evaluate model
+                        metrics = model.evaluate(
+                            processed_data['X_test'],
+                            processed_data['y_test']
+                        )
+                        self.metrics_list.append(metrics)
+
+                        # Log individual run metrics
+                        run_metrics = {f"run_{run}_{k}": v for k, v in metrics.items()
+                                       if k != 'curves'}
+                        tracker.log_metrics(run_metrics)
+
+                        if ExperimentConfig.SAVE_PLOTS:
+                            tracker.log_visualization_artifacts(metrics)
+
+                        successful_runs += 1
+
+                    except Exception as e:
+                        failed_runs.append((run, str(e)))
+                        print(f"Run {run + 1} failed: {str(e)}")
+                        continue
+
+                    finally:
+                        # Clear memory
+                        if 'model' in locals():
+                            del model
+                        if 'processed_data' in locals():
+                            del processed_data
+                        gc.collect()
+
+                # Check there are enough successful runs
+                if successful_runs < self.n_runs * 0.5:
+                    raise RuntimeError(
+                        f"Too many failed runs. Only {successful_runs}/{self.n_runs} "
+                        f"completed successfully. Failed runs: {failed_runs}"
+                    )
+                
+                # Calculate and log aggregate metrics
+                if len(self.metrics_list) > 0:
+                    agg_metrics = self._aggregate_metrics()
+                    tracker.log_metrics(agg_metrics)
+
+                    # Log failed runs info
+                    if failed_runs:
+                        tracker.log_parameters({
+                            "failed_runs": str(failed_runs),
+                            "successful_runs": successful_runs
+                        })
+
+                    return agg_metrics
+                
+                raise RuntimeError("No successful runs completed")
+
+            except Exception as e:
+                print(f"Experiment failed: {str(e)}")
+                raise
+
     
+                
+
+
