@@ -80,7 +80,7 @@ class FraudDetectionModel:
         # Add learning rate scheduler (if enabled)
         if self.config.USE_LR_SCHEDULER:
             callbacks.append(
-                tf.keras.callbacks.ReduceLROnPlatue(
+                tf.keras.callbacks.ReduceLROnPlateau(
                     monitor='val_los',
                     factor=self.config.LR_FACTOR,
                     patience=self.config.LR_PATIENCE,
