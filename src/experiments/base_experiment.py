@@ -152,7 +152,50 @@ class BaseExperiment(ABC):
                 print(f"Experiment failed: {str(e)}")
                 raise
 
-    
+    def log_experiment_params(self, tracker):
+        """Log experiment-specific parameters"""
+        tracker.log_parameters({
+            "n_runs": self.n_runs,
+            "model_architecture": "MLP",
+            "input_dim": ModelConfig.INPUT_DIM,
+            "hidden_layers": ModelConfig.HIDDEN_LAYERS,
+            "confidence_level": ExperimentConfig.CONFIDENCE_LEVEL,
+            "metrics_tracked": ExperimentConfig.METRICS_OF_INTEREST
+        })
+
+    def _aggregate_metrics(self):
+        """Calculate aggregate statistics across all runs"""
+        # Extract scalar metrics
+        scalar_metrics = {}
+        for metrics in self.metrics_list:
+            for k, v in metrics.items():
+                if k != 'curves' and isinstance(v, (int, float)):
+                    if k not in scalar_metrics:
+                        scalar_metrics[k] =[]
+                    scalar_metrics[k].append(v)
+
+        # Calculate statistics
+        aggregated = {}
+        for metric, values in scalar_metrics.items():
+            values = np.array(values)
+            mean = np.mean(values)
+            std = np.std(values)
+
+            # Calculate confidence interval
+            ci = stats.t.interval(
+                ExperimentConfig.CONFIDENCE_LEVEL,
+                loc=mean,
+                scale=std/np.sqrt(len(values))
+            )
+
+            aggregated.update({
+                f"{metric}_mean": mean,
+                f"{metric}_std": std,
+                f"{metric}_ci_lower": ci[0],
+                f"{metric}_ci_upper": ci[1],
+            })
+
+        return aggregated
                 
 
 
