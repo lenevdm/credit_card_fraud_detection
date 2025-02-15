@@ -138,3 +138,28 @@ def plot_metric_distributions(metrics_list):
     
     plt.tight_layout()
     return fig
+
+def plot_resource_timeline(run_metrics):
+    """Plot timeline of resource usage during training"""
+
+    fig, ax1 = plt.subplots(figsize=(12,6))
+
+    # Training time on x-axis
+    times = np.arrange(len(run_metrics))
+    memory_usage = [m['peak_memory_usage'] for m in run_metrics]
+
+    # Plot memory usage
+    ax1.set_xlabel('Training Steps')
+    ax1.set_ylabel('Memory Usage (MB)', colour='tab:blue')
+    ax1.plot(times, memory_usage, color='tab:blue')
+    ax1.tick_params(axis='y', labelcolor= 'tab:blue')
+
+    # Create second y-axis for training time
+    ax2 = ax1.twinx()
+    training_times = [m['training_time'] for m in run_metrics]
+    ax2.set_ylabel('Training Time (s)', color='tab:orange')
+    ax2.plot(times, training_times, color='tab:orange')
+    ax2.tick_params(axis='y', labelcolor='tab:orange')
+
+    plt.title('Resource Usage Timeline')
+    return fig
