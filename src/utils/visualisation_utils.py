@@ -71,3 +71,36 @@ def plot_metric_curves(metrics_dict):
     )
     
     return pr_fig, roc_fig, cm_fig
+
+def plot_performance_resources(metrics_list):
+    """
+    Plot relationship between model performance and resource usage across multiple runs
+    """
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+    
+    # Extract metrics
+    memory_usage = [m['peak_memory_usage'] for m in metrics_list]
+    training_time = [m['training_time'] for m in metrics_list]
+    f1_scores = [m['f1_score'] for m in metrics_list]
+    g_means = [m['g_mean'] for m in metrics_list]
+    
+    # Memory usage vs performance
+    ax1.scatter(memory_usage, f1_scores, label='F1 Score', alpha=0.6)
+    ax1.scatter(memory_usage, g_means, label='G-Mean', alpha=0.6)
+    ax1.set_xlabel('Peak Memory Usage (MB)')
+    ax1.set_ylabel('Performance Metric')
+    ax1.set_title('Performance vs Memory Usage')
+    ax1.legend()
+    ax1.grid(True)
+    
+    # Training time vs performance
+    ax2.scatter(training_time, f1_scores, label='F1 Score', alpha=0.6)
+    ax2.scatter(training_time, g_means, label='G-Mean', alpha=0.6)
+    ax2.set_xlabel('Training Time (seconds)')
+    ax2.set_ylabel('Performance Metric')
+    ax2.set_title('Performance vs Training Time')
+    ax2.legend()
+    ax2.grid(True)
+    
+    plt.tight_layout()
+    return fig
