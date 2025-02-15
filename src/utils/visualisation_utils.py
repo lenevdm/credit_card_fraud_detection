@@ -3,6 +3,7 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+import pandas as pd
 
 def plot_pr_curve(precision, recall, auprc):
     """Plot Precision-Recall curve"""
@@ -73,9 +74,7 @@ def plot_metric_curves(metrics_dict):
     return pr_fig, roc_fig, cm_fig
 
 def plot_performance_resources(metrics_list):
-    """
-    Plot relationship between model performance and resource usage across multiple runs
-    """
+    """ Plot relationship between model performance and resource usage across multiple runs """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
     
     # Extract metrics
@@ -104,3 +103,21 @@ def plot_performance_resources(metrics_list):
     
     plt.tight_layout()
     return fig
+
+def plot_metric_correlations(metrics_list):
+    """Create a correlation heatmap of all metrics"""
+    
+    # Convert metrics list to dataframe
+    metrics_df = pd.DataFrame(metrics_list)
+
+    # Select numerical columns
+    numerical_metrics = metrics_df.select_dtypes(include=[np.number]).columns
+
+    # Calculate correlations
+    correlations = metrics_df[numerical_metrics].corr()
+
+    # Create heatmap
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlations, annot=True, ccmap='coolwarm', center=0, fmt='.2f', square=True)
+    plt.title('Metric Correlations')
+    return plt.gcf()
