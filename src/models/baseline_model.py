@@ -212,4 +212,6 @@ class FraudDetectionModel:
         print(f"False Negatives: {fn}")
         print(f"True Positives: {tp}")
             
-        return metrics_dict
+        run_metrics = metrics_dict
+
+        return run_metrics
