@@ -71,7 +71,15 @@ def plot_metric_curves(metrics_dict):
         metrics_dict['true_positives']
     )
     
-    return pr_fig, roc_fig, cm_fig
+    # New plots
+    additional_figs = {}
+    if metrics_list:
+        additional_figs['performance_resources'] = plot_performance_resources(metrics_list)
+        additional_figs['metric_correlations'] = plot_metric_correlations(metrics_list)
+        additional_figs['metric_distributions'] = plot_metric_distributions(metrics_list)
+        additional_figs['resource_timeline'] = plot_resource_timeline(metrics_list)
+    
+    return pr_fig, roc_fig, cm_fig, additional_figs
 
 def plot_performance_resources(metrics_list):
     """ Plot relationship between model performance and resource usage across multiple runs """
