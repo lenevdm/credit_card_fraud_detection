@@ -3,7 +3,7 @@ class ModelConfig:
     Configuration settings for the fraud detection model
     """
     # Network architecture
-    INPUT_DIM = 9 # Updated from 29 through feature selection process
+    INPUT_DIM = 10 # Updated from 29 through feature selection process
     HIDDEN_LAYERS = [64, 32, 16]
     DROPOUT_RATE = 0.3
     

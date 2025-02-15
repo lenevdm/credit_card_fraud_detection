@@ -14,7 +14,7 @@ class DataPreparation:
 
         # Define selected features based on dual analysis
         self.primary_features = [
-            'V14', 'V17', 'V12', 'V10', 'V3', 
+            'Time', 'V14', 'V17', 'V12', 'V10', 'V3', 
             'V7', 'V4', 'V16', 'V11'
         ]
         
@@ -36,7 +36,6 @@ class DataPreparation:
         print("Selecting features...")
         X = df[self.primary_features]
         y = df['Class']
-        # feature_columns = ['V%d' % i for i in range(1,29)] + ['Amount']
         
         # Scale the features
         print("Scaling features...")
