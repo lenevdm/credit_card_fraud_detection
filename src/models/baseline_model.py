@@ -113,14 +113,29 @@ class FraudDetectionModel:
             dict: Dictionary containing detailed evaluation metrics
         """
         import numpy as np
+        import time
+        import psutil
+        import math
         from sklearn.metrics import (classification_report, confusion_matrix, 
                                f1_score, average_precision_score, roc_auc_score,
-                               precision_recall_curve, roc_curve)
+                               precision_recall_curve, roc_curve, matthews_corrcoef)
         import matplotlib.pyplot as plt
+
+        # Start timing
+        start_time = time.time()
+        
+        # Get initial memory usage
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024  # in MB
     
         # Get model predictions
         y_pred_proba = self.model.predict(X_test, verbose=0)
         y_pred = (y_pred_proba > 0.5).astype(int)
+
+        # Get final memory usage
+        final_memory = psutil.Process().memory_info().rss / 1024 / 1024  # in MB
+        
+        # Calculate execution time
+        execution_time = time.time() - start_time
     
         # Calculate confusion matrix
         tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
@@ -138,6 +153,14 @@ class FraudDetectionModel:
         # Calculate PR and ROC curves
         pr_curve_precision, pr_curve_recall, pr_thresholds = precision_recall_curve(y_test, y_pred_proba)
         fpr, tpr, roc_thresholds = roc_curve(y_test, y_pred_proba)
+
+        # Calculate G-mean
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        g_mean = math.sqrt(sensitivity * specificity)
+        
+        # Calculate Matthews Correlation Coefficient
+        mcc = matthews_corrcoef(y_test, y_pred)
     
         # Store all metrics
         metrics_dict = {
@@ -151,6 +174,10 @@ class FraudDetectionModel:
             'true_negatives': tn,
             'false_positives': fp,
             'false_negatives': fn,
+            'g_mean': g_mean,
+            'mcc': mcc,
+            'training_time': execution_time,
+            'peak_memory_usage': final_memory - initial_memory,
             'curves': {
                 'pr': {
                     'precision': pr_curve_precision,
@@ -175,6 +202,10 @@ class FraudDetectionModel:
         print(f"ROC AUC: {roc_auc:.4f}")
         print(f"PR AUC: {auprc:.4f}")
         print("\nConfusion Matrix:")
+        print(f"G-Mean: {g_mean:.4f}")
+        print(f"Matthews Correlation Coefficient: {mcc:.4f}")
+        print(f"Training Time: {execution_time:.2f} seconds")
+        print(f"Peak Memory Usage: {final_memory - initial_memory:.2f} MB")
         print("-" * 40)
         print(f"True Negatives: {tn}")
         print(f"False Positives: {fp}")
