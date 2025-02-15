@@ -1,5 +1,6 @@
 """Utility functions for visualizing model performance metrics"""
 
+from typing import List, Dict
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
