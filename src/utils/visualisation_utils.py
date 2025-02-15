@@ -121,3 +121,20 @@ def plot_metric_correlations(metrics_list):
     sns.heatmap(correlations, annot=True, ccmap='coolwarm', center=0, fmt='.2f', square=True)
     plt.title('Metric Correlations')
     return plt.gcf()
+
+def plot_metric_distributions(metrics_list):
+    """ Plot distribution of performance metrics across runs """
+    metrics_of_interest = ['g_mean', 'mcc', 'f1_score', 'auprc']
+    
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    axes = axes.ravel()
+    
+    for idx, metric in enumerate(metrics_of_interest):
+        values = [m[metric] for m in metrics_list]
+        sns.histplot(values, kde=True, ax=axes[idx])
+        axes[idx].set_title(f'{metric.replace("_", " ").title()} Distribution')
+        axes[idx].set_xlabel('Value')
+        axes[idx].set_ylabel('Count')
+    
+    plt.tight_layout()
+    return fig
