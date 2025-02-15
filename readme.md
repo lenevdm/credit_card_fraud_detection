@@ -58,9 +58,14 @@ pip install -r requirements.txt
 mlflow ui
 ```
 
-2. Run baseline model:
+2. Run baseline experiment:
 ```bash
-python main.py
+python -m src.experiments.baseline_runs
+```
+
+3. Run other experiments:
+```bash
+python -m src.experiments.<experiment_file_name>
 ```
 
 View results at http://localhost:5000
