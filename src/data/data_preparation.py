@@ -14,7 +14,7 @@ class DataPreparation:
 
         # Define selected features based on dual analysis
         self.primary_features = [
-            'Time', 'V14', 'V17', 'V12', 'V10', 'V3', 
+            'V14', 'V17', 'V12', 'V10', 'V3', 
             'V7', 'V4', 'V16', 'V11'
         ]
         
@@ -108,11 +108,11 @@ class DataPreparation:
         print("\nData split information:")
         print("-" * 40)
         for split_name, dist in class_dist.items():
-            print(f"\n{split_name.captialize()} set:")
+            print(f"\n{split_name.capitalize()} set:")
             print(f"Total samples: {dist['total']}")
             print(f"Non-fraudulent: {dist['non_fraud']}")
             print(f"Fraudulent: {dist['fraud']}")
-            print(f"Fraud ratio: {dist['fraud']/dist['total']:.4&}")
+            print(f"Fraud ratio: {dist['fraud']/dist['total']:.4}")
 
         print(f"\nFeature dimentionality: {len(self.primary_features)}")
         print(f"Selected features: {','.join(self.primary_features)}")
