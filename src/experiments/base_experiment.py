@@ -42,6 +42,8 @@ class BaseExperiment(ABC):
 
         mlflow.set_experiment(self.experiment_name)
 
+        self.metrics_list = []
+
     @abstractmethod
     def preprocess_data(self, data):
         """
@@ -136,6 +138,9 @@ class BaseExperiment(ABC):
                 if len(self.metrics_list) > 0:
                     agg_metrics = self._aggregate_metrics()
                     tracker.log_metrics(agg_metrics)
+
+                    # Pass metrics_list to visualization
+                    tracker.log_visualization_artifacts(agg_metrics, self.metrics_list)
 
                     # Log failed runs info
                     if failed_runs:

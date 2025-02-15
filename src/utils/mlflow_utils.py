@@ -35,7 +35,11 @@ class ExperimentTracker:
         """Create and log visualization plots as artifacts"""
 
         # Generate plots
-        pr_fig, roc_fig, cm_fig, additional_figs = plot_metric_curves(metrics, metrics_list)
+        #pr_fig, roc_fig, cm_fig, additional_figs = plot_metric_curves(metrics, metrics_list)
+        pr_fig, roc_fig, cm_fig, additional_figs = plot_metric_curves(
+            metrics, 
+            metrics_list
+        )
 
         # Log each figure
         mlflow.log_figure(pr_fig, "precision_recall_curve.png")

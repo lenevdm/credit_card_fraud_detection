@@ -72,12 +72,14 @@ def plot_metric_curves(metrics_dict):
     )
     
     # New plots
-    additional_figs = {}
-    if metrics_list:
-        additional_figs['performance_resources'] = plot_performance_resources(metrics_list)
-        additional_figs['metric_correlations'] = plot_metric_correlations(metrics_list)
-        additional_figs['metric_distributions'] = plot_metric_distributions(metrics_list)
-        additional_figs['resource_timeline'] = plot_resource_timeline(metrics_list)
+    if metrics_list and len(metrics_list) > 0:
+        try:
+            additional_figs['performance_resources'] = plot_performance_resources(metrics_list)
+            additional_figs['metric_correlations'] = plot_metric_correlations(metrics_list)
+            additional_figs['metric_distributions'] = plot_metric_distributions(metrics_list)
+            additional_figs['resource_timeline'] = plot_resource_timeline(metrics_list)
+        except Exception as e:
+            print(f"Warning: Could not generate additional plots: {str(e)}")
     
     return pr_fig, roc_fig, cm_fig, additional_figs
 
