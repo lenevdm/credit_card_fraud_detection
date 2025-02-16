@@ -14,7 +14,7 @@ class SMOTEExperiment(BaseExperiment):
     Applies SMOTE oversampling to training data only.
     """
 
-    def __init__(self, n_runs: int = None)
+    def __init__(self, n_runs: int = None):
         """Initialize SMOTE experiment"""
         super().__init__(
             experiment_name=ExperimentConfig.SMOTE.NAME,
@@ -98,5 +98,24 @@ class SMOTEExperiment(BaseExperiment):
         super().log_experiment_params(tracker)
 
         tracker.log_parameters({
-            
+            'experiment_type': 'smote',
+            'smote_k_neighbors': ExperimentConfig.SMOTE.K_NEIGHBORS,
+            'data_modification': 'oversampling',
+            'class_balancing': 'smote'
         })
+
+def main():
+    """Run the SMOTE experiment"""
+
+    experiment = SMOTEExperiment()
+
+    try:
+        results = experiment.run_experiment("data/creditcard.csv")
+        experiment.print_results(results)
+
+    except Exception as e:
+        print(f"Experiment failed: {str(e)}")
+        raise 
+
+if __name__ == "__main__":
+    main()
