@@ -23,7 +23,7 @@ class ExperimentConfig:
 
     # Visualization settings
     SAVE_PLOTS = True
-    PLOT_FREQUENCY = 2
+    PLOT_FREQUENCY = 5
 
     # Method-specific configurations
     class SMOTE:

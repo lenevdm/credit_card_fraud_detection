@@ -113,9 +113,9 @@ class BaseExperiment(ABC):
                         # Log basic visualizations for individual run
                         if ExperimentConfig.SAVE_PLOTS:
                             tracker.log_visualization_artifacts(
-                                metrics,
-                                None,  # Don't pass metrics_list for individual runs
-                                f"run_{run}_"  # Add prefix for individual run artifacts
+                                metrics=metrics,
+                                metrics_list=None,  # Don't pass metrics_list for individual runs
+                                prefix=f"run_{run}_"  # Add prefix for individual run artifacts
                             )
 
                         successful_runs += 1
@@ -150,9 +150,9 @@ class BaseExperiment(ABC):
                         # Use the last run's metrics for curves, but full metrics_list for aggregated plots
                         final_metrics = self.metrics_list[-1].copy()
                         tracker.log_visualization_artifacts(
-                            final_metrics,
-                            self.metrics_list,
-                            "final_"  # Add prefix for final artifacts
+                            metrics=final_metrics,
+                            metrics_list=self.metrics_list,
+                            prefix="final_"  # Add prefix for final artifacts
                         )
 
                     # Log failed runs info

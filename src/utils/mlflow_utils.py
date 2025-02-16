@@ -27,7 +27,7 @@ class ExperimentTracker:
         except Exception as e:
             print(f"Warning: Error during metric logging: {str(e)}")
 
-    def log_visualization_artifacts(self, metrics: Dict[str, Any], metrics_list: Optional[List[Dict]] = None) -> None:
+    def log_visualization_artifacts(self, metrics: Dict[str, Any], metrics_list: Optional[List[Dict]] = None, prefix: str = "") -> None:
         """
         Create and log visualization plots as artifacts
         
@@ -36,7 +36,7 @@ class ExperimentTracker:
             metrics_list: Optional list of metrics from all runs
         """
         try:
-            # Add debugging info
+            # Add debugging information
             print("\nVisualization Artifact Logging Debug Info:")
             print("-" * 50)
             print(f"Metrics list provided: {metrics_list is not None}")
@@ -46,21 +46,21 @@ class ExperimentTracker:
                     print("First metrics entry keys:", list(metrics_list[0].keys()))
             print(f"Current metrics keys:", list(metrics.keys()))
             print("-" * 50)
-            
+
             # Generate plots
             pr_fig, roc_fig, cm_fig, additional_figs = plot_metric_curves(
                 metrics, 
                 metrics_list if metrics_list is not None else []
             )
 
-            # Log each figure
-            mlflow.log_figure(pr_fig, "precision_recall_curve.png")
-            mlflow.log_figure(roc_fig, "roc_curve.png")
-            mlflow.log_figure(cm_fig, "confusion_matrix.png")
+            # Log each figure with prefix
+            mlflow.log_figure(pr_fig, f"{prefix}precision_recall_curve.png")
+            mlflow.log_figure(roc_fig, f"{prefix}roc_curve.png")
+            mlflow.log_figure(cm_fig, f"{prefix}confusion_matrix.png")
             
             if additional_figs:
                 for name, fig in additional_figs.items():
-                    mlflow.log_figure(fig, f"{name}.png")
+                    mlflow.log_figure(fig, f"{prefix}{name}.png")
                     plt.close(fig)
 
             # Close main figures
@@ -70,7 +70,7 @@ class ExperimentTracker:
 
             # Log curve data as JSON for later reference
             if 'curves' in metrics:
-                mlflow.log_dict(metrics['curves'], "curve_data.json")
+                mlflow.log_dict(metrics['curves'], f"{prefix}curve_data.json")
                 
         except Exception as e:
             print(f"Warning: Error during visualization artifact logging: {str(e)}")
