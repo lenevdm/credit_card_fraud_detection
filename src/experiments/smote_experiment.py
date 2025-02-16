@@ -37,7 +37,7 @@ class SMOTEExperiment(BaseExperiment):
 
         # Initialize SMOTE
         smote = SMOTE(
-            n_neighbors=ExperimentConfig.SMOTE.K_NEIGHBORS,  # Changed from k_neighbors
+            k_neighbors=ExperimentConfig.SMOTE.K_NEIGHBORS, 
             random_state=ExperimentConfig.SMOTE.RANDOM_STATE,
             n_jobs=-1  # Add parallel processing
         )
@@ -58,7 +58,7 @@ class SMOTEExperiment(BaseExperiment):
         resampling_time = time.time() - start_time
 
         # Print resampling info
-        print("\Reampling Results:")
+        print("\nResampling Results:")
         print("-" * 40)
         print("Original class distribution:")
         print(f"Class 0 (Non-fraud): {original_dist[0]}")
