@@ -81,7 +81,7 @@ class FraudDetectionModel:
         if self.config.USE_LR_SCHEDULER:
             callbacks.append(
                 tf.keras.callbacks.ReduceLROnPlateau(
-                    monitor='val_los',
+                    monitor='val_loss',
                     factor=self.config.LR_FACTOR,
                     patience=self.config.LR_PATIENCE,
                     min_lr=1e-6,

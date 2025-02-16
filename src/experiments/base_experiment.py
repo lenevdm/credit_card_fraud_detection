@@ -26,7 +26,7 @@ class BaseExperiment(ABC):
         self.experiment_name = experiment_name
         self.n_runs = n_runs if n_runs is not None else ExperimentConfig.N_RUNS
         self.data_prep = DataPreparation()
-        self.metrics_list = []
+        self.metrics_list = []  # Initialize empty metrics list
 
         # Clean up existing runs
         mlflow.end_run()
@@ -185,10 +185,12 @@ class BaseExperiment(ABC):
             values = np.array(values)
             mean = np.mean(values)
             std = np.std(values)
+            n = len(values)
 
             # Calculate confidence interval
             ci = stats.t.interval(
                 ExperimentConfig.CONFIDENCE_LEVEL,
+                df=n-1,  # degrees of freedom = sample size - 1
                 loc=mean,
                 scale=std/np.sqrt(len(values))
             )

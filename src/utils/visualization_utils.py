@@ -1,15 +1,15 @@
 """Utility functions for visualizing model performance metrics"""
 
-from typing import List, Dict
+from typing import List, Dict, Tuple, Optional
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
 
-def plot_pr_curve(precision, recall, auprc):
+def plot_pr_curve(precision: np.ndarray, recall: np.ndarray, auprc: float) -> plt.Figure:
     """Plot Precision-Recall curve"""
     plt.figure(figsize=(10, 6))
-
+    
     # Calculate the no-skill baseline (proportion of positive class)
     no_skill_baseline = len([x for x in recall if x > 0]) / len(recall)
     
@@ -22,7 +22,7 @@ def plot_pr_curve(precision, recall, auprc):
     plt.legend()
     return plt.gcf()
 
-def plot_roc_curve(fpr, tpr, roc_auc):
+def plot_roc_curve(fpr: np.ndarray, tpr: np.ndarray, roc_auc: float) -> plt.Figure:
     """Plot ROC curve"""
     plt.figure(figsize=(10, 6))
     plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.3f})')
@@ -36,7 +36,7 @@ def plot_roc_curve(fpr, tpr, roc_auc):
     plt.grid(True)
     return plt.gcf()
 
-def plot_confusion_matrix(tn, fp, fn, tp):
+def plot_confusion_matrix(tn: int, fp: int, fn: int, tp: int) -> plt.Figure:
     """Plot confusion matrix heatmap"""
     plt.figure(figsize=(8, 6))
     cm = np.array([[tn, fp], [fn, tp]])
@@ -48,44 +48,8 @@ def plot_confusion_matrix(tn, fp, fn, tp):
     plt.ylabel('Actual')
     return plt.gcf()
 
-def plot_metric_curves(metrics_dict):
-    """Plot all relevant metric curves"""
-    # Create PR curve
-    pr_fig = plot_pr_curve(
-        metrics_dict['curves']['pr']['precision'],
-        metrics_dict['curves']['pr']['recall'],
-        metrics_dict['auprc']
-    )
-    
-    # Create ROC curve
-    roc_fig = plot_roc_curve(
-        metrics_dict['curves']['roc']['fpr'],
-        metrics_dict['curves']['roc']['tpr'],
-        metrics_dict['roc_auc']
-    )
-    
-    # Create confusion matrix
-    cm_fig = plot_confusion_matrix(
-        metrics_dict['true_negatives'],
-        metrics_dict['false_positives'],
-        metrics_dict['false_negatives'],
-        metrics_dict['true_positives']
-    )
-    
-    # New plots
-    if metrics_list and len(metrics_list) > 0:
-        try:
-            additional_figs['performance_resources'] = plot_performance_resources(metrics_list)
-            additional_figs['metric_correlations'] = plot_metric_correlations(metrics_list)
-            additional_figs['metric_distributions'] = plot_metric_distributions(metrics_list)
-            additional_figs['resource_timeline'] = plot_resource_timeline(metrics_list)
-        except Exception as e:
-            print(f"Warning: Could not generate additional plots: {str(e)}")
-    
-    return pr_fig, roc_fig, cm_fig, additional_figs
-
-def plot_performance_resources(metrics_list):
-    """ Plot relationship between model performance and resource usage across multiple runs """
+def plot_performance_resources(metrics_list: List[Dict]) -> plt.Figure:
+    """Plot relationship between model performance and resource usage across runs"""
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
     
     # Extract metrics
@@ -115,26 +79,19 @@ def plot_performance_resources(metrics_list):
     plt.tight_layout()
     return fig
 
-def plot_metric_correlations(metrics_list):
+def plot_metric_correlations(metrics_list: List[Dict]) -> plt.Figure:
     """Create a correlation heatmap of all metrics"""
-    
-    # Convert metrics list to dataframe
     metrics_df = pd.DataFrame(metrics_list)
-
-    # Select numerical columns
     numerical_metrics = metrics_df.select_dtypes(include=[np.number]).columns
-
-    # Calculate correlations
     correlations = metrics_df[numerical_metrics].corr()
 
-    # Create heatmap
     plt.figure(figsize=(12, 10))
-    sns.heatmap(correlations, annot=True, ccmap='coolwarm', center=0, fmt='.2f', square=True)
+    sns.heatmap(correlations, annot=True, cmap='coolwarm', center=0, fmt='.2f', square=True)
     plt.title('Metric Correlations')
     return plt.gcf()
 
-def plot_metric_distributions(metrics_list):
-    """ Plot distribution of performance metrics across runs """
+def plot_metric_distributions(metrics_list: List[Dict]) -> plt.Figure:
+    """Plot distribution of performance metrics across runs"""
     metrics_of_interest = ['g_mean', 'mcc', 'f1_score', 'auprc']
     
     fig, axes = plt.subplots(2, 2, figsize=(15, 10))
@@ -150,27 +107,77 @@ def plot_metric_distributions(metrics_list):
     plt.tight_layout()
     return fig
 
-def plot_resource_timeline(run_metrics):
+def plot_resource_timeline(metrics_list: List[Dict]) -> plt.Figure:
     """Plot timeline of resource usage during training"""
-
-    fig, ax1 = plt.subplots(figsize=(12,6))
-
-    # Training time on x-axis
-    times = np.arrange(len(run_metrics))
-    memory_usage = [m['peak_memory_usage'] for m in run_metrics]
-
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+    
+    # Create x-axis values
+    times = np.arange(len(metrics_list))
+    memory_usage = [m['peak_memory_usage'] for m in metrics_list]
+    
     # Plot memory usage
     ax1.set_xlabel('Training Steps')
-    ax1.set_ylabel('Memory Usage (MB)', colour='tab:blue')
+    ax1.set_ylabel('Memory Usage (MB)', color='tab:blue')
     ax1.plot(times, memory_usage, color='tab:blue')
-    ax1.tick_params(axis='y', labelcolor= 'tab:blue')
-
+    ax1.tick_params(axis='y', labelcolor='tab:blue')
+    
     # Create second y-axis for training time
     ax2 = ax1.twinx()
-    training_times = [m['training_time'] for m in run_metrics]
+    training_times = [m['training_time'] for m in metrics_list]
     ax2.set_ylabel('Training Time (s)', color='tab:orange')
     ax2.plot(times, training_times, color='tab:orange')
     ax2.tick_params(axis='y', labelcolor='tab:orange')
-
+    
     plt.title('Resource Usage Timeline')
     return fig
+
+def plot_metric_curves(metrics_dict: Dict, metrics_list: Optional[List[Dict]] = None) -> Tuple[plt.Figure, plt.Figure, plt.Figure, Dict[str, plt.Figure]]:
+    """Plot all relevant metric curves
+    
+    Args:
+        metrics_dict: Dictionary containing current run metrics
+        metrics_list: Optional list of metrics from all runs
+        
+    Returns:
+        Tuple containing:
+        - PR curve figure
+        - ROC curve figure
+        - Confusion matrix figure
+        - Dictionary of additional figures
+    """
+    # Initialize additional_figs dictionary
+    additional_figs = {}
+    
+    # Create PR curve
+    pr_fig = plot_pr_curve(
+        metrics_dict['curves']['pr']['precision'],
+        metrics_dict['curves']['pr']['recall'],
+        metrics_dict['auprc']
+    )
+    
+    # Create ROC curve
+    roc_fig = plot_roc_curve(
+        metrics_dict['curves']['roc']['fpr'],
+        metrics_dict['curves']['roc']['tpr'],
+        metrics_dict['roc_auc']
+    )
+    
+    # Create confusion matrix
+    cm_fig = plot_confusion_matrix(
+        metrics_dict['true_negatives'],
+        metrics_dict['false_positives'],
+        metrics_dict['false_negatives'],
+        metrics_dict['true_positives']
+    )
+    
+    # Only create additional plots if metrics_list is provided and not empty
+    if metrics_list and len(metrics_list) > 0:
+        try:
+            additional_figs['performance_resources'] = plot_performance_resources(metrics_list)
+            additional_figs['metric_correlations'] = plot_metric_correlations(metrics_list)
+            additional_figs['metric_distributions'] = plot_metric_distributions(metrics_list)
+            additional_figs['resource_timeline'] = plot_resource_timeline(metrics_list)
+        except Exception as e:
+            print(f"Warning: Could not generate additional plots: {str(e)}")
+    
+    return pr_fig, roc_fig, cm_fig, additional_figs
