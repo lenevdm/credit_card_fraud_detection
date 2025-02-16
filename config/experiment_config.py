@@ -14,12 +14,16 @@ class ExperimentConfig:
         'recall',
         'f1_score',
         'roc_auc',
-        'auprc'
+        'auprc',
+        'g_mean',
+        'mcc',
+        'training_time',
+        'peak_memory_usage'
     ]
 
     # Visualization settings
     SAVE_PLOTS = True
-    PLOT_FREQUENCY = 5
+    PLOT_FREQUENCY = 2
 
     # Method-specific configurations
     class SMOTE:
