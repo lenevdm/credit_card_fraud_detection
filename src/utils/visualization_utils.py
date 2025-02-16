@@ -147,6 +147,23 @@ def plot_metric_curves(metrics_dict: Dict, metrics_list: Optional[List[Dict]] = 
     """
     # Initialize additional_figs dictionary
     additional_figs = {}
+
+    # Debugging info
+    print("\nPlot Metric Curves Debug Info:")
+    print("-" * 50)
+    print(f"Metrics list status: {'Provided' if metrics_list else 'Not provided'}")
+    if metrics_list:
+        print(f"Metrics list length: {len(metrics_list)}")
+        if len(metrics_list) > 0:
+            required_metrics = ['peak_memory_usage', 'training_time', 'f1_score', 'g_mean', 
+                              'mcc', 'auprc']
+            available_metrics = list(metrics_list[0].keys())
+            print("Required metrics:", required_metrics)
+            print("Available metrics:", available_metrics)
+            missing_metrics = [m for m in required_metrics if m not in available_metrics]
+            if missing_metrics:
+                print("Missing required metrics:", missing_metrics)
+    print("-" * 50)
     
     # Create PR curve
     pr_fig = plot_pr_curve(
@@ -173,11 +190,19 @@ def plot_metric_curves(metrics_dict: Dict, metrics_list: Optional[List[Dict]] = 
     # Only create additional plots if metrics_list is provided and not empty
     if metrics_list and len(metrics_list) > 0:
         try:
+            print("\nAttempting to create additional plots...")
             additional_figs['performance_resources'] = plot_performance_resources(metrics_list)
+            print("Created performance_resources plot")
             additional_figs['metric_correlations'] = plot_metric_correlations(metrics_list)
+            print("Created metric_correlations plot")
             additional_figs['metric_distributions'] = plot_metric_distributions(metrics_list)
+            print("Created metric_distributions plot")
             additional_figs['resource_timeline'] = plot_resource_timeline(metrics_list)
+            print("Created resource_timeline plot")
         except Exception as e:
-            print(f"Warning: Could not generate additional plots: {str(e)}")
+            print(f"\nError creating additional plots:")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
+            print(f"Error occurred in: {e.__traceback__.tb_frame.f_code.co_name}")
     
     return pr_fig, roc_fig, cm_fig, additional_figs

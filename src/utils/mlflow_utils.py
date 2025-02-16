@@ -36,6 +36,17 @@ class ExperimentTracker:
             metrics_list: Optional list of metrics from all runs
         """
         try:
+            # Add debugging info
+            print("\nVisualization Artifact Logging Debug Info:")
+            print("-" * 50)
+            print(f"Metrics list provided: {metrics_list is not None}")
+            if metrics_list is not None:
+                print(f"Metrics list length: {len(metrics_list)}")
+                if len(metrics_list) > 0:
+                    print("First metrics entry keys:", list(metrics_list[0].keys()))
+            print(f"Current metrics keys:", list(metrics.keys()))
+            print("-" * 50)
+            
             # Generate plots
             pr_fig, roc_fig, cm_fig, additional_figs = plot_metric_curves(
                 metrics, 
