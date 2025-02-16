@@ -216,6 +216,42 @@ class BaseExperiment(ABC):
             })
 
         return aggregated
-                
 
+    def print_results(self, results: Dict[str, float]) -> None:
+        """
+        Print formatted results from the experiment
+
+        Args:
+            results: Dictionary containing aggregated metrics
+        """
+        print(f"\n{self._get_results_header()}")
+        print("-" * 40)
+
+        # Print core metrics with confidence intervals
+        metrics_to_display = ['accuracy', 'precision', 'recall', 'f1_score',
+        'roc_auc', 'auprc', 'g_mean', 'mcc'
+        ]
+
+        for metric in metrics_to_display:
+            print(f"\n{metric.upper()}:")
+            print(f"Mean: {results[f'{metric}_mean']:.4f}")
+            print(f"Std Dev: {results[f'{metric}_std']:.4f}")
+            print(f"95% CI: [{results[f'{metric}_ci_lower']:.4f}, "
+                f"{results[f'{metric}_ci_upper']:.4f}]")
+            
+        # Print resource usage
+        print("\nRESOURCE USAGE:")
+        print(f"Completed Runs: {len(self.metrics_list)}")
+        print(f"Expected Runs: {self.n_runs}")
+
+    def _get_results_header(self) -> str:
+        """
+        Get the header for results printing.
+        Can be overridden by child classes.
+
+        Returns:
+            str: Header string for results
+        """
+
+        return "Experiment Results"
 

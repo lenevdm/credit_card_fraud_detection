@@ -100,6 +100,10 @@ class BaselineExperimentFinal(BaseExperiment):
             print(f"Completed Runs: {len(self.metrics_list)}")
             print(f"Expected Runs: {self.n_runs}")
 
+    def _get_results_header(self) -> str:
+        """Override header for baseline results"""
+        return "Final Baseline Results"
+
 def main():
     """Run the final baseline experiment"""
     

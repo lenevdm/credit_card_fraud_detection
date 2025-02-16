@@ -37,8 +37,9 @@ class SMOTEExperiment(BaseExperiment):
 
         # Initialize SMOTE
         smote = SMOTE(
-            k_neighbors=ExperimentConfig.SMOTE.K_NEIGHBORS,
-            random_state=ExperimentConfig.SMOTE.RANDOM_STATE
+            n_neighbors=ExperimentConfig.SMOTE.K_NEIGHBORS,  # Changed from k_neighbors
+            random_state=ExperimentConfig.SMOTE.RANDOM_STATE,
+            n_jobs=-1  # Add parallel processing
         )
 
         # Get original class distribution
@@ -103,6 +104,10 @@ class SMOTEExperiment(BaseExperiment):
             'data_modification': 'oversampling',
             'class_balancing': 'smote'
         })
+
+    def _get_results_header(self) -> str:
+        """Override header for SMOTE results"""
+        return "SMOTE Experiment Results"
 
 def main():
     """Run the SMOTE experiment"""
