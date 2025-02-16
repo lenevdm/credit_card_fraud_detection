@@ -242,6 +242,11 @@ class BaseExperiment(ABC):
             
         # Print resource usage
         print("\nRESOURCE USAGE:")
+        print(f"Avg. Training Time: {results['training_time_mean']:.2f}s")
+        print(f"Avg. Peak Memory: {results['peak_memory_usage_mean']:.2f}MB")
+        
+        # Print run statistics
+        print("\nRUN STATISTICS:")
         print(f"Completed Runs: {len(self.metrics_list)}")
         print(f"Expected Runs: {self.n_runs}")
 
