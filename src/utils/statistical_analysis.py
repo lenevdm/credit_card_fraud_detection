@@ -56,6 +56,41 @@ def paired_t_test(
     )
 
 
-def compare_techniques():
-    return
+def compare_techniques(
+        technique1_name: str,
+        technique1_metrics: List[Dict[str, float]],
+        technique2_name: str,
+        technique2_metrics: List[Dict[str, float]],
+        metrics_of_interest: List[str]
+) -> Dict[str, Dict[str, float]]:
+    """
+    Compare two techniques across multiple metrics
+
+    Args:
+        technique1_name: Name of first technique
+        technique1_metrics: List of metric dictionaries from technique 1
+        technique2_name: Name of second technique
+        technique2_metrics: List of metric dictionaries from technique 2
+        metrics_of_interest: List of metrics to compare
+
+    Returns:
+        Dictionary of statistical comparisons for each metric
+    """
+
+    comparisons = {}
+
+    for metric in metrics_of_interest:
+        try:
+            comparison = paired_t_test(
+                technique1_metrics,
+                technique2_metrics,
+                metric
+            )
+            comparison[metric] = comparison
+        except KeyError:
+            print(f"Warning: Metric '{metric}' not found in both techniques")
+            continue
+
+    return comparisons
+    
 
