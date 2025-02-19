@@ -66,6 +66,12 @@ class SMOTEExperiment(BaseExperiment):
         # Get resampled class distribution
         resampled_dist = np.bincount(y_train_resampled)
 
+        # Add validation check here
+        if not 0.95 <= resampled_dist[0] / resampled_dist[1] <= 1.05:
+            raise ValueError(
+                f"SMOTE failed to achieve balanced classes. Final ratio: {resampled_dist[0] / resampled_dist[1]:.2f}:1"
+            )
+
          # Calculate detailed metadata
         resampling_time = time.time() - start_time
         peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
@@ -83,9 +89,16 @@ class SMOTEExperiment(BaseExperiment):
         # Print resampling info
         print("\nResampling Results:")
         print("-" * 40)
+        print(f"Original class distribution:")
+        print(f"Non-fraudulent: {original_dist[0]} ({original_dist[0]/sum(original_dist)*100:.2f}%)")
+        print(f"Fraudulent: {original_dist[1]} ({original_dist[1]/sum(original_dist)*100:.2f}%)")
         print(f"Original ratio: {original_dist[0]/original_dist[1]:.2f}:1")
-        print(f"Final ratio: {metadata['final_ratio']:.2f}:1")
-        print(f"Synthetic samples generated: {synthetic_samples}")
+        print(f"\nResampled class distribution:")
+        print(f"Non-fraudulent: {resampled_dist[0]} ({resampled_dist[0]/sum(resampled_dist)*100:.2f}%)")
+        print(f"Fraudulent: {resampled_dist[1]} ({resampled_dist[1]/sum(resampled_dist)*100:.2f}%)")
+        print(f"Final ratio: {resampled_dist[0]/resampled_dist[1]:.2f}:1")
+        print(f"\nPerformance metrics:")
+        print(f"Synthetic samples generated: {synthetic_samples:,}")
         print(f"Memory used: {peak_memory:.2f} MB")
         print(f"Time taken: {resampling_time:.2f} seconds")
 
