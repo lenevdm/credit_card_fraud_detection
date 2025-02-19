@@ -112,20 +112,35 @@ class SMOTEExperiment(BaseExperiment):
             }
         }
 
+        # Store current data for logging
+        self.current_data = processed_data
+
         return processed_data
     
     def log_experiment_params(self, tracker: Any) -> None:
         """
-        Log SMOTE-specific parameters
+        Log SMOTE-specific parameters and metadata
         """
         super().log_experiment_params(tracker)
 
+        # Log basic SMOTE config
         tracker.log_parameters({
             'experiment_type': 'smote',
             'smote_k_neighbors': ExperimentConfig.SMOTE.K_NEIGHBORS,
             'data_modification': 'oversampling',
             'class_balancing': 'smote'
         })
+
+        # Log resampling metadata
+        if hasattr(self, 'current_data') and 'resampling_metadata' in self.current_data:
+            metadata = self.current_data['resampling_metadata']
+            tracker.log_parameters({
+                'original_class_ratio': metadata['original_distribution'][0] / metadata['original_distribution'][1],
+                'final_class_ratio': metadata['final_ratio'],
+                'synthetic_samples_count': metadata['synthetic_samples_generated'],
+                'resampling_memory_mb': f"{metadata['peak_memory_usage']:.2f}",
+                'resampling_time_seconds': f"{metadata['resampling_time']:.2f}"
+            })
 
     def _get_results_header(self) -> str:
         """Override header for SMOTE results"""
