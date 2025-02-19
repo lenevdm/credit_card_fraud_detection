@@ -5,6 +5,7 @@ import time
 from imblearn.over_sampling import SMOTE
 import numpy as np
 import psutil
+import warnings
 
 from src.experiments.base_experiment import BaseExperiment
 from config.experiment_config import ExperimentConfig
@@ -33,6 +34,10 @@ class SMOTEExperiment(BaseExperiment):
             Dictionary with resampled training data and original val/test data
         
         """
+         # Suppress specific warnings
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', category=FutureWarning)
+        
         print("\nApplying SMOTE oversampling...")
         start_time = time.time()
 
