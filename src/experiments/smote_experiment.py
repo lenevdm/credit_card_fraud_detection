@@ -10,6 +10,9 @@ import warnings
 from src.experiments.base_experiment import BaseExperiment
 from config.experiment_config import ExperimentConfig
 
+warnings.filterwarnings('ignore', category=FutureWarning, module='sklearn')
+warnings.filterwarnings('ignore', category=FutureWarning, module='imblearn')
+
 class SMOTEExperiment(BaseExperiment):
     """
     SMOTE-based experiment implemenation
