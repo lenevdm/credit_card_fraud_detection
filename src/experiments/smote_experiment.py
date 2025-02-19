@@ -4,6 +4,7 @@ from typing import Dict, Any
 import time
 from imblearn.over_sampling import SMOTE
 import numpy as np
+import psutil
 
 from src.experiments.base_experiment import BaseExperiment
 from config.experiment_config import ExperimentConfig
@@ -35,6 +36,13 @@ class SMOTEExperiment(BaseExperiment):
         print("\nApplying SMOTE oversampling...")
         start_time = time.time()
 
+        # Add validation of input data
+        if np.isnan(data['X_train']).any():
+            raise ValueError("Input data contains NaN values")
+        
+        # Store initial memory usage
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
         # Initialize SMOTE
         smote = SMOTE(
             k_neighbors=ExperimentConfig.SMOTE.K_NEIGHBORS, 
@@ -51,24 +59,35 @@ class SMOTEExperiment(BaseExperiment):
             data['y_train'].ravel()
         )
 
+        # Validate resampled data
+        if np.isnan(X_train_resampled).any():
+            raise ValueError("SMOTE produced NaN values")
+
         # Get resampled class distribution
         resampled_dist = np.bincount(y_train_resampled)
 
-        # Calculate resampling time
+         # Calculate detailed metadata
         resampling_time = time.time() - start_time
+        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
+        synthetic_samples = len(y_train_resampled) - len(data['y_train'])
+        
+        metadata = {
+            'original_distribution': original_dist.tolist(),
+            'resampled_distribution': resampled_dist.tolist(),
+            'resampling_time': resampling_time,
+            'peak_memory_usage': peak_memory,
+            'synthetic_samples_generated': synthetic_samples,
+            'final_ratio': resampled_dist[0] / resampled_dist[1]
+        }
 
         # Print resampling info
         print("\nResampling Results:")
         print("-" * 40)
-        print("Original class distribution:")
-        print(f"Class 0 (Non-fraud): {original_dist[0]}")
-        print(f"Class 1 (Fraud): {original_dist[1]}")
-        print(f"Imbalance ratio: {original_dist[0]/original_dist[1]:.2f}:1")
-
-        print("\nResampled class distribution:")
-        print(f"Class 0 (Non-fraud): {resampled_dist[0]}")
-        print(f"Class 1 (Fraud): {resampled_dist[1]} ")
-        print(f"Imbalanced ratio: {resampled_dist[0]/resampled_dist[1]:.2f}:1")
+        print(f"Original ratio: {original_dist[0]/original_dist[1]:.2f}:1")
+        print(f"Final ratio: {metadata['final_ratio']:.2f}:1")
+        print(f"Synthetic samples generated: {synthetic_samples}")
+        print(f"Memory used: {peak_memory:.2f} MB")
+        print(f"Time taken: {resampling_time:.2f} seconds")
 
         print(f"\nResampling completed in {resampling_time:.2f} seconds")
 
@@ -86,7 +105,10 @@ class SMOTEExperiment(BaseExperiment):
             'resampling_metadata': {
                 'original_distribution': original_dist.tolist(),
                 'resampled_distribution': resampled_dist.tolist(),
-                'resampling_time': resampling_time
+                'resampling_time': resampling_time,
+                'peak_memory_usage': peak_memory,
+                'synthetic_samples_generated': synthetic_samples,
+                'final_ratio': resampled_dist[0] / resampled_dist[1]
             }
         }
 
