@@ -218,6 +218,20 @@ class BaseExperiment(ABC):
 
         return aggregated
 
+    def _calculate_confidence_interval(self, values, mean, std):
+        """Calculate confidence interval with handling for zero std dev"""
+        if std == 0:
+            return mean, mean  # Return mean for both bounds when std dev is 0
+        n = len(values)
+        ci = stats.t.interval(
+            ExperimentConfig.CONFIDENCE_LEVEL,
+            df=n-1,
+            loc=mean,
+            scale=std/np.sqrt(n)
+        )
+        return ci
+
+    
     def print_results(self, results: Dict[str, float]) -> None:
         """
         Print formatted results from the experiment
