@@ -12,6 +12,7 @@ from src.data.data_preparation import DataPreparation
 from src.utils.mlflow_utils import ExperimentTracker
 from config.model_config import ModelConfig
 from config.experiment_config import ExperimentConfig
+from src.utils.statistical_analysis import compare_techniques
 
 class BaseExperiment(ABC):
     """Abstract base class for fraud detection experiments"""
@@ -230,6 +231,36 @@ class BaseExperiment(ABC):
             scale=std/np.sqrt(n)
         )
         return ci
+    
+    def compare_with(
+            self,
+            other_experiment: 'BaseExperiment',
+            metrics_of_interest: Optional[List[str]] = None
+    ) -> Dict[str, Dict[str, float]]:
+        """
+        Statistically compare this experiment with another experiment
+
+        Args:
+            other_experiment: Another BaseExperiment instance to compare against
+            metrics_of_interest: Optional list of metrics to compare.
+            If None, use ExperimentConfig.METRICS_OF_INTEREST
+
+        Returns:
+            Dictionary of statistical comparisons for each metric
+        """
+        if not metrics_of_interest:
+            metrics_of_interest = ExperimentConfig.METRICS_OF_INTEREST
+
+        if not hasattr(self, 'metrics_list') or not hasattr(other_experiment, 'metrics_list'):
+            raise ValueError("Both experiments must have completed runs with metrics_list")
+        
+        return compare_techniques(
+            self.__class__.__name__,
+            self.metrics_list,
+            other_experiment.__class__.__name__,
+            other_experiment.metrics_list,
+            metrics_of_interest
+        )
 
     
     def print_results(self, results: Dict[str, float]) -> None:
