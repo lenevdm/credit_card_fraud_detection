@@ -1,4 +1,4 @@
-"""MLflow experiment tracking wrapper"""
+"""MLflow experiment tracking wrapper with enhanced storage and retrieval"""
 import mlflow
 from typing import Dict, Any, Optional, List
 import tensorflow as tf
@@ -11,6 +11,30 @@ class ExperimentTracker:
     def __init__(self, experiment_name: str):
         self.experiment_name = experiment_name
         
+    def log_complete_results(self, results: Dict[str, Any], run_id: Optional[str] = None) -> None:
+        """
+        Log complete results including all metrics and metadata
+
+        Args:
+            results: Complete results dictionary
+            run_id: Optional run identifier
+        """
+        # Store complete rusults as json artifacts
+        results_for_storage = {
+            k: v for k, v in results.items()
+            if k != 'curves' # handle curves separately
+        }
+
+        mlflow.log_dict(results_for_storage, "complete_results.json")
+
+        # Store curves data separately if present
+        if 'curves' in results:
+            mlflow.log_dict(results['curves'], "curves_data.json")
+
+        # Log technique metadata
+        if 'technique_metadata' in results:
+            mlflow.log_dict(results['technique_metadata'], "technique_metadata.json")
+    
     def log_parameters(self, params: Dict[str, Any]) -> None:
         """Log multiple parameters to MLflow"""
         for key, value in params.items():
