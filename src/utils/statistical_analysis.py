@@ -53,7 +53,7 @@ def paired_t_test(
         alpha: float = 0.05
 ) -> Dict[str, float]:
     """
-    Perform paired t-test between two techniques' performance metrics.
+    Perform paired t-test between two techniques' performance metrics. Enhanced with effect size.
 
     Args:
         technique1_metrics: List of metric dictionaries from first technique
@@ -82,7 +82,8 @@ def paired_t_test(
 
 
     # Calculate differences
-    differences = np.array(values1) - np.array(values2)
+    #differences = np.array(values1) - np.array(values2)
+    differences = values1 - values2
 
     # Perform paired t-test
     t_stat, p_value = stats.ttest_rel(values1, values2)
@@ -96,6 +97,50 @@ def paired_t_test(
         scale=stats.sem(differences)
     )
 
+    # Calculate effect size
+    d = cohens_d(values1, values2)
+    effect_size_interp = interpret_cohens_d(d)
+
+    return {
+        't_statistic': t_stat,
+        'p_value': p_value,
+        'mean_difference': mean_diff,
+        'ci_lower': ci[0],
+        'ci_upper': ci[1],
+        'cohens_d': d,
+        'effect_size': effect_size_interp,
+        'is_significant': p_value < alpha
+    }
+
+
+def adjust_pvalues(comparisons: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
+    """
+    Apply multiple comparison correction (Benjamini-Hochberg)
+
+    Args:
+        comparisons: Dictionary of comparison results
+
+    Returns: 
+        Dictionary with adjusted p-values
+    """
+    # Extract p-values
+    metrics = [m for m in comparisons.keys()]
+    pvalues = [comparisons[m]['p_value'] for m in metrics]
+
+    # Apply correction
+    rejected, pvals_corrected, _, _ = multipletests(
+        pvalues,
+        alpha=0.05,
+        method='fdr_bh' 
+    )
+
+    # Update results
+    adjusted_comparisons = comparisons.copy()
+    for i, metric in enumerate(metrics):
+        adjusted_comparisons[metric]['p_value_adjusted'] = pvals_corrected[i]
+        adjusted_comparisons[metric]['is_significant'] = rejected[i]
+
+    return adjusted_comparisons
 
 def compare_techniques(
         technique1_name: str,
@@ -105,7 +150,8 @@ def compare_techniques(
         metrics_of_interest: List[str]
 ) -> Dict[str, Dict[str, float]]:
     """
-    Compare two techniques across multiple metrics
+    Compare two techniques across multiple metrics. Enhanced technique comparison with 
+    effect sizes and multiple comparison correction
 
     Args:
         technique1_name: Name of first technique
