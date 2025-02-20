@@ -12,6 +12,29 @@ class ExperimentTracker:
     def __init__(self, experiment_name: str):
         self.experiment_name = experiment_name
         
+    def validate_results(self, results: Dict[str, Any]) -> bool:
+        """
+        Validate results structure before storage
+
+        Args:
+            results: Results dictionary to validate
+
+        Returns:
+            bool: True if valid, raises ValueError if invalid
+        """
+        required_metrics = [
+            'accuracy', 'precision', 'recall', 'f1_score',
+        'roc_auc', 'auprc', 'g_mean', 'mcc'
+        ]
+
+        for metric in required_metrics:
+            if f"{metric}_mean" not in results:
+                raise ValueError(f"Missing required metric: {metric}_mean")
+            if f"{metric}_std" not in results:
+                raise ValueError(f"Misssing required metric: {metric}_std")
+            
+        return True
+    
     def log_complete_results(self, results: Dict[str, Any], run_id: Optional[str] = None) -> None:
         """
         Log complete results including all metrics and metadata
