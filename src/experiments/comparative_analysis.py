@@ -6,6 +6,29 @@ import mlflow
 from src.experiments.base_runs_final import BaselineExperimentFinal
 from src.experiments.smote_experiment import SMOTEExperiment
 from config.experiment_config import ExperimentConfig
+from src.utils.mlflow_utils import ExperimentTracker
+
+def load_technique_results(technique_names: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Load results for multiple techniques
+
+    Args: 
+        technique_names: List of technique names to load results for
+
+    Returns:
+        Dictionary mapping technique names to their results
+    """
+    tracker = ExperimentTracker("comparative_analysis")
+    results = {}
+
+    for technique in technique_names:
+        try:
+            technique_results = tracker.get_results_for_techniques(technique)
+            results[technique] = technique_results
+        except Exception as e:
+            print(f"Warning: Could not load results for {technique}: {str(e)}")
+
+    return results
 
 def run_comparative_analysis(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
     """
