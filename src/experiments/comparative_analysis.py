@@ -1,96 +1,160 @@
 """Script for running and comparing different fraud detection techniques"""
 
 import os
-from typing import Dict, Any
+from typing import Dict, Any, List
 import mlflow
+import pandas as pd
 from src.experiments.base_runs_final import BaselineExperimentFinal
 from src.experiments.smote_experiment import SMOTEExperiment
 from config.experiment_config import ExperimentConfig
-from src.utils.mlflow_utils import ExperimentTracker
+from src.utils.statistical_analysis import format_comparison_results
 
-def load_technique_results(technique_names: List[str]) -> Dict[str, List[Dict[str, Any]]]:
+def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
     """
-    Load results for multiple techniques
-
-    Args: 
-        technique_names: List of technique names to load results for
-
-    Returns:
-        Dictionary mapping technique names to their results
-    """
-    tracker = ExperimentTracker("comparative_analysis")
-    results = {}
-
-    for technique in technique_names:
-        try:
-            technique_results = tracker.get_results_for_techniques(technique)
-            results[technique] = technique_results
-        except Exception as e:
-            print(f"Warning: Could not load results for {technique}: {str(e)}")
-
-    return results
-
-def run_comparative_analysis(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
-    """
-    Run and compare baseline and SMOTE experiments
+    Run multiple fraud detection techniques
     
     Args:
         data_path: Path to the credit card fraud dataset
         
     Returns:
-        Dictionary containing comparative analysis results
+        Dictionary containing results for each technique
     """
-    # Verify data file exists
     if not os.path.exists(data_path):
         raise FileNotFoundError(f"Data file not found at: {data_path}")
     
+    # Initialize experiments
+    experiments = {
+        'baseline': BaselineExperimentFinal(),
+        'smote': SMOTEExperiment()
+    }
+    
+    results = {}
+    
+    for name, experiment in experiments.items():
+        print(f"\nRunning {name.upper()} Experiment...")
+        try:
+            experiment_results = experiment.run_experiment(data_path)
+            results[name] = {
+                'experiment': experiment,
+                'results': experiment_results
+            }
+            print(f"\n{name.upper()} Results:")
+            experiment.print_results(experiment_results)
+        except Exception as e:
+            print(f"Error running {name} experiment: {str(e)}")
+            raise
+            
+    return results
+
+def analyze_technique_comparisons(
+    experiment_results: Dict[str, Dict[str, Any]]
+) -> Dict[str, Any]:
+    """
+    Perform statistical analysis comparing techniques
+    
+    Args:
+        experiment_results: Dictionary of results from different techniques
+        
+    Returns:
+        Dictionary containing comparison analyses
+    """
+    comparisons = {}
+    techniques = list(experiment_results.keys())
+    
+    # Compare each pair of techniques
+    for i in range(len(techniques)):
+        for j in range(i + 1, len(techniques)):
+            technique1 = techniques[i]
+            technique2 = techniques[j]
+            
+            # Get experiments
+            exp1 = experiment_results[technique1]['experiment']
+            exp2 = experiment_results[technique2]['experiment']
+            
+            # Perform comparison
+            comparison = exp1.compare_with(exp2)
+            
+            # Store comparison results
+            comparison_key = f"{technique1}_vs_{technique2}"
+            comparisons[comparison_key] = comparison
+            
+            # Print formatted results
+            print(format_comparison_results(comparison))
+            
+    return comparisons
+
+def generate_summary_table(
+    experiment_results: Dict[str, Dict[str, Any]]
+) -> pd.DataFrame:
+    """
+    Generate summary table of all techniques' performance
+    
+    Args:
+        experiment_results: Dictionary of results from different techniques
+        
+    Returns:
+        DataFrame containing summary statistics
+    """
+    summary_data = []
+    
+    for technique, data in experiment_results.items():
+        results = data['results']
+        
+        # Extract key metrics
+        metrics = {
+            'Technique': technique.upper(),
+            'Accuracy': f"{results['accuracy_mean']:.4f} ± {results['accuracy_std']:.4f}",
+            'Precision': f"{results['precision_mean']:.4f} ± {results['precision_std']:.4f}",
+            'Recall': f"{results['recall_mean']:.4f} ± {results['recall_std']:.4f}",
+            'F1 Score': f"{results['f1_score_mean']:.4f} ± {results['f1_score_std']:.4f}",
+            'ROC AUC': f"{results['roc_auc_mean']:.4f} ± {results['roc_auc_std']:.4f}",
+            'PR AUC': f"{results['auprc_mean']:.4f} ± {results['auprc_std']:.4f}",
+            'G-Mean': f"{results['g_mean_mean']:.4f} ± {results['g_mean_std']:.4f}",
+            'MCC': f"{results['mcc_mean']:.4f} ± {results['mcc_std']:.4f}",
+            'Training Time (s)': f"{results['training_time_mean']:.2f}",
+            'Memory Usage (MB)': f"{results['peak_memory_usage_mean']:.2f}"
+        }
+        
+        summary_data.append(metrics)
+    
+    return pd.DataFrame(summary_data)
+
+def run_comparative_analysis(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
+    """
+    Run complete comparative analysis of fraud detection techniques
+    
+    Args:
+        data_path: Path to the credit card fraud dataset
+        
+    Returns:
+        Dictionary containing all analysis results
+    """
     print("\nStarting Comparative Analysis")
     print("=" * 50)
     
-    # Initialize experiments
-    baseline_exp = BaselineExperimentFinal()
-    smote_exp = SMOTEExperiment()
-    
-    # Run baseline experiment
-    print("\nRunning Baseline Experiment...")
-    baseline_results = baseline_exp.run_experiment(data_path)
-    print("\nBaseline Results:")
-    baseline_exp.print_results(baseline_results)
-    
-    # Run SMOTE experiment
-    print("\nRunning SMOTE Experiment...")
-    smote_results = smote_exp.run_experiment(data_path)
-    print("\nSMOTE Results:")
-    smote_exp.print_results(smote_results)
-    
-    # Perform statistical comparison
-    print("\nPerforming Statistical Analysis...")
-    comparison = baseline_exp.compare_with(smote_exp)
-    
-    # Print comparative results
-    print("\nComparative Analysis Results")
-    print("=" * 50)
-    
-    metrics_to_display = [
-        'accuracy', 'precision', 'recall', 'f1_score',
-        'roc_auc', 'auprc', 'g_mean', 'mcc'
-    ]
-    
-    for metric in metrics_to_display:
-        if metric in comparison:
-            stats = comparison[metric]
-            print(f"\n{metric.upper()}:")
-            print(f"Mean difference (SMOTE - Baseline): {stats['mean_difference']:.4f}")
-            print(f"95% CI: [{stats['ci_lower']:.4f}, {stats['ci_upper']:.4f}]")
-            print(f"p-value: {stats['p_value']:.4f}")
-            if stats['is_significant']:
-                print("* Difference is statistically significant")
-    
-    return {
-        'baseline_results': baseline_results,
-        'smote_results': smote_results,
-        'comparison': comparison
-    }
+    try:
+        # Run all techniques
+        results = run_multiple_techniques(data_path)
+        
+        # Perform statistical comparisons
+        print("\nPerforming Statistical Analysis...")
+        comparisons = analyze_technique_comparisons(results)
+        
+        # Generate summary table
+        print("\nGenerating Summary Table...")
+        summary_table = generate_summary_table(results)
+        print("\nSummary of All Techniques:")
+        print(summary_table.to_string(index=False))
+        
+        return {
+            'results': results,
+            'comparisons': comparisons,
+            'summary_table': summary_table
+        }
+        
+    except Exception as e:
+        print(f"\nError during comparative analysis: {str(e)}")
+        raise
 
 def main():
     """Main entry point for comparative analysis"""
@@ -98,8 +162,8 @@ def main():
         # End any existing MLflow runs
         mlflow.end_run()
         
-        # Run comparative analysis
-        results = run_comparative_analysis()
+        # Run complete analysis
+        analysis_results = run_comparative_analysis()
         
         print("\nComparative analysis completed successfully!")
         

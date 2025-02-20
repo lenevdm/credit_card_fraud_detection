@@ -2,7 +2,7 @@
 
 import numpy as np
 from scipy import stats
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Tuple, Optional, Union, Any
 import pandas as pd
 from statsmodels.stats.multitest import multipletests 
 
@@ -189,5 +189,33 @@ def compare_techniques(
         'comparisons': adjusted_comparisons
     }
 
+def format_comparison_results(comparison_results: Dict[str, Any]) -> str:
+    """
+    Format comparison results for output
     
+    Args:
+        comparison_results: Results from compare_techniques
+        
+    Returns:
+        str: Formatted results string
+    """
+    technique1 = comparison_results['technique_names']['technique1']
+    technique2 = comparison_results['technique_names']['technique2']
+    
+    output = [
+        f"\nComparison Results: {technique1} vs {technique2}",
+        "=" * 50
+    ]
+    
+    for metric, results in comparison_results['comparisons'].items():
+        output.extend([
+            f"\n{metric.upper()}:",
+            f"Mean difference ({technique2} - {technique1}): {results['mean_difference']:.4f}",
+            f"95% CI: [{results['ci_lower']:.4f}, {results['ci_upper']:.4f}]",
+            f"Effect size: {results['effect_size']} (d = {results['cohens_d']:.3f})",
+            f"p-value: {results['p_value']:.4f} (adjusted: {results['p_value_adjusted']:.4f})",
+            "* Statistically significant (after correction)" if results['is_significant'] else ""
+        ])
+    
+    return "\n".join(output)    
 
