@@ -163,7 +163,6 @@ def compare_techniques(
     Returns:
         Dictionary of statistical comparisons for each metric
     """
-
     comparisons = {}
 
     for metric in metrics_of_interest:
@@ -178,6 +177,17 @@ def compare_techniques(
             print(f"Warning: Metric '{metric}' not found in both techniques")
             continue
 
-    return comparisons
+    # Apply multiple comparison correction
+    adjusted_comparisons = adjust_pvalues(comparisons)
+
+    # Add technique names to results
+    return{
+        'technique_names': {
+            'technique1': technique1_name,
+            'technique2': technique2_name
+        },
+        'comparisons': adjusted_comparisons
+    }
+
     
 
