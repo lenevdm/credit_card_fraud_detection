@@ -1,6 +1,7 @@
 """MLflow experiment tracking wrapper with enhanced storage and retrieval"""
 import mlflow
 from typing import Dict, Any, Optional, List
+import mlflow.tracking
 import tensorflow as tf
 import matplotlib.pyplot as plt
 from src.utils.visualization_utils import plot_metric_curves
@@ -73,7 +74,28 @@ class ExperimentTracker:
                 print(f"Warning: Could not load results for run {run.info.run_id}: {str(e)}")
 
         return all_results
+    
+    def get_run_metadata(self, run_id: str) -> Dict[str, Any]:
+        """
+        Get metadata for a specific run
 
+        Args:
+            run_id: MLflow run ID
+
+        Returns: 
+            Dictionary containing run metadata
+        """
+        client = mlflow.tracking.MlflowClient()
+        run = client.get_run(run_id)
+
+        return {
+            'run_id': run.info.run_id,
+            'start_time': run.info.start_time,
+            'end_time': run.info.end_time,
+            'status': run.info.status,
+            'parameters': run.data.params,
+            'metrics': run.data.metrics
+        }
     
     def log_parameters(self, params: Dict[str, Any]) -> None:
         """Log multiple parameters to MLflow"""
