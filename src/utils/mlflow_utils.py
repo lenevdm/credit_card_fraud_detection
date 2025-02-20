@@ -43,6 +43,13 @@ class ExperimentTracker:
             results: Complete results dictionary
             run_id: Optional run identifier
         """
+        try:
+            self.validate_results(results)
+            # ... (rest of existing method)
+        except ValueError as e:
+            print(f"Error validating results: {str(e)}")
+            raise
+        
         # Store complete rusults as json artifacts
         results_for_storage = {
             k: v for k, v in results.items()
