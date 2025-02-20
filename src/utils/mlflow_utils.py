@@ -34,6 +34,46 @@ class ExperimentTracker:
         # Log technique metadata
         if 'technique_metadata' in results:
             mlflow.log_dict(results['technique_metadata'], "technique_metadata.json")
+
+    def get_results_for_techniques(self, technique_name: str) -> List[Dict[str, Any]]:
+        """
+        Retrieve all results for a specific technique
+
+        Args:
+            technique_name: Name of the specific technique
+
+        Returns:
+            List of result dictionaries for the technique
+        """
+        client = mlflow.tracking.MlflowClient()
+        experiment = client.get_experiment_by_name(technique_name)
+
+        if not experiment:
+            raise ValueError(f"No experiment found for technique: {technique_name}")
+        
+        all_results = []
+        runs = client.search_runs(
+            experiment_ids=[experiment.experiment_id],
+            order_by=["start_time DESC"]
+        )
+
+        for run in runs:
+            try:
+                # Get complete results from artifacts
+                results_path = client.download_artifacts(run.info.run_id, "complete_results.json")
+                with open(results_path, 'r') as f:
+                    results = json.load(f)
+
+                # Add run metadata
+                results['run_id'] = run.info.run_id
+                results['start_time'] = run.info.start_time
+
+                all_results.append(results)
+            except Exception as e:
+                print(f"Warning: Could not load results for run {run.info.run_id}: {str(e)}")
+
+        return all_results
+
     
     def log_parameters(self, params: Dict[str, Any]) -> None:
         """Log multiple parameters to MLflow"""
