@@ -173,14 +173,21 @@ class BaseExperiment(ABC):
                 raise
 
     def log_experiment_params(self, tracker):
-        """Log experiment-specific parameters"""
+        """Log experiment-specific parameters with enhanced metadata"""
         tracker.log_parameters({
             "n_runs": self.n_runs,
             "model_architecture": "MLP",
             "input_dim": ModelConfig.INPUT_DIM,
             "hidden_layers": ModelConfig.HIDDEN_LAYERS,
             "confidence_level": ExperimentConfig.CONFIDENCE_LEVEL,
-            "metrics_tracked": ExperimentConfig.METRICS_OF_INTEREST
+            "metrics_tracked": ExperimentConfig.METRICS_OF_INTEREST,
+            "technique_name": self.__class__.__name__,
+            "experiment_timestamp": pd.Timestamp.now().isoformat(),
+            "data_split_ratio": {
+                "train": 1 - ModelConfig.TEST_SIZE - ModelConfig.VAL_SIZE,
+                "val": ModelConfig.VAL_SIZE,
+                "test": ModelConfig.TEST_SIZE
+            }
         })
 
     def _aggregate_metrics(self):
