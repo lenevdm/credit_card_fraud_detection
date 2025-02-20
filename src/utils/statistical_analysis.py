@@ -4,6 +4,47 @@ import numpy as np
 from scipy import stats
 from typing import Dict, List, Tuple, Optional, Union
 import pandas as pd
+from statsmodels.stats.multitest import multipletests 
+
+def cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
+    """
+    Calculate Coohen's d effect size
+
+    Args: 
+        group1: First group's values
+        group2: Second group's values
+
+    Returns"
+        float: Cohen's d effect size
+    """
+    n1, n2 = len(group1), len(group2)
+    var1, var2 = np.var(group1, ddof=1), np.var(goup2, ddof=1)
+
+    # Pooled standard deviation
+    pooled_se = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+
+    return (np.mean(group1) - np.mean(group2)) / pooled_se
+
+def interpret_cohens_d(d: float) -> str:
+    """
+    Interpret Cohen's d effect size
+
+    Args:
+        d: Cohen's d value
+
+    Returns:
+        str: Interpretation of effect size
+    """
+    d = abs(d)
+    if d < 0.2:
+        return "negligible"
+    elif d < 0.5:
+        return "small"
+    elif d < 0.8:
+        return "medium"
+    else:
+        return "large"
+
 
 def paired_t_test(
         technique1_metrics: List[Dict[str, float]],
