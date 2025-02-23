@@ -277,3 +277,28 @@ def plot_technique_comparison_pr(metrics_by_technique: Dict[str, List[Dict[str, 
     except Exception as e:
         plt.close('all')
         raise e
+    
+def plot_metric_distributions_by_technique(
+    metrics_by_technique: Dict[str, List[Dict[str, float]]],
+    metric_name: str
+) -> plt.Figure:
+    """Create violin plots showing metric distribution across techniques"""
+    try:
+        plt.figure(figsize=(10, 6))
+        
+        data = []
+        labels = []
+        for technique, metrics in metrics_by_technique.items():
+            values = [m[metric_name] for m in metrics]
+            data.append(values)
+            labels.append(technique)
+        
+        plt.violinplot(data, showmeans=True)
+        plt.xticks(range(1, len(labels) + 1), labels)
+        plt.ylabel(metric_name)
+        plt.title(f'{metric_name} Distribution by Technique')
+        
+        return plt.gcf()
+    except Exception as e:
+        plt.close('all')
+        raise e
