@@ -61,25 +61,36 @@ def analyze_technique_comparisons(
     comparisons = {}
     techniques = list(experiment_results.keys())
     
+    # Add debug prints
+    print(f"\nDebug: Analyzing techniques: {techniques}")
+    
     # Compare each pair of techniques
     for i in range(len(techniques)):
         for j in range(i + 1, len(techniques)):
             technique1 = techniques[i]
             technique2 = techniques[j]
             
+            print(f"\nComparing {technique1} with {technique2}")
+            
             # Get experiments
             exp1 = experiment_results[technique1]['experiment']
             exp2 = experiment_results[technique2]['experiment']
             
-            # Perform comparison
-            comparison = exp1.compare_with(exp2)
-            
-            # Store comparison results
-            comparison_key = f"{technique1}_vs_{technique2}"
-            comparisons[comparison_key] = comparison
-            
-            # Print formatted results
-            print(format_comparison_results(comparison))
+            try:
+                # Perform comparison
+                comparison = exp1.compare_with(exp2)
+                
+                # Store comparison results
+                comparison_key = f"{technique1}_vs_{technique2}"
+                comparisons[comparison_key] = comparison
+                
+                # Print formatted results
+                print(format_comparison_results(comparison))
+                
+            except Exception as e:
+                print(f"Error comparing {technique1} vs {technique2}: {str(e)}")
+                print("Continuing with next comparison...")
+                continue
             
     return comparisons
 
