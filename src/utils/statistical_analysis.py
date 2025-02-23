@@ -18,7 +18,7 @@ def cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
         float: Cohen's d effect size
     """
     n1, n2 = len(group1), len(group2)
-    var1, var2 = np.var(group1, ddof=1), np.var(goup2, ddof=1)
+    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
 
     # Pooled standard deviation
     pooled_se = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
@@ -71,19 +71,23 @@ def paired_t_test(
         - is_significant: boolean indicating if difference is significant
     """
 
+    # Validation
+    if not technique1_metrics or not technique2_metrics:
+        raise ValueError("Empty metrics list provided")
+    
+    if len(technique1_metrics) != len(technique2_metrics):
+        raise ValueError(f"Unequal number of runs: {len(technique1_metrics)} vs {len(technique2_metrics)}")
+    
     # Extract metric values
-    values1 = [m[metric_name] for m in technique1_metrics]
-    values2 = [m[metric_name] for m in technique2_metrics]
-
-
-    # Verify equal lengths
-    if len(values1) != len(values2):
-        raise ValueError("Both techniques must have the same number of runs")
+    try:
+        values1 = [m[metric_name] for m in technique1_metrics]
+        values2 = [m[metric_name] for m in technique2_metrics]
+    except KeyError:
+        raise KeyError(f"Metric '{metric_name}' not found in both techniques' results")
 
 
     # Calculate differences
-    #differences = np.array(values1) - np.array(values2)
-    differences = values1 - values2
+    differences = np.array(values1) - np.array(values2)
 
     # Perform paired t-test
     t_stat, p_value = stats.ttest_rel(values1, values2)
@@ -165,6 +169,12 @@ def compare_techniques(
     """
     comparisons = {}
 
+    # Add debug prints
+    print(f"\nDebug: Comparing {technique1_name} vs {technique2_name}")
+    print(f"Debug: Number of metrics for technique 1: {len(technique1_metrics)}")
+    print(f"Debug: Number of metrics for technique 2: {len(technique2_metrics)}")
+    print(f"Debug: Metrics of interest: {metrics_of_interest}")
+
     for metric in metrics_of_interest:
         try:
             comparison = paired_t_test(
@@ -172,11 +182,18 @@ def compare_techniques(
                 technique2_metrics,
                 metric
             )
-            comparison[metric] = comparison
+            comparisons[metric] = comparison
         except KeyError:
             print(f"Warning: Metric '{metric}' not found in both techniques")
             continue
 
+    # Add debug print
+    print(f"Debug: Number of successful comparisons: {len(comparisons)}")
+    
+    # Only adjust p-values if we have comparisons
+    if not comparisons:
+        raise ValueError("No valid comparisons were made between techniques")
+    
     # Apply multiple comparison correction
     adjusted_comparisons = adjust_pvalues(comparisons)
 
