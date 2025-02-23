@@ -6,9 +6,10 @@ import mlflow
 import pandas as pd
 import matplotlib.pyplot as plt 
 from src.experiments.base_runs_final import BaselineExperimentFinal
-from src.experiments.smote_experiment import SMOTEExperiment
-from config.experiment_config import ExperimentConfig
 from src.utils.statistical_analysis import format_comparison_results
+from config.experiment_config import ExperimentConfig
+from src.experiments.smote_experiment import SMOTEExperiment
+from src.experiments.random_undersampling_experiment import RandomUndersamplingExperiment
 
 def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
     """
@@ -26,7 +27,8 @@ def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str,
     # Initialize experiments
     experiments = {
         'baseline': BaselineExperimentFinal(),
-        'smote': SMOTEExperiment()
+        'smote': SMOTEExperiment(),
+        'random_undersampling': RandomUndersamplingExperiment()
     }
     
     results = {}
