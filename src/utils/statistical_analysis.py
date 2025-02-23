@@ -5,6 +5,7 @@ from scipy import stats
 from typing import Dict, List, Tuple, Optional, Union, Any
 import pandas as pd
 from statsmodels.stats.multitest import multipletests 
+from src.utils.visualization_utils import plot_metric_curves
 
 def cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
     """
@@ -210,13 +211,25 @@ def compare_techniques(
     # Apply multiple comparison correction
     adjusted_comparisons = adjust_pvalues(comparisons)
 
-    # Add technique names to results
-    return{
+    # Add visualizations
+    metrics_by_technique = {
+        technique1_name: technique1_metrics,
+        technique2_name: technique2_metrics
+    }
+    
+    comparison_plots = {
+        'pr_trade_off': plot_technique_comparison_pr(metrics_by_technique),
+        'f1_distribution': plot_metric_distributions_by_technique(metrics_by_technique, 'f1_score'),
+        'performance_radar': plot_performance_radar(metrics_by_technique)
+    }
+
+    return {
         'technique_names': {
             'technique1': technique1_name,
             'technique2': technique2_name
         },
-        'comparisons': adjusted_comparisons
+        'comparisons': adjusted_comparisons,
+        'plots': comparison_plots
     }
 
 def format_comparison_results(comparison_results: Dict[str, Any]) -> str:
