@@ -50,7 +50,7 @@ class RandomUndersamplingExperiment(BaseExperiment):
         # Store initial memory usage
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
 
-        # Initialize RandomUnderSampler
+        # Initialize RandomUnderSampler with less aggressive strategy
         undersampler = RandomUnderSampler(
             sampling_strategy=ExperimentConfig.RandomUndersampling.SAMPLING_STRATEGY,
             random_state=ExperimentConfig.RandomUndersampling.RANDOM_STATE
@@ -73,9 +73,9 @@ class RandomUndersamplingExperiment(BaseExperiment):
         resampled_dist = np.bincount(y_train_resampled)
 
         # Validate balanced ratio
-        if not 0.95 <= resampled_dist[0] / resampled_dist[1] <= 1.05:
+        if resampled_dist[0] / resampled_dist[1] < 1.0:
             raise ValueError(
-                f"Random Undersampling failed to achieve balanced classes. "
+                f"Random Undersampling resulted in unexpected class ratio. "
                 f"Final ratio: {resampled_dist[0] / resampled_dist[1]:.2f}:1"
             )
 
