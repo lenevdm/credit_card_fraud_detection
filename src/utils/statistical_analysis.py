@@ -22,7 +22,7 @@ def cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
     var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
 
     # Pooled standard deviation
-    pooled_se = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    pooled_se = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2)) + 1e-10 # Add small epsilon to avoid division by zero
 
     return (np.mean(group1) - np.mean(group2)) / pooled_se
 
