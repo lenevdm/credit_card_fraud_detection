@@ -302,3 +302,40 @@ def plot_metric_distributions_by_technique(
     except Exception as e:
         plt.close('all')
         raise e
+    
+def plot_performance_radar(metrics_by_technique: Dict[str, List[Dict[str, float]]]) -> plt.Figure:
+    """Create radar plot comparing key metrics across techniques"""
+    try:
+        metrics = ['precision', 'recall', 'f1_score', 'g_mean', 'roc_auc']
+        num_metrics = len(metrics)
+        
+        # Compute means for each metric and technique
+        technique_means = {}
+        for technique, technique_metrics in metrics_by_technique.items():
+            technique_means[technique] = [
+                np.mean([m[metric] for m in technique_metrics])
+                for metric in metrics
+            ]
+        
+        # Create radar plot
+        angles = np.linspace(0, 2*np.pi, num_metrics, endpoint=False)
+        
+        fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
+        
+        for technique, means in technique_means.items():
+            means = np.concatenate((means, [means[0]]))  # complete the circle
+            angles_plot = np.concatenate((angles, [angles[0]]))  # complete the circle
+            ax.plot(angles_plot, means, 'o-', linewidth=2, label=technique)
+            ax.fill(angles_plot, means, alpha=0.25)
+        
+        ax.set_xticks(angles)
+        ax.set_xticklabels(metrics)
+        ax.set_title('Performance Metrics Comparison')
+        ax.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
+        
+        return fig
+    except Exception as e:
+        plt.close('all')
+        raise e
+    
+    
