@@ -64,34 +64,88 @@ def analyze_technique_comparisons(
     # Add debug prints
     print(f"\nDebug: Analyzing techniques: {techniques}")
     
-    # Compare each pair of techniques
-    for i in range(len(techniques)):
-        for j in range(i + 1, len(techniques)):
-            technique1 = techniques[i]
-            technique2 = techniques[j]
-            
-            print(f"\nComparing {technique1} with {technique2}")
-            
-            # Get experiments
-            exp1 = experiment_results[technique1]['experiment']
-            exp2 = experiment_results[technique2]['experiment']
-            
-            try:
-                # Perform comparison
-                comparison = exp1.compare_with(exp2)
+    # Start a new MLflow run for comparisons
+    with mlflow.start_run(run_name="technique_comparison"):
+        # Log the techniques being compared
+        mlflow.log_param("techniques_compared", ", ".join(techniques))
+        
+        # Compare each pair of techniques
+        for i in range(len(techniques)):
+            for j in range(i + 1, len(techniques)):
+                technique1 = techniques[i]
+                technique2 = techniques[j]
                 
-                # Store comparison results
-                comparison_key = f"{technique1}_vs_{technique2}"
-                comparisons[comparison_key] = comparison
+                print(f"\nComparing {technique1} with {technique2}")
                 
-                # Print formatted results
-                print(format_comparison_results(comparison))
+                # Get experiments
+                exp1 = experiment_results[technique1]['experiment']
+                exp2 = experiment_results[technique2]['experiment']
                 
-            except Exception as e:
-                print(f"Error comparing {technique1} vs {technique2}: {str(e)}")
-                print("Continuing with next comparison...")
-                continue
-            
+                try:
+                    # Perform comparison
+                    comparison = exp1.compare_with(exp2)
+                    
+                    # Store comparison results
+                    comparison_key = f"{technique1}_vs_{technique2}"
+                    comparisons[comparison_key] = comparison
+                    
+                    # Log comparison metrics to MLflow
+                    for metric, results in comparison['comparisons'].items():
+                        mlflow.log_metrics({
+                            f"{comparison_key}_{metric}_mean_diff": results['mean_difference'],
+                            f"{comparison_key}_{metric}_p_value": results['p_value'],
+                            f"{comparison_key}_{metric}_cohens_d": results['cohens_d']
+                        })
+                    
+                    # Log the plots
+                    if 'plots' in comparison:
+                        for plot_name, fig in comparison['plots'].items():
+                            mlflow.log_figure(
+                                fig,
+                                f"{comparison_key}_{plot_name}.png"
+                            )
+                            plt.close(fig)
+                    
+                    # Print formatted results
+                    formatted_results = format_comparison_results(comparison)
+                    print(formatted_results)
+                    
+                    # Save formatted results as text artifact
+                    with open("comparison_results.txt", "w") as f:
+                        f.write(formatted_results)
+                    mlflow.log_artifact("comparison_results.txt")
+                    
+                except Exception as e:
+                    print(f"Error comparing {technique1} vs {technique2}: {str(e)}")
+                    print("Continuing with next comparison...")
+                    continue
+        
+        # Log the summary table
+    summary_table = generate_summary_table(experiment_results)
+    
+    # Save summary table as CSV
+    summary_table.to_csv("technique_summary.csv", index=False)
+    mlflow.log_artifact("technique_summary.csv")
+    
+    # Save as HTML table with basic styling
+    html_content = """
+    <html>
+    <head>
+        <style>
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid black; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+        </style>
+    </head>
+    <body>
+    """
+    html_content += summary_table.to_html(index=False)
+    html_content += "</body></html>"
+    
+    with open("technique_summary.html", "w") as f:
+        f.write(html_content)
+    mlflow.log_artifact("technique_summary.html")
+    
     return comparisons
 
 def generate_summary_table(
