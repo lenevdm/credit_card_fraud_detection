@@ -6,6 +6,11 @@ from typing import Dict, List, Tuple, Optional, Union, Any
 import pandas as pd
 from statsmodels.stats.multitest import multipletests 
 from src.utils.visualization_utils import plot_metric_curves
+from src.utils.visualization_utils import (
+    plot_technique_comparison_pr,
+    plot_metric_distributions_by_technique,
+    plot_performance_radar
+)
 
 def cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
     """
