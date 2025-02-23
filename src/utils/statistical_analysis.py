@@ -95,6 +95,19 @@ def paired_t_test(
     # Calculate differences
     differences = np.array(values1) - np.array(values2)
 
+    # Check for near-identical values
+    if np.std(differences) < 1e-10:
+        return {
+            't_statistic': 0.0,
+            'p_value': 1.0,
+            'mean_difference': np.mean(differences),
+            'ci_lower': np.mean(differences),
+            'ci_upper': np.mean(differences),
+            'cohens_d': 0.0,
+            'effect_size': 'negligible (identical values)',
+            'is_significant': False
+        }
+        
     # Perform paired t-test
     t_stat, p_value = stats.ttest_rel(values1, values2)
 
