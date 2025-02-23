@@ -127,9 +127,22 @@ def adjust_pvalues(comparisons: Dict[str, Dict[str, float]]) -> Dict[str, Dict[s
     Returns: 
         Dictionary with adjusted p-values
     """
+    if not comparisons:
+        raise ValueError("Empty comparisons dictionary provided")
+    
     # Extract p-values
-    metrics = [m for m in comparisons.keys()]
+    metrics = list(comparisons.keys())
+    if not metrics:
+        raise ValueError("No metrics found in comparisons")
+
     pvalues = [comparisons[m]['p_value'] for m in metrics]
+    if not pvalues:
+        raise ValueError("No p-values found in comparisons")
+    
+    # Add debug prints
+    print(f"\nDebug: Adjusting p-values")
+    print(f"Debug: Number of metrics: {len(metrics)}")
+    print(f"Debug: Number of p-values: {len(pvalues)}")
 
     # Apply correction
     rejected, pvals_corrected, _, _ = multipletests(
