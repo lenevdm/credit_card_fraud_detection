@@ -4,6 +4,7 @@ import os
 from typing import Dict, Any, List
 import mlflow
 import pandas as pd
+import matplotlib.pyplot as plt 
 from src.experiments.base_runs_final import BaselineExperimentFinal
 from src.experiments.smote_experiment import SMOTEExperiment
 from config.experiment_config import ExperimentConfig
@@ -51,7 +52,7 @@ def analyze_technique_comparisons(
 ) -> Dict[str, Any]:
     """
     Perform statistical analysis comparing techniques
-    
+
     Args:
         experiment_results: Dictionary of results from different techniques
         
@@ -97,14 +98,22 @@ def analyze_technique_comparisons(
                             f"{comparison_key}_{metric}_cohens_d": results['cohens_d']
                         })
                     
-                    # Log the plots
+                    # Log all the comparison plots
                     if 'plots' in comparison:
+                        print("\nDebug: Logging comparison plots")
+                        print(f"Available plots: {list(comparison['plots'].keys())}")
                         for plot_name, fig in comparison['plots'].items():
-                            mlflow.log_figure(
-                                fig,
-                                f"{comparison_key}_{plot_name}.png"
-                            )
-                            plt.close(fig)
+                            try:
+                                plot_path = f"{comparison_key}_{plot_name}.png"
+                                print(f"Saving plot: {plot_path}")
+                                # Save the figure
+                                mlflow.log_figure(fig, plot_path)
+                                # Close the specific figure
+                                plt.close(fig)
+                            except Exception as e:
+                                print(f"Error saving plot {plot_name}: {str(e)}")
+                                # If there's an error, try to close all figures to clean up
+                                plt.close('all')
                     
                     # Print formatted results
                     formatted_results = format_comparison_results(comparison)
@@ -121,31 +130,31 @@ def analyze_technique_comparisons(
                     continue
         
         # Log the summary table
-    summary_table = generate_summary_table(experiment_results)
-    
-    # Save summary table as CSV
-    summary_table.to_csv("technique_summary.csv", index=False)
-    mlflow.log_artifact("technique_summary.csv")
-    
-    # Save as HTML table with basic styling
-    html_content = """
-    <html>
-    <head>
-        <style>
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid black; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-        </style>
-    </head>
-    <body>
-    """
-    html_content += summary_table.to_html(index=False)
-    html_content += "</body></html>"
-    
-    with open("technique_summary.html", "w") as f:
-        f.write(html_content)
-    mlflow.log_artifact("technique_summary.html")
-    
+        summary_table = generate_summary_table(experiment_results)
+        
+        # Save summary table as CSV
+        summary_table.to_csv("technique_summary.csv", index=False)
+        mlflow.log_artifact("technique_summary.csv")
+        
+        # Save as HTML table with basic styling
+        html_content = """
+        <html>
+        <head>
+            <style>
+                table { border-collapse: collapse; width: 100%; }
+                th, td { border: 1px solid black; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; }
+            </style>
+        </head>
+        <body>
+        """
+        html_content += summary_table.to_html(index=False)
+        html_content += "</body></html>"
+        
+        with open("technique_summary.html", "w") as f:
+            f.write(html_content)
+        mlflow.log_artifact("technique_summary.html")
+            
     return comparisons
 
 def generate_summary_table(
