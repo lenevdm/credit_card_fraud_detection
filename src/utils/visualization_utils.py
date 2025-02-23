@@ -248,3 +248,32 @@ def plot_metric_curves(metrics_dict: Dict, metrics_list: Optional[List[Dict]] = 
         # Clean up all figures if an error occurs
         plt.close('all')
         raise e
+    
+def plot_technique_comparison_pr(metrics_by_technique: Dict[str, List[Dict[str, float]]]) -> plt.Figure:
+    """Plot precision and recall comparison across techniques"""
+    try:
+        fig, ax = plt.subplots(figsize=(10,6))
+
+        techniques = list(metrics_by_technique.keys())
+        x = np.arange(len(techniques))
+        width = 0.35
+
+        precisions = [np.mean([m['precision'] for m in metrics_by_technique[t]]) for t in techniques]
+        recalls = [np.mean([m['recall'] for m in metrics_by_technique[t]]) for t in techniques]
+        
+        prec_err = [np.std([m['precision'] for m in metrics_by_technique[t]]) for t in techniques]
+        recall_err = [np.std([m['recall'] for m in metrics_by_technique[t]]) for t in techniques]
+        
+        ax.bar(x - width/2, precisions, width, label='Precision', yerr=prec_err, capsize=5)
+        ax.bar(x + width/2, recalls, width, label='Recall', yerr=recall_err, capsize=5)
+        
+        ax.set_ylabel('Score')
+        ax.set_title('Precision-Recall Trade-off by Technique')
+        ax.set_xticks(x)
+        ax.set_xticklabels(techniques)
+        ax.legend()
+        
+        return fig
+    except Exception as e:
+        plt.close('all')
+        raise e
