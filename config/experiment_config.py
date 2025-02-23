@@ -33,7 +33,7 @@ class ExperimentConfig:
 
     class RandomUndersampling:
         NAME = "fraud_detection_rus"
-        SAMPLING_STRATEGY = 'majority'  # Make classes equal
+        SAMPLING_STRATEGY = 0.5  # Make classes equal
         RANDOM_STATE = 42
 
     class SMOTEENN:
