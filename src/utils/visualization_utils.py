@@ -337,5 +337,3 @@ def plot_performance_radar(metrics_by_technique: Dict[str, List[Dict[str, float]
     except Exception as e:
         plt.close('all')
         raise e
-    
-    
