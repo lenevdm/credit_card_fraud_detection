@@ -10,6 +10,7 @@ from src.utils.statistical_analysis import format_comparison_results
 from config.experiment_config import ExperimentConfig
 from src.experiments.smote_experiment import SMOTEExperiment
 from src.experiments.random_undersampling_experiment import RandomUndersamplingExperiment
+from src.experiments.smoteenn_experiment import SMOTEENNExperiment
 
 def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
     """
@@ -28,7 +29,8 @@ def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str,
     experiments = {
         'baseline': BaselineExperimentFinal(),
         'smote': SMOTEExperiment(),
-        'random_undersampling': RandomUndersamplingExperiment()
+        'random_undersampling': RandomUndersamplingExperiment(),
+        'smoteenn': SMOTEENNExperiment()
     }
     
     results = {}
