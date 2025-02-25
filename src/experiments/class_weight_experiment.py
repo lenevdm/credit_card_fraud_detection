@@ -67,7 +67,38 @@ class ClassWeightExperiment(BaseExperiment):
         calculation_time = time.time() - start_time
         peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
 
-        
+        # Print weight info
+        print("\nClass Weight Results:")
+        print("-" * 40)
+        print(f"Original class distribution:")
+        print(f"Non-fraudulent: {original_dist[0]} ({original_dist[0]/sum(original_dist)*100:.2f}%)")
+        print(f"Fraudulent: {original_dist[1]} ({original_dist[1]/sum(original_dist)*100:.2f}%)")
+        print(f"Original ratio: {original_dist[0]/original_dist[1]:.2f}:1")
+        print(f"\nCalculated class weights:")
+        print(f"Non-fraudulent (Class 0): {class_weight_dict[0]:.4f}")
+        print(f"Fraudulent (Class 1): {class_weight_dict[1]:.4f}")
+        print(f"Weight ratio: {class_weight_dict[1]/class_weight_dict[0]:.2f}:1")
+        print(f"\nPerformance metrics:")
+        print(f"Memory used: {peak_memory:.2f} MB")
+        print(f"Time taken: {calculation_time:.2f} seconds")
+
+        # Return processed data with class weights
+        processed_data = data.copy()
+        processed_data['class_weights'] = class_weight_dict
+
+        # Store metadata for logging
+        processed_data['weight_metadata'] = {
+            'original_distribution': original_dist.tolist(),
+            'class_weights': class_weight_dict,
+            'calculation_time': calculation_time,
+            'peak_memory_usage': peak_memory,
+            'weight_ratio': class_weight_dict[1] / class_weight_dict[0]
+        }
+
+        # Store current data for logging
+        self.current_data = processed_data
+
+        return processed_data
 
 
     #def log_experiment_params(self, tracker: Any) -> None:
