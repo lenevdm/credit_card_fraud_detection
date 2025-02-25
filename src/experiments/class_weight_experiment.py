@@ -26,7 +26,33 @@ class ClassWeightExperiment(BaseExperiment):
             n_runs=n_runs
         )
 
-    #def preprocess_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def preprocess_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Calculate class weights and add them to the data dictionary. 
+        The actual data remains unchanged.
+
+        Args:
+            data: Dictionary containing train/val/test splits
+
+        Returns:
+            Dictionary with original data and added class weights
+        """
+
+        print("\nCalculating class weights for imbalanced data...")
+        start_time = time.time()
+
+        # Add validation of input data
+        if np.isnan(data['X_train']).any():
+            raise ValueError("Input data contains NaN values")
+        
+        # Store initial memory usage
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+        # Get original class distribution
+        y_train_flat = data['y_train'].ravel()
+        original_dist = np.bincount(y_train_flat)
+
+        
 
     #def log_experiment_params(self, tracker: Any) -> None:
 
