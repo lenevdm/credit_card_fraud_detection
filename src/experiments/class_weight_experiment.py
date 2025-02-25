@@ -52,7 +52,23 @@ class ClassWeightExperiment(BaseExperiment):
         y_train_flat = data['y_train'].ravel()
         original_dist = np.bincount(y_train_flat)
 
+        # Calculate class weights using sklearn's compute_class_weight
+        classes = np.unique(y_train_flat)
+        class_weights = compute_class_weight(
+            class_weight=ExperimentConfig.ClassWeight.WEIGHT_METHOD,
+            classes=classes,
+            y=y_train_flat
+        )
+
+        # Create class weight dictionary for Keras
+        class_weight_dict = {i: weight for i, weight in zip(classes, class_weights)}
+
+        # Calculate detailed metadata
+        calculation_time = time.time() - start_time
+        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
+
         
+
 
     #def log_experiment_params(self, tracker: Any) -> None:
 
