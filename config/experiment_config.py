@@ -47,5 +47,9 @@ class ExperimentConfig:
 
     class ClassWeight:
         NAME = "fraud_detection_classweight"
+        # Class weight calculator method: can be 'balanced', 'balanced_subsample', or a specific ratio
+        WEIGHT_METHOD = 'balanced'
+        # Or specify a fixed ratio (alternative approach)
+        # WEIGHT_RATIO = 100  # Adjust based on empirical testing
 
     
