@@ -98,7 +98,8 @@ class BaseExperiment(ABC):
                             processed_data['y_train'],
                             processed_data['X_val'],
                             processed_data['y_val'],
-                            callbacks=callbacks
+                            callbacks=callbacks,
+                            class_weights=processed_data.get('class_weights')
                         )
 
                         # Evaluate model
