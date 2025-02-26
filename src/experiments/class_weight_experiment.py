@@ -120,14 +120,13 @@ class ClassWeightExperiment(BaseExperiment):
                 'class_weight_ratio': metadata['weight_ratio'],
                 'class_0_weight': metadata['class_weights'][0],
                 'class_1_weight': metadata['class_weights'][1],
-                'calculation_memory_mb': f"{metadata['peak_memory_usage']:.2f}"
-                'calculation_time': f"{metadata['calculation_time']:.2f}"
+                'calculation_memory_mb': f"{metadata['peak_memory_usage']:.2f}",
+                'calculation_time_seconds': f"{metadata['calculation_time']:.2f}"
             })
 
     def _get_results_header(self) -> str:
         """Override header for class weight results"""
         return "Class Weight Experiment Results"
-
 
 def main():
     """Run the Class Weight experiment"""
