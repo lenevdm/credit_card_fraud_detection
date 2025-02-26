@@ -100,8 +100,29 @@ class ClassWeightExperiment(BaseExperiment):
 
         return processed_data
 
+    def log_experiment_params(self, tracker: Any) -> None:
+        """Log class weight-specific parameters and metadata"""
+        super().log_experiment_params(tracker)
 
-    #def log_experiment_params(self, tracker: Any) -> None:
+        # Log basic config
+        tracker.log_parameters({
+            'experiment_type': 'class_weight',
+            'weight_method': ExperimentConfig.ClassWeight.WEIGHT_METHOD,
+            'data_modification': 'none',
+            'class_balancing': 'weighted_loss'
+        })
+
+        # Log weight metadata if available
+        if hasattr(self, 'current_data') and 'weight_metadata' in self.current_data:
+            metadata = self.current_data['weight_metadata']
+            tracker.log_parameters({
+                'original_class_ratio': metadata['original_distribution'][0] / metadata['original_distribution'][1],
+                'class_weight_ratio': metadata['weight_ratio'],
+                'class_0_weight': metadata['class_weights'][0],
+                'class_1_weight': metadata['class_weights'][1],
+                'calculation_memory_mb': f"{metadata['peak_memory_usage']:.2f}"
+                'calculation_time': f"{metadata['calculation_time']:.2f}"
+            })
 
     #def _get_results_header(self) -> str:
 
