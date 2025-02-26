@@ -124,7 +124,9 @@ class ClassWeightExperiment(BaseExperiment):
                 'calculation_time': f"{metadata['calculation_time']:.2f}"
             })
 
-    #def _get_results_header(self) -> str:
+    def _get_results_header(self) -> str:
+        """Override header for class weight results"""
+        return "Class Weight Experiment Results"
 
 
 def main():
