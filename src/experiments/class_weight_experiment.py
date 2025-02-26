@@ -98,6 +98,11 @@ class ClassWeightExperiment(BaseExperiment):
         # Store current data for logging
         self.current_data = processed_data
 
+        # Print info for debugging
+        print(f"\nMLflow tracking info:")
+        print(f"Experiment name: {self.experiment_name}")
+        print(f"Experiment ID: {self.experiment_id if hasattr(self, 'experiment_id') else 'Not set'}")
+
         return processed_data
 
     def log_experiment_params(self, tracker: Any) -> None:

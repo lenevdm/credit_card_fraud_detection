@@ -53,7 +53,7 @@ class FraudDetectionModel:
         
         return model
     
-    def train(self, X_train, y_train, X_val, y_val, callbacks=None, class_weights=None):
+    def train(self, X_train, y_train, X_val, y_val, callbacks=None, class_weight=None):
         """
         Train the model
         
@@ -97,7 +97,7 @@ class FraudDetectionModel:
             batch_size=self.config.BATCH_SIZE,
             epochs=self.config.MAX_EPOCHS,
             callbacks=callbacks,
-            class_weights=class_weights,
+            class_weight=class_weight,
             verbose=1
         )
         
