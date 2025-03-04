@@ -54,4 +54,57 @@ class EnsembleExperiment(BaseExperiment):
         self.threshold_optimization_results = None
 
 
-    # def preprocess_data
+    def preprocess_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Preprocess data for all component techniques
+
+        Args:
+            data: Original data dictionary
+
+        Returns:
+            Dictionary containing preprocessed data for each technique
+        """
+
+        print("\nPreparing ensemble components...")
+        start_time = time.time()
+
+        # Store initial memory usage
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+        # Store original data
+        processed_data = {
+            'original': data.copy(),
+            'technique_data': {}
+        }
+
+        # Process data for each technique
+        for name, experiment in self.technique_experiments.items():
+            print(f"\nProcessing data for {name}...")
+            technique_data = experiment.preprocess_data(data.copy())
+            processed_data['technique_data'][name] = technique_data
+
+        # Calculate and store metadata
+        processing_time = time.time() - start_time
+        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
+
+        # Print processing info
+        print("\nEnsemble preparation complete:")
+        print(f"Total techniques included: {len(self.technique_experiments)}")
+        print(f"Techniques: {', '.join(self.technique_experiments.keys())}")
+        print(f"Time taken: {processing_time:.2f} seconds")
+        print(f"Memory used: {peak_memory:.2f} MB")
+
+        # Store metadata
+        processed_data['ensemble_metadata'] = {
+            'processing_time': processing_time,
+            'peak_memory_usage': peak_memory,
+            'techniques': list(self.technique_experiments.keys()),
+            'technique_weights': self.technique_weights.copy(),
+            'weight_sum': sum(w for _, w in self.technique_weights.items() 
+                            if _ in self.technique_experiments)
+        }
+
+        # Store current data for logging
+        self.current_data = processed_data
+
+        return processed_data
