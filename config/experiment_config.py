@@ -4,7 +4,7 @@ class ExperimentConfig:
 
     # Base experiment settings
     BASE_EXPERIMENT_NAME = "fraud_detection"
-    N_RUNS = 10
+    N_RUNS = 30
     CONFIDENCE_LEVEL = 0.95
 
     # Metrics to track
@@ -51,5 +51,24 @@ class ExperimentConfig:
         WEIGHT_METHOD = 'balanced'
         # Or specify a fixed ratio (alternative approach)
         # WEIGHT_RATIO = 100  # Adjust based on empirical testing
+
+    class Ensemble:
+        NAME = "fraud_detection_ensemble"
+        # Define which techniques to include in the ensemble
+        TECHNIQUES = ['baseline', 'smote', 'random_undersampling', 'smoteenn', 'class_weight']
+        # Defin technique weights for the weighted averaging
+        TECHNIQUE_WEIGHTS = {
+            'baseline': 2.0,  # Higher weight for baseline (better precision)
+            'smote': 1.0,
+            'random_undersampling': 1.0,
+            'smoteenn': 1.0,
+            'class_weight': 1.0
+        }
+        # Default threshold for final classification
+        DECISION_THRESHOLD = 0.5
+        # Whether to optimize threshold using validation data
+        OPTIMIZE_THRESHOLD = True
+        # Metric to optimize threshold for (options: 'f1', 'gmean', 'balanced_accuracy')
+        THRESHOLD_METRIC = 'f1'
 
     
