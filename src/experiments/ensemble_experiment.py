@@ -304,3 +304,134 @@ class EnsembleExperiment(BaseExperiment):
         print(f"Positive rate: {prediction_counts/total_samples:.4f}")
         
         return binary_predictions, avg_probs
+    
+    def run_single_experiment(self, data_path: str) -> Dict[str, Any]:
+        """
+        Run a single ensemble experiment iteration
+        
+        Args:
+            data_path: Path to the data file
+            
+        Returns:
+            Dictionary of metrics
+        """
+        # Prepare data
+        data = self.data_prep.prepare_data(data_path)
+        
+        # Preprocess data for all techniques
+        processed_data = self.preprocess_data(data)
+        
+        # Train models
+        models = self.train_models(processed_data)
+        
+        # Optimize threshold if enabled
+        if self.optimize_threshold:
+            self.optimize_threshold(models, processed_data)
+        
+        # Get test data
+        X_test = processed_data['original']['X_test']
+        y_test = processed_data['original']['y_test'].ravel()  # Flatten
+        
+        # Get ensemble predictions
+        y_pred, y_proba = self.ensemble_predict(models, X_test)
+        
+        # Calculate metrics
+        import time
+        import psutil
+        import math
+        from sklearn.metrics import (
+            confusion_matrix, precision_score, recall_score,
+            f1_score, roc_auc_score, average_precision_score,
+            roc_curve, matthews_corrcoef
+        )
+        
+        # Start timing
+        start_time = time.time()
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        
+        # Calculate confusion matrix
+        tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+        
+        # Calculate standard metrics
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        precision = precision_score(y_test, y_pred, zero_division=0)
+        recall = recall_score(y_test, y_pred, zero_division=0)
+        f1 = f1_score(y_test, y_pred, zero_division=0)
+        
+        # Calculate ROC AUC and AUPRC
+        roc_auc = roc_auc_score(y_test, y_proba)
+        auprc = average_precision_score(y_test, y_proba)
+        
+        # Calculate PR and ROC curves
+        pr_precision, pr_recall, pr_thresholds = precision_recall_curve(y_test, y_proba)
+        fpr, tpr, roc_thresholds = roc_curve(y_test, y_proba)
+        
+        # Calculate G-mean
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        g_mean = math.sqrt(sensitivity * specificity)
+        
+        # Calculate Matthews Correlation Coefficient
+        mcc = matthews_corrcoef(y_test, y_pred)
+        
+        # Resource usage
+        execution_time = time.time() - start_time
+        final_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_usage = final_memory - initial_memory
+        
+        # Collect all metadata from training phases
+        total_train_time = sum(stats['training_time'] for stats in self.training_stats.values())
+        
+        # Store all metrics
+        metrics = {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1_score': f1,
+            'roc_auc': roc_auc,
+            'auprc': auprc,
+            'true_positives': int(tp),
+            'true_negatives': int(tn),
+            'false_positives': int(fp),
+            'false_negatives': int(fn),
+            'g_mean': g_mean,
+            'mcc': mcc,
+            'training_time': total_train_time,
+            'peak_memory_usage': peak_memory_usage,
+            'threshold_used': self.decision_threshold,
+            'curves': {
+                'pr': {
+                    'precision': pr_precision,
+                    'recall': pr_recall,
+                    'thresholds': pr_thresholds
+                },
+                'roc': {
+                    'fpr': fpr,
+                    'tpr': tpr,
+                    'thresholds': roc_thresholds
+                }
+            }
+        }
+        
+        # Print detailed results
+        print("\nEnsemble Test Results:")
+        print("-" * 40)
+        print(f"Decision Threshold: {self.decision_threshold:.4f}")
+        print(f"Accuracy: {accuracy:.4f}")
+        print(f"Precision: {precision:.4f}")
+        print(f"Recall: {recall:.4f}")
+        print(f"F1 Score: {f1:.4f}")
+        print(f"ROC AUC: {roc_auc:.4f}")
+        print(f"PR AUC: {auprc:.4f}")
+        print(f"G-Mean: {g_mean:.4f}")
+        print(f"Matthews Correlation Coefficient: {mcc:.4f}")
+        print(f"Training Time: {total_train_time:.2f} seconds")
+        print(f"Peak Memory Usage: {peak_memory_usage:.2f} MB")
+        print("-" * 40)
+        print("\nConfusion Matrix:")
+        print(f"True Negatives: {tn}")
+        print(f"False Positives: {fp}")
+        print(f"False Negatives: {fn}")
+        print(f"True Positives: {tp}")
+        
+        return metrics
