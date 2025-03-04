@@ -435,3 +435,164 @@ class EnsembleExperiment(BaseExperiment):
         print(f"True Positives: {tp}")
         
         return metrics
+    
+    def log_experiment_params(self, tracker: Any) -> None:
+        """
+        Log ensemble-specific parameters and metadata
+        
+        Args:
+            tracker: ExperimentTracker instance
+        """
+        super().log_experiment_params(tracker)
+        
+        # Log basic ensemble config
+        tracker.log_parameters({
+            'experiment_type': 'ensemble',
+            'techniques_used': ','.join(self.technique_experiments.keys()),
+            'combination_method': 'weighted_probability_averaging',
+            'decision_threshold': self.decision_threshold,
+            'threshold_optimization': str(self.optimize_threshold),
+            'threshold_metric': self.threshold_metric
+        })
+        
+        # Log technique weights
+        for technique, weight in self.technique_weights.items():
+            if technique in self.technique_experiments:
+                tracker.log_parameters({
+                    f'weight_{technique}': weight
+                })
+        
+        # Log ensemble metadata if available
+        if hasattr(self, 'current_data') and 'ensemble_metadata' in self.current_data:
+            metadata = self.current_data['ensemble_metadata']
+            tracker.log_parameters({
+                'processing_time': metadata['processing_time'],
+                'peak_memory_usage': metadata['peak_memory_usage']
+            })
+        
+        # Log threshold optimization results if available
+        if self.threshold_optimization_results:
+            tracker.log_parameters({
+                'optimized_threshold': self.threshold_optimization_results['best_threshold'],
+                'threshold_best_score': self.threshold_optimization_results['best_score']
+            })
+
+    def visualize_ensemble_results(self, tracker: Any) -> None:
+        """
+        Create and log visualizations of ensemble results
+        
+        Args:
+            tracker: ExperimentTracker instance
+        """
+        if not self.threshold_optimization_results:
+            return
+        
+        # Visualize threshold optimization
+        plt.figure(figsize=(10, 6))
+        
+        results = self.threshold_optimization_results
+        thresholds = results['thresholds']
+        scores = results['scores']
+        
+        plt.plot(thresholds, scores, 'b-', linewidth=2)
+        plt.axvline(x=results['best_threshold'], color='r', linestyle='--', 
+                    label=f'Best Threshold: {results["best_threshold"]:.4f}')
+        
+        plt.xlabel('Threshold')
+        plt.ylabel(f'{self.threshold_metric.upper()} Score')
+        plt.title(f'{self.threshold_metric.upper()} Score vs. Threshold')
+        plt.legend()
+        plt.grid(True)
+        
+        tracker.log_figure(plt.gcf(), "threshold_optimization.png")
+        plt.close()
+        
+        # Visualize PR curve
+        if 'pr_curve' in results:
+            plt.figure(figsize=(10, 6))
+            
+            precision = results['pr_curve']['precision']
+            recall = results['pr_curve']['recall']
+            
+            plt.plot(recall, precision, 'b-', linewidth=2)
+            plt.xlabel('Recall')
+            plt.ylabel('Precision')
+            plt.title('Precision-Recall Curve')
+            plt.grid(True)
+            
+            tracker.log_figure(plt.gcf(), "ensemble_pr_curve.png")
+            plt.close()
+        
+        # If we have individual model predictions, visualize comparison
+        if hasattr(self, 'model_predictions') and hasattr(self, 'ensemble_probabilities'):
+            # Create a histogram of prediction probabilities
+            plt.figure(figsize=(12, 6))
+            
+            for name, probs in self.model_predictions.items():
+                plt.hist(probs.ravel(), alpha=0.3, bins=30, label=name)
+                
+            plt.hist(self.ensemble_probabilities.ravel(), alpha=0.5, bins=30, 
+                    color='black', label='Ensemble')
+            
+            plt.axvline(x=self.decision_threshold, color='r', linestyle='--', 
+                        label=f'Threshold: {self.decision_threshold:.4f}')
+            plt.xlabel('Probability')
+            plt.ylabel('Count')
+            plt.title('Distribution of Prediction Probabilities')
+            plt.legend()
+            plt.grid(True)
+            
+            tracker.log_figure(plt.gcf(), "prediction_distributions.png")
+            plt.close()
+
+    def _get_results_header(self) -> str:
+        """
+        Override header for ensemble results
+        
+        Returns:
+            String header for results output
+        """
+        return "Ensemble Experiment Results"
+
+    def run_experiment(self, data_path: str) -> Dict[str, Any]:
+        """
+        Override run_experiment to customize for ensemble approach
+        
+        Args:
+            data_path: Path to the data file
+            
+        Returns:
+            Dictionary of aggregated metrics
+        """
+        # Use parent's implementation for most functionality
+        # but add ensemble-specific visualizations
+        results = super().run_experiment(data_path)
+        
+        # If the run was successful and we have a tracker
+        if hasattr(self, 'metrics_list') and len(self.metrics_list) > 0:
+            with mlflow.start_run(run_name=f"{self.experiment_name}_summary"):
+                tracker = ExperimentTracker(self.experiment_name)
+                
+                # Log ensemble-specific visualizations
+                self.visualize_ensemble_results(tracker)
+                
+                # Log final metrics
+                tracker.log_metrics(results)
+        
+        return results
+
+    def main():
+        """Run the Ensemble experiment"""
+        
+        experiment = EnsembleExperiment()
+        
+        try:
+            results = experiment.run_experiment("data/creditcard.csv")
+            experiment.print_results(results)
+            
+        except Exception as e:
+            print(f"Experiment failed: {str(e)}")
+            raise
+
+    if __name__ == "__main__":
+        main()
