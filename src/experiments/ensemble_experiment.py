@@ -250,3 +250,57 @@ class EnsembleExperiment(BaseExperiment):
         self.decision_threshold = best_threshold
         
         return best_threshold
+
+    def ensemble_predict(self, models: Dict[str, FraudDetectionModel], X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Generate ensemble predictions by weighted averaging of probabilities
+
+        Args:
+            models: Dictionary of trained models
+            X: Input features
+
+        Returns:
+            Tuple containing:
+            - Binary predictions based on threshold averaged probabilities
+            - Raw averaged probability values
+        """
+
+        # Get predictions from all models
+        probs_list = []
+        model_probs = []
+
+        print("\nGenerating predictions from all models...")
+        for name, model in models.items():
+            probs = model.model.predict(X, verbose=0)
+            probs_list.append(probs)
+            model_probs[name] = probs
+        
+        # Apply weighted averaging
+        avg_probs = np.zeros_like(probs_list[0])
+        weight_sum = 0
+
+        for i, name in enumerate(models.keys()):
+            if name in self.technique_weights:
+                weight = self.technique_weights[name]
+                avg_probs += probs_list[i] * weight
+                weight_sum += weight
+                print(f"Added {name} predictions with weight {weight}")
+
+        # Normalize by sum of weights
+        if weight_sum > 0:
+            avg_probs /= weight_sum
+
+        # Apply threshold
+        binary_predictions = (avg_probs > self.decision_threshold).astype(int)
+
+        # Store individual model predictions for analysis
+        self.model_predictions = model_probs
+        self.ensemble_probabilities = avg_probs
+
+        prediction_counts = np.sum(binary_predictions)
+        total_samples = len(binary_predictions)
+
+        print(f"Ensemble predicted {prediction_counts} positives out of {total_samples} samples")
+        print(f"Positive rate: {prediction_counts/total_samples:.4f}")
+        
+        return binary_predictions, avg_probs
