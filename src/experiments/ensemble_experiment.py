@@ -158,4 +158,95 @@ class EnsembleExperiment(BaseExperiment):
 
         return models
     
+    def optimize_threshold(self, models: Dict[str, FraudDetectionModel], data: Dict[str, Any]) -> float:
+        """
+        Find optimal decision threshold using validation data
+
+        Args:
+            models: Dictionary of trained models
+            data: Processed data dictionary
+
+        Returns:
+            Optimal threshold value
+        """
+        print("\nOptimizing decision threshold...")
+
+        # Get predictions from all models
+        X_val = data['original']['X_val']
+        y_val = data['original']['y_val'].ravel() # Flatten to 1D array
+
+        # Get predictions from all models        
+        val_probs = []
+        for name, model in models.items():
+            probs = model.model.predict(X_val, verbose=0)
+            val_probs.append(probs)
+
+        # Apply weighted averaging
+        avg_probs = np.zeros_like(val_probs[0])
+        weight_sum = 0
+
+        for i, name in enumerate(models.key()):
+            if name in self.technique_weights:
+                weight = self.technique_weights[name]
+                avg_probs += val_probs[i] *  weight
+                weight_sum += weight
+        
+        # Normalize by sum of weights
+        if weight_sum > 0:
+            avg_probs /= weight_sum
+
+        # Find threshold that optimizes the chosen metric
+        thresholds = np.linspace(0.1, 0.9, 100) # Test 100 thresholds
+        best_threshold = 0.5 # Defualt
+        best_score = 0
+        scores = []
+
+        for threshold in thresholds:
+            y_pred = (avg_probs > threshold).astype(int)
+
+            # Calculate score based on selected metric
+            if self.threshold_metric == 'f1':
+                score = f1_score(y_val, y_pred)
+            elif self.threshold_metric == 'gmean':
+                tn, fp, fn, tp = confusion_matrix(y_val, y_pred).ravel()
+                sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+                specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+                score = np.sqrt(sensitivity * specificity)
+            elif self.threshold_metric == 'balanced_accuracy':
+                tn, fp, fn, tp = confusion_matrix(y_val, y_pred).ravel()
+                sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+                specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+                score = (sensitivity + specificity) / 2
+            else:
+                # Default to F1
+                score = f1_score(y_val, y_pred)
+
+            scores.append(score)
+
+            if score > best_score:
+                best_score = score
+                best_threshold = threshold
+
+        # Also calculate precision-recall curve
+        precision, recall, pr_thresholds = precision_recall_curve(y_val, avg_probs)
+
+        # Store optimization results
+        self.threshold_optimization_results = {
+            'thresholds': thresholds,
+            'scores': scores,
+            'best_threshold': best_threshold,
+            'best_score': best_score,
+            'metric': self.threshold_metric,
+            'pr_curve': {
+                'precision': precision,
+                'recall': recall,
+                'thresholds': pr_thresholds
+            }
+        }
+
+        print(f"Optimal {self.threshold_metric} threshold: {best_threshold:.4f} (Score: {best_score:.4f})")
     
+        # Update the decision threshold
+        self.decision_threshold = best_threshold
+        
+        return best_threshold
