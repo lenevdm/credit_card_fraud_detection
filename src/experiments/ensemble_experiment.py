@@ -108,3 +108,54 @@ class EnsembleExperiment(BaseExperiment):
         self.current_data = processed_data
 
         return processed_data
+    
+    def train_models(self, data: Dict[str, Any]) -> Dict[str, FraudDetectionModel]:
+        """
+        Train models for all component techniques
+
+        Args:
+            data: Processed data dictionary
+
+        Returns:
+            Dictionary of trained models for each technique
+        """
+        models = {}
+        training_stats = {}
+
+        for name, technique_data in data['technique_data'].items():
+            print(f"\nTraining model for {name}...")
+
+            # Start timing
+            start_time = time.time()
+
+            # Initialize model
+            model = FraudDetectionModel()
+
+            # Train model with technique-specific data
+            model.train(
+                technique_data['X_train'],
+                technique_data['y_train'],
+                technique_data['X_val'],
+                technique_data['y_val'],
+                class_weight=technique_data.get('class_weights')
+            )
+
+            # Record training time
+            training_time = time.time() - start_time
+
+            models[name] = model
+            training_stats[name] = {
+                'training_time': training_time
+            }
+
+            print(f"Completed training {name} model in {training_time:.2f} seconds")
+
+        # Store models
+        self.models = models
+        self.training_stats = training_stats
+
+        print(f"\nCompleted training {len(models)} models")
+
+        return models
+    
+    
