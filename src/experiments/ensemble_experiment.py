@@ -65,6 +65,10 @@ class EnsembleExperiment(BaseExperiment):
         """
         print("\nPreparing ensemble components...")
         start_time = time.time()
+
+        # Add debug printing
+        print("Input data keys:", data.keys())
+        print("Input data types:", {k: type(v) for k, v in data.items()})
         
         # Store initial memory usage
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
@@ -85,7 +89,7 @@ class EnsembleExperiment(BaseExperiment):
                 print(f"\nProcessing data for {name}...")
                 
                 # Create a deep copy of data for each technique
-                technique_data = {k: v.copy() for k, v in data.items()}
+                technique_data = {k: v.copy() if hasattr(v, 'copy') else v for k, v in data.items()}
                 
                 # Apply technique-specific preprocessing
                 technique_data = experiment.preprocess_data(technique_data)
@@ -339,6 +343,10 @@ class EnsembleExperiment(BaseExperiment):
             print("\nStarting ensemble experiment iteration...")
             start_time = time.time()
             
+            # Store MLflow tracker for component experiments
+            if hasattr(self, 'mlflow_tracker'):
+                self.mlflow_tracker = tracker
+
             # Prepare initial data
             data = self.data_prep.prepare_data(data_path)
             
@@ -449,6 +457,50 @@ class EnsembleExperiment(BaseExperiment):
         except Exception as e:
             print(f"Error in ensemble experiment: {str(e)}")
             raise
+
+    def log_experiment_params(self, tracker: Any) -> None:
+        """Log ensemble-specific parameters and metadata"""
+        # First call parent class logging
+        super().log_experiment_params(tracker)
+        
+        # Log basic ensemble config
+        tracker.log_parameters({
+            'experiment_type': 'ensemble',
+            'techniques_used': ','.join(self.technique_experiments.keys()),
+            'combination_method': 'probability_averaging',
+            'decision_threshold': self.decision_threshold,
+            'threshold_optimization': self.optimize_threshold
+        })
+        
+        # Log technique weights
+        for technique, weight in self.technique_weights.items():
+            if technique in self.technique_experiments:
+                tracker.log_parameters({
+                    f'weight_{technique}': weight
+                })
+        
+        # Log ensemble metadata if available
+        if hasattr(self, 'current_data') and 'ensemble_metadata' in self.current_data:
+            metadata = self.current_data['ensemble_metadata']
+            tracker.log_parameters({
+                'processing_time': metadata['processing_time'],
+                'peak_memory_usage': metadata['peak_memory_usage'],
+                'total_techniques': len(metadata['techniques'])
+            })
+        
+        # Log threshold optimization results if available
+        if self.threshold_optimization_results:
+            tracker.log_parameters({
+                'optimized_threshold': self.threshold_optimization_results['best_threshold'],
+                'threshold_f1': self.threshold_optimization_results['best_f1']
+            })
+            
+        # Log training metadata if available
+        if hasattr(self, 'training_metadata'):
+            tracker.log_parameters({
+                'total_training_time': self.training_metadata['total_training_time'],
+                'models_trained': self.training_metadata['models_trained']
+            })
     
     def _get_results_header(self) -> str:
         """Override header for ensemble results"""
