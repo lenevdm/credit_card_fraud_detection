@@ -212,6 +212,67 @@ class EnsembleExperiment(BaseExperiment):
         
         return models
     
+    def optimize_threshold(self, models: Dict[str, FraudDetectionModel], data: Dict[str, Any]) -> float:
+        """
+        Find optimal decision threshold using validation data
+        
+        Args:
+            models: Dictionary of trained models
+            data: Processed data dictionary
+            
+        Returns:
+            Optimal threshold value
+        """
+        print("\nOptimizing decision threshold...")
+        
+        # Get validation data
+        X_val = data['original']['X_val']
+        y_val = data['original']['y_val']
+        
+        # Get predictions from all models
+        val_probs = []
+        model_predictions = {}
+        
+        for name, model in models.items():
+            print(f"Getting predictions from {name} model...")
+            probs = model.model.predict(X_val, verbose=0)
+            val_probs.append(probs)
+            model_predictions[name] = probs
+        
+        # Average probabilities with weights
+        avg_probs = np.zeros_like(val_probs[0])
+        for i, (name, probs) in enumerate(model_predictions.items()):
+            weight = self.technique_weights.get(name, 1.0)
+            avg_probs += probs * weight
+        
+        avg_probs /= sum(self.technique_weights.values())
+        
+        # Find optimal threshold
+        precision, recall, thresholds = precision_recall_curve(y_val, avg_probs)
+        
+        # Calculate F1 score for each threshold
+        epsilon = 1e-10  # Small value to prevent division by zero
+        f1_scores = 2 * precision * recall / (precision + recall + epsilon)
+        
+        # Find threshold with highest F1 score
+        best_idx = np.argmax(f1_scores)
+        best_threshold = thresholds[best_idx] if best_idx < len(thresholds) else 0.5
+        
+        # Store optimization results
+        self.threshold_optimization_results = {
+            'precision': precision,
+            'recall': recall,
+            'thresholds': thresholds,
+            'f1_scores': f1_scores,
+            'best_threshold': best_threshold,
+            'best_f1': f1_scores[best_idx],
+            'model_predictions': model_predictions
+        }
+        
+        print(f"Optimal threshold: {best_threshold:.4f} (F1: {f1_scores[best_idx]:.4f})")
+        
+        return best_threshold
+    
     def _get_results_header(self) -> str:
         """Override header for ensemble results"""
         return "Ensemble Experiment Results"
