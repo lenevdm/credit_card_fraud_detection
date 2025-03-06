@@ -58,7 +58,7 @@ class ExperimentConfig:
         TECHNIQUES = ['baseline', 'smote', 'random_undersampling', 'smoteenn', 'class_weight']
         # Defin technique weights for the weighted averaging
         TECHNIQUE_WEIGHTS = {
-            'baseline': 2.0,  # Higher weight for baseline (better precision)
+            'baseline': 1.0,  # Higher weight for baseline (better precision)
             'smote': 1.0,
             'random_undersampling': 1.0,
             'smoteenn': 1.0,
@@ -68,7 +68,5 @@ class ExperimentConfig:
         DECISION_THRESHOLD = 0.5
         # Whether to optimize threshold using validation data
         OPTIMIZE_THRESHOLD = True
-        # Metric to optimize threshold for (options: 'f1', 'gmean', 'balanced_accuracy')
-        THRESHOLD_METRIC = 'f1'
 
     
