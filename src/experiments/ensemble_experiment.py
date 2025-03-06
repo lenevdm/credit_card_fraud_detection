@@ -53,6 +53,165 @@ class EnsembleExperiment(BaseExperiment):
         self.models = {}
         self.threshold_optimization_results = None
 
+    def preprocess_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Preprocess data for all component techniques
+        
+        Args:
+            data: Original data dictionary
+            
+        Returns:
+            Dictionary containing preprocessed data for each technique
+        """
+        print("\nPreparing ensemble components...")
+        start_time = time.time()
+        
+        # Store initial memory usage
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        
+        # Validate input data
+        if not isinstance(data, dict) or not all(k in data for k in ['X_train', 'y_train', 'X_val', 'y_val', 'X_test', 'y_test']):
+            raise ValueError("Invalid data format provided to ensemble preprocessing")
+        
+        # Store original data
+        processed_data = {
+            'original': data.copy(),
+            'technique_data': {}
+        }
+        
+        # Process data for each technique
+        for name, experiment in self.technique_experiments.items():
+            try:
+                print(f"\nProcessing data for {name}...")
+                
+                # Create a deep copy of data for each technique
+                technique_data = {k: v.copy() for k, v in data.items()}
+                
+                # Apply technique-specific preprocessing
+                technique_data = experiment.preprocess_data(technique_data)
+                processed_data['technique_data'][name] = technique_data
+                
+                # Print basic info about processed data
+                if 'resampling_metadata' in technique_data:
+                    meta = technique_data['resampling_metadata']
+                    print(f"- Processed with {name}")
+                    print(f"- Training samples: {len(technique_data['y_train'])}")
+                    if 'final_ratio' in meta:
+                        print(f"- Final class ratio: {meta['final_ratio']:.2f}")
+                    
+            except Exception as e:
+                print(f"Error processing data for {name}: {str(e)}")
+                raise
+        
+        # Calculate and store metadata
+        processing_time = time.time() - start_time
+        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
+        
+        # Print processing info
+        print("\nEnsemble preparation complete:")
+        print(f"Time taken: {processing_time:.2f} seconds")
+        print(f"Memory used: {peak_memory:.2f} MB")
+        print(f"Number of techniques: {len(processed_data['technique_data'])}")
+        
+        # Store metadata
+        processed_data['ensemble_metadata'] = {
+            'processing_time': processing_time,
+            'peak_memory_usage': peak_memory,
+            'techniques': list(self.technique_experiments.keys()),
+            'technique_weights': self.technique_weights,
+            'data_shapes': {
+                'X_train': data['X_train'].shape,
+                'X_val': data['X_val'].shape,
+                'X_test': data['X_test'].shape
+            }
+        }
+        
+        # Store current data for logging
+        self.current_data = processed_data
+        
+        return processed_data
+    
+    def train_models(self, data: Dict[str, Any]) -> Dict[str, FraudDetectionModel]:
+        """
+        Train models for all component techniques
+        
+        Args:
+            data: Processed data dictionary containing data for each technique
+            
+        Returns:
+            Dictionary of trained models for each technique
+        """
+        print("\nTraining ensemble models...")
+        start_time = time.time()
+        
+        # Initialize storage for models and training metadata
+        models = {}
+        training_metadata = {}
+        
+        # Validate input data
+        if 'technique_data' not in data:
+            raise ValueError("Missing technique_data in processed data")
+        
+        # Train a model for each technique
+        for name, technique_data in data['technique_data'].items():
+            try:
+                print(f"\nTraining model for {name}...")
+                technique_start_time = time.time()
+                
+                # Initialize model
+                model = FraudDetectionModel()
+                
+                # Create callback list
+                callbacks = []
+                if hasattr(self, 'mlflow_tracker'):
+                    callbacks.append(self.mlflow_tracker.create_keras_callback())
+                
+                # Train model with technique-specific data
+                history = model.train(
+                    technique_data['X_train'],
+                    technique_data['y_train'],
+                    technique_data['X_val'],
+                    technique_data['y_val'],
+                    callbacks=callbacks,
+                    class_weight=technique_data.get('class_weights')
+                )
+                
+                # Store model and training metadata
+                models[name] = model
+                training_metadata[name] = {
+                    'training_time': time.time() - technique_start_time,
+                    'final_val_loss': history.history['val_loss'][-1],
+                    'final_val_accuracy': history.history['val_accuracy'][-1],
+                    'epochs_trained': len(history.history['loss'])
+                }
+                
+                print(f"- Training completed in {training_metadata[name]['training_time']:.2f} seconds")
+                print(f"- Final validation accuracy: {training_metadata[name]['final_val_accuracy']:.4f}")
+                
+            except Exception as e:
+                print(f"Error training model for {name}: {str(e)}")
+                raise
+        
+        # Calculate total training time
+        total_training_time = time.time() - start_time
+        
+        # Print summary
+        print("\nEnsemble training complete:")
+        print(f"Total training time: {total_training_time:.2f} seconds")
+        print(f"Models trained: {len(models)}/{len(data['technique_data'])}")
+        
+        # Store metadata
+        self.training_metadata = {
+            'total_training_time': total_training_time,
+            'technique_metadata': training_metadata,
+            'models_trained': len(models)
+        }
+        
+        # Store models
+        self.models = models
+        
+        return models
+    
     def _get_results_header(self) -> str:
         """Override header for ensemble results"""
         return "Ensemble Experiment Results"
