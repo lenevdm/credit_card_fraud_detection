@@ -272,4 +272,119 @@ with ExperimentTracker("experiment_name") as tracker:
 model = keras.Sequential(...)
 callbacks = [tracker.create_keras_callback()]
 model.fit(..., callbacks=callbacks)
+```
+# Architecture diagram
+```mermaid
+classDiagram
+    class DataPreparation {
+        +prepare_data()
+        +load_and_split_data()
+        -print_split_info()
+    }
+    
+    class ModelConfig {
+        +INPUT_DIM
+        +HIDDEN_LAYERS
+        +DROPOUT_RATE
+        +LEARNING_RATE
+        +BATCH_SIZE
+        +MAX_EPOCHS
+        +EARLY_STOPPING_PATIENCE
+    }
+    
+    class ExperimentConfig {
+        +BASE_EXPERIMENT_NAME
+        +N_RUNS
+        +METRICS_OF_INTEREST
+        +class SMOTE
+        +class RandomUndersampling
+        +class SMOTEENN
+        +class ClassWeight
+    }
+    
+    class FraudDetectionModel {
+        -_build_model()
+        +train()
+        +evaluate()
+    }
+    
+    class BaseExperiment {
+        <<abstract>>
+        +run_experiment()
+        +log_experiment_params()
+        -_aggregate_metrics()
+        +compare_with()
+        +print_results()
+        +preprocess_data()*
+    }
+    
+    class BaselineExperimentFinal {
+        +preprocess_data()
+        +log_experiment_params()
+        +print_results()
+    }
+    
+    class SMOTEExperiment {
+        +preprocess_data()
+        +log_experiment_params()
+    }
+    
+    class RandomUndersamplingExperiment {
+        +preprocess_data()
+        +log_experiment_params()
+    }
+    
+    class SMOTEENNExperiment {
+        +preprocess_data()
+        +log_experiment_params()
+    }
+    
+    class ClassWeightExperiment {
+        +preprocess_data()
+        +log_experiment_params()
+    }
+    
+    class ExperimentTracker {
+        +log_parameters()
+        +log_metrics()
+        +log_visualization_artifacts()
+        +create_keras_callback()
+    }
+    
+    class ComparativeAnalysis {
+        +run_multiple_techniques()
+        +analyze_technique_comparisons()
+        +generate_summary_table()
+    }
+    
+    class StatisticalAnalysis {
+        +paired_t_test()
+        +cohens_d()
+        +compare_techniques()
+        +adjust_pvalues()
+    }
+    
+    BaseExperiment <|-- BaselineExperimentFinal
+    BaseExperiment <|-- SMOTEExperiment
+    BaseExperiment <|-- RandomUndersamplingExperiment
+    BaseExperiment <|-- SMOTEENNExperiment
+    BaseExperiment <|-- ClassWeightExperiment
+    
+    BaseExperiment --> FraudDetectionModel : uses
+    BaseExperiment --> DataPreparation : uses
+    BaseExperiment --> ExperimentTracker : uses
+    
+    FraudDetectionModel --> ModelConfig : configures
+    BaseExperiment --> ExperimentConfig : configures
+    
+    ComparativeAnalysis --> BaseExperiment : analyzes
+    ComparativeAnalysis --> StatisticalAnalysis : uses
+    
+    ExperimentTracker --> mlflow : integrates
+    
+    note for BaseExperiment "Template Method Pattern"
+    note for ComparativeAnalysis "Cross-Technique Analysis Framework"
+```
+
+
 
