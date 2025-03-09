@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ML Experiment Comparison Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 40px;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #444;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background-color: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background-color: #2c7be5;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #2c7be5;
+        }
+
+        .stat-significant {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .stat-not-significant {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .footer {
+            font-size: 0.85em;
+            color: #888;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            table, th, td {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Comparison Results</h1>
+        <h2>SMOTEENNExperiment vs ClassWeightExperiment</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Mean Difference</th>
+                    <th>95% CI</th>
+                    <th>Effect Size</th>
+                    <th>p-value</th>
+                    <th>Adjusted p-value</th>
+                    <th>Significance</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ACCURACY</td>
+                    <td class="highlight">0.0125</td>
+                    <td>[0.0111, 0.0138]</td>
+                    <td>large (d = 4.369)</td>
+                    <td>0.0000</td>
+                    <td>0.0000</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>PRECISION</td>
+                    <td class="highlight">0.0861</td>
+                    <td>[0.0787, 0.0935]</td>
+                    <td>large (d = 5.518)</td>
+                    <td>0.0000</td>
+                    <td>0.0000</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>RECALL</td>
+                    <td class="highlight">-0.0078</td>
+                    <td>[-0.0108, -0.0049]</td>
+                    <td>large (d = -1.597)</td>
+                    <td>0.0000</td>
+                    <td>0.0000</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>F1_SCORE</td>
+                    <td class="highlight">0.1356</td>
+                    <td>[0.1244, 0.1469]</td>
+                    <td>large (d = 5.643)</td>
+                    <td>0.0000</td>
+                    <td>0.0000</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>ROC_AUC</td>
+                    <td class="highlight">-0.0083</td>
+                    <td>[-0.0091, -0.0075]</td>
+                    <td>large (d = -5.410)</td>
+                    <td>0.0000</td>
+                    <td>0.0000</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>AUPRC</td>
+                    <td class="highlight">0.0126</td>
+                    <td>[0.0092, 0.0160]</td>
+                    <td>large (d = 1.571)</td>
+                    <td>0.0000</td>
+                    <td>0.0000</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>G_MEAN</td>
+                    <td class="highlight">0.0019</td>
+                    <td>[0.0004, 0.0035]</td>
+                    <td>medium (d = 0.763)</td>
+                    <td>0.0176</td>
+                    <td>0.0195</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>MCC</td>
+                    <td class="highlight">0.1236</td>
+                    <td>[0.1132, 0.1339]</td>
+                    <td>large (d = 5.600)</td>
+                    <td>0.0000</td>
+                    <td>0.0000</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>TRAINING_TIME</td>
+                    <td class="highlight">-0.0303</td>
+                    <td>[-0.0495, -0.0112]</td>
+                    <td>large (d = -0.862)</td>
+                    <td>0.0030</td>
+                    <td>0.0037</td>
+                    <td class="stat-significant">Significant</td>
+                </tr>
+                <tr>
+                    <td>PEAK_MEMORY_USAGE</td>
+                    <td class="highlight">-0.2462</td>
+                    <td>[-0.8162, 0.3238]</td>
+                    <td>small (d = -0.209)</td>
+                    <td>0.3842</td>
+                    <td>0.3842</td>
+                    <td class="stat-not-significant">Not Significant</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">Generated on: 2025-03-09</div>
+    </div>
+</body>
+</html>
