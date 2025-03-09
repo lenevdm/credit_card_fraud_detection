@@ -271,7 +271,7 @@ def format_comparison_results(comparison_results: Dict[str, Any]) -> str:
     for metric, results in comparison_results['comparisons'].items():
         output.extend([
             f"\n{metric.upper()}:",
-            f"Mean difference ({technique2} - {technique1}): {results['mean_difference']:.4f}",
+            f"Mean difference ({technique1} - {technique2}): {results['mean_difference']:.4f}",
             f"95% CI: [{results['ci_lower']:.4f}, {results['ci_upper']:.4f}]",
             f"Effect size: {results['effect_size']} (d = {results['cohens_d']:.3f})",
             f"p-value: {results['p_value']:.4f} (adjusted: {results['p_value_adjusted']:.4f})",
