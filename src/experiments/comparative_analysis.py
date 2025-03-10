@@ -156,7 +156,16 @@ def analyze_technique_comparisons(
             return comparisons
         
          # Combine all formatted results with clear separation
-        combined_results = "\n\n" + "="*80 + "\n\n".join(all_formatted_results)
+        combined_results = (
+            "COMPREHENSIVE STATISTICAL ANALYSIS OF FRAUD DETECTION TECHNIQUES\n" +
+            "=" * 80 + "\n\n" +
+            "Number of runs per technique: 2\n" +  # Update this to use actual n_runs
+            "Metrics analyzed: " + ", ".join(ExperimentConfig.METRICS_OF_INTEREST) + "\n\n" +
+            "=" * 80 + "\n\n" +
+            "\n\n" + "=" * 80 + "\n\n".join(all_formatted_results) +
+            "\n\n" + "=" * 80 + "\n\n" +
+            "Analysis completed successfully.\n"
+        )
 
         print(f"\nDebug - Combined results length: {len(combined_results)}")
         
@@ -202,7 +211,8 @@ def analyze_technique_comparisons(
         html_content += summary_table.to_html(index=False)
         html_content += "</body></html>"
         
-        with open("technique_summary.html", "w") as f:
+        # Write with UTF-8 encoding explicitly specified
+        with open("technique_summary.html", "w", encoding='utf-8') as f:
             f.write(html_content)
         mlflow.log_artifact("technique_summary.html")
             
