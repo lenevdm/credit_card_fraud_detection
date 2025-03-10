@@ -197,16 +197,46 @@ def analyze_technique_comparisons(
         
         # Save as HTML table with basic styling
         html_content = """
-        <html>
+        <!DOCTYPE html>
+        <html lang="en">
         <head>
+            <meta charset="UTF-8">
+            <title>Technique Summary</title>
             <style>
-                body { font-family: Arial, sans-serif;}
-                table { border-collapse: collapse; width: 100%; }
-                th, td { border: 1px solid black; padding: 8px; text-align: left; }
-                th { background-color: #f2f2f2; }
+                body { 
+                    font-family: Arial, sans-serif;
+                    padding: 20px;
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                table { 
+                    border-collapse: collapse; 
+                    width: 100%;
+                    margin-top: 20px;
+                }
+                th, td { 
+                    border: 1px solid black; 
+                    padding: 8px; 
+                    text-align: left; 
+                }
+                th { 
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
             </style>
         </head>
         <body>
+            <div class="header">
+                <h1>Fraud Detection Technique Performance Summary</h1>
+                <p>Comparison of different class balancing techniques</p>
+            </div>
         """
         html_content += summary_table.to_html(index=False)
         html_content += "</body></html>"
