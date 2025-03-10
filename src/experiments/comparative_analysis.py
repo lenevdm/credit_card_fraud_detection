@@ -71,8 +71,9 @@ def analyze_technique_comparisons(
     # Add debug prints
     print(f"\nDebug: Analyzing techniques: {techniques}")
 
-    # Create a list to store all formatted results
+    # Create lists to store all results
     all_formatted_results = []
+    all_comparison_data = []
     
     # Start a new MLflow run for comparisons
     with mlflow.start_run(run_name="technique_comparison"):
@@ -98,6 +99,9 @@ def analyze_technique_comparisons(
                     # Store comparison results
                     comparison_key = f"{technique1}_vs_{technique2}"
                     comparisons[comparison_key] = comparison
+
+                     # Store this comparison data for HTML formatting
+                    all_comparison_data.append(comparison)
                     
                     # Log comparison metrics to MLflow
                     for metric, results in comparison['comparisons'].items():
@@ -141,6 +145,12 @@ def analyze_technique_comparisons(
         with open("comparison_results.txt", "w") as f:
             f.write(combined_results)
         mlflow.log_artifact("comparison_results.txt")
+
+        # Generate and save HTML comparison results
+        html_content = format_comparison_results_html(all_comparison_data)
+        with open("comparison_results.html", "w") as f:
+            f.write(html_content)
+        mlflow.log_artifact("comparison_results.html")
         
         # Log the summary table
         summary_table = generate_summary_table(experiment_results)
@@ -243,6 +253,151 @@ def run_comparative_analysis(data_path: str = "data/creditcard.csv") -> Dict[str
     except Exception as e:
         print(f"\nError during comparative analysis: {str(e)}")
         raise
+
+def format_comparison_results_html(comparisons: List[Dict[str, Any]]) -> str:
+    """
+    Format comparison results as HTML with styling
+
+    Args: 
+        comparisons: List of comparison result dictionaries
+
+    Returns:
+        str: Formatted HTML content
+    """
+    html_template = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>ML Experiment Comparison Results</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f9f9f9;
+                margin: 40px;
+                color: #333;
+            }
+
+            h1, h2 {
+                color: #444;
+                text-align: center;
+            }
+
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 30px;
+                background-color: #fff;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+
+            th, td {
+                padding: 12px 16px;
+                border-bottom: 1px solid #ddd;
+                text-align: center;
+            }
+
+            th {
+                background-color: #2c7be5;
+                color: #fff;
+                font-weight: 600;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            .highlight {
+                font-weight: bold;
+                color: #2c7be5;
+            }
+
+            .stat-significant {
+                color: #28a745;
+                font-weight: bold;
+            }
+
+            .stat-not-significant {
+                color: #dc3545;
+                font-weight: bold;
+            }
+
+            .footer {
+                font-size: 0.85em;
+                color: #888;
+                text-align: center;
+                margin-top: 40px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Comparison Results</h1>
+            {comparison_tables}
+            <div class="footer">Generated on: {date}</div>
+        </div>
+    </body>
+    </html>
+    """
+
+    comparison_tables = []
+
+    for comparison in comparisons:
+        technique1 = comparison['technique_names']['technique1']
+        technique2 = comparison['technique_names']['technique2']
+
+        table_html = f"""
+        <h2>{technique1} vs {technique2}</h2>
+        <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Mean Difference</th>
+                        <th>95% CI</th>
+                        <th>Effect Size</th>
+                        <th>p-value</th>
+                        <th>Adjusted p-value</th>
+                        <th>Significance</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """
+
+        for metric, results in comparison['comparisons'].items():
+            significant = results['is_significant']
+            significance_class = "stat-significant" if significant else "stat-not-significant"
+            significance_text = "Significant" if significant else "Not Significant"
+            
+            table_html += f"""
+                <tr>
+                    <td>{metric.upper()}</td>
+                    <td class="highlight">{results['mean_difference']:.4f}</td>
+                    <td>[{results['ci_lower']:.4f}, {results['ci_upper']:.4f}]</td>
+                    <td>{results['effect_size']} (d = {results['cohens_d']:.3f})</td>
+                    <td>{results['p_value']:.4f}</td>
+                    <td>{results['p_value_adjusted']:.4f}</td>
+                    <td class="{significance_class}">{significance_text}</td>
+                </tr>
+            """
+        
+        table_html += """
+                </tbody>
+            </table>
+        """
+        comparison_tables.append(table_html)
+    
+    from datetime import datetime
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    
+    return html_template.format(
+        comparison_tables="\n".join(comparison_tables),
+        date=current_date
+    )
 
 def main():
     """Main entry point for comparative analysis"""
