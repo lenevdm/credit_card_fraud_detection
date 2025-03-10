@@ -28,7 +28,14 @@ class BaselineExperimentFinal(BaseExperiment):
         Returns:
             Same data structure, unmodified for baseline
         """
-        return data
+         # Make sure we're returning data in the same structure that other techniques return
+        print("Debug - baseline preprocess_data called")
+        print("Debug - input data keys:", data.keys())
+        
+        # Return the data with consistent structure
+        processed_data = {k: v for k, v in data.items()}
+        print("Debug - returning processed data with keys:", processed_data.keys())
+        return processed_data
     
     def log_experiment_params(self, tracker: Any) -> None:
         """
