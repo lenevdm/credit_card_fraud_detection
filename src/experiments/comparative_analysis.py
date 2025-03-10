@@ -70,6 +70,9 @@ def analyze_technique_comparisons(
     
     # Add debug prints
     print(f"\nDebug: Analyzing techniques: {techniques}")
+
+    # Create a list to store all formatted results
+    all_formatted_results = []
     
     # Start a new MLflow run for comparisons
     with mlflow.start_run(run_name="technique_comparison"):
@@ -121,19 +124,23 @@ def analyze_technique_comparisons(
                                 # If there's an error, try to close all figures to clean up
                                 plt.close('all')
                     
-                    # Print formatted results
+                    # Format and store this comparison's results
                     formatted_results = format_comparison_results(comparison)
-                    print(formatted_results)
-                    
-                    # Save formatted results as text artifact
-                    with open("comparison_results.txt", "w") as f:
-                        f.write(formatted_results)
-                    mlflow.log_artifact("comparison_results.txt")
+                    all_formatted_results.append(formatted_results)
+                    #print(formatted_results)
                     
                 except Exception as e:
                     print(f"Error comparing {technique1} vs {technique2}: {str(e)}")
                     print("Continuing with next comparison...")
                     continue
+        
+         # Combine all formatted results with clear separation
+        combined_results = "\n\n" + "="*80 + "\n\n".join(all_formatted_results)
+        
+        # Save all formatted results as text artifact
+        with open("comparison_results.txt", "w") as f:
+            f.write(combined_results)
+        mlflow.log_artifact("comparison_results.txt")
         
         # Log the summary table
         summary_table = generate_summary_table(experiment_results)
@@ -147,6 +154,7 @@ def analyze_technique_comparisons(
         <html>
         <head>
             <style>
+                body { font-family: Arial, sans-serif;}
                 table { border-collapse: collapse; width: 100%; }
                 th, td { border: 1px solid black; padding: 8px; text-align: left; }
                 th { background-color: #f2f2f2; }
