@@ -77,6 +77,10 @@ def paired_t_test(
         - is_significant: boolean indicating if difference is significant
     """
 
+    # Add debug prints
+    print(f"\nDebug - paired_t_test for metric: {metric_name}")
+    print(f"Debug - Number of samples: {len(technique1_metrics)}, {len(technique2_metrics)}")
+    
     # Validation
     if not technique1_metrics or not technique2_metrics:
         raise ValueError("Empty metrics list provided")
@@ -84,14 +88,43 @@ def paired_t_test(
     if len(technique1_metrics) != len(technique2_metrics):
         raise ValueError(f"Unequal number of runs: {len(technique1_metrics)} vs {len(technique2_metrics)}")
     
-    # Extract metric values
+    # Extract metric values with debug information
     try:
-        values1 = [m[metric_name] for m in technique1_metrics]
-        values2 = [m[metric_name] for m in technique2_metrics]
+        print(f"Debug - First technique1 metrics keys: {technique1_metrics[0].keys()}")
+        print(f"Debug - First technique2 metrics keys: {technique2_metrics[0].keys()}")
+        
+        # Extract values and ensure they're numeric
+        values1 = []
+        values2 = []
+        for m1, m2 in zip(technique1_metrics, technique2_metrics):
+            # Handle mean values if they exist
+            metric_key = f"{metric_name}_mean" if f"{metric_name}_mean" in m1 else metric_name
+            
+            try:
+                val1 = float(m1[metric_key])
+                val2 = float(m2[metric_key])
+                values1.append(val1)
+                values2.append(val2)
+            except (KeyError, ValueError) as e:
+                print(f"Debug - Error processing values: {str(e)}")
+                print(f"Debug - m1[{metric_key}]: {m1.get(metric_key, 'NOT FOUND')}")
+                print(f"Debug - m2[{metric_key}]: {m2.get(metric_key, 'NOT FOUND')}")
+                raise
+        
+        # Convert to numpy arrays
+        values1 = np.array(values1)
+        values2 = np.array(values2)
+        
+        print(f"Debug - Values extracted successfully:")
+        print(f"Values1: {values1}")
+        print(f"Values2: {values2}")
+        
     except KeyError:
+        print(f"Debug - Available keys in technique1: {list(technique1_metrics[0].keys())}")
+        print(f"Debug - Available keys in technique2: {list(technique2_metrics[0].keys())}")
         raise KeyError(f"Metric '{metric_name}' not found in both techniques' results")
-    except ValueError:
-        raise ValueError(f"Non-numeric values found for metric '{metric_name}'")
+    except ValueError as e:
+        raise ValueError(f"Non-numeric values found for metric '{metric_name}': {str(e)}")
 
 
     # Calculate differences
@@ -128,12 +161,12 @@ def paired_t_test(
     effect_size_interp = interpret_cohens_d(d)
 
     return {
-        't_statistic': t_stat,
-        'p_value': p_value,
+        't_statistic': float(t_stat),
+        'p_value': float(p_value),
         'mean_difference': mean_diff,
-        'ci_lower': ci[0],
-        'ci_upper': ci[1],
-        'cohens_d': d,
+        'ci_lower': float(ci[0]),
+        'ci_upper': float(ci[1]),
+        'cohens_d': float(d),
         'effect_size': effect_size_interp,
         'is_significant': p_value < alpha
     }
