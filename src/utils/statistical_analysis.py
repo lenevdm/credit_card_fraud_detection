@@ -90,10 +90,13 @@ def paired_t_test(
         values2 = [m[metric_name] for m in technique2_metrics]
     except KeyError:
         raise KeyError(f"Metric '{metric_name}' not found in both techniques' results")
+    except ValueError:
+        raise ValueError(f"Non-numeric values found for metric '{metric_name}'")
 
 
     # Calculate differences
-    differences = np.array(values1) - np.array(values2)
+    #differences = np.array(values1) - np.array(values2)
+    differences = values1 - values2
 
     # Check for near-identical values
     if np.std(differences) < 1e-10:
