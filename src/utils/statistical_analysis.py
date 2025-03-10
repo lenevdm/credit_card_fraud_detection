@@ -281,5 +281,8 @@ def format_comparison_results(comparison_results: Dict[str, Any]) -> str:
             "* Statistically significant (after correction)" if results['is_significant'] else ""
         ])
     
-    return "\n".join(output)    
+    # Add debug print
+    result = "\n".join(output)
+    print(f"\nDebug - format_comparison_results output length: {len(result)}")
+    return result   
 

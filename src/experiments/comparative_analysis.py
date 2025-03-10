@@ -102,6 +102,7 @@ def analyze_technique_comparisons(
 
                      # Store this comparison data for HTML formatting
                     all_comparison_data.append(comparison)
+                    print(f"Debug - Added comparison data. Current length: {len(all_comparison_data)}")
                     
                     # Log comparison metrics to MLflow
                     for metric, results in comparison['comparisons'].items():
@@ -132,14 +133,32 @@ def analyze_technique_comparisons(
                     formatted_results = format_comparison_results(comparison)
                     all_formatted_results.append(formatted_results)
                     #print(formatted_results)
+                    print(f"Debug - Added formatted results. Current length: {len(all_formatted_results)}")
                     
                 except Exception as e:
                     print(f"Error comparing {technique1} vs {technique2}: {str(e)}")
+                    print("Exception details:", e.__class__.__name__)
+                    import traceback
+                    print(traceback.format_exc())
                     print("Continuing with next comparison...")
                     continue
+
+        print(f"\nDebug - Final counts:")
+        print(f"All comparison data length: {len(all_comparison_data)}")
+        print(f"All formatted results length: {len(all_formatted_results)}")
+
+        if not all_formatted_results:
+            print("Warning: No formatted results collected!")
+            return comparisons
+            
+        if not all_comparison_data:
+            print("Warning: No comparison data collected!")
+            return comparisons
         
          # Combine all formatted results with clear separation
         combined_results = "\n\n" + "="*80 + "\n\n".join(all_formatted_results)
+
+        print(f"\nDebug - Combined results length: {len(combined_results)}")
         
         # Save all formatted results as text artifact
         with open("comparison_results.txt", "w") as f:
@@ -147,10 +166,18 @@ def analyze_technique_comparisons(
         mlflow.log_artifact("comparison_results.txt")
 
         # Generate and save HTML comparison results
-        html_content = format_comparison_results_html(all_comparison_data)
-        with open("comparison_results.html", "w") as f:
-            f.write(html_content)
-        mlflow.log_artifact("comparison_results.html")
+        try:
+            html_content = format_comparison_results_html(all_comparison_data)
+            print(f"\nDebug - HTML content length: {len(html_content)}")
+            
+            with open("comparison_results.html", "w") as f:
+                f.write(html_content)
+            mlflow.log_artifact("comparison_results.html")
+        except Exception as e:
+            print(f"Error generating HTML content: {str(e)}")
+            print("Exception details:", e.__class__.__name__)
+            import traceback
+            print(traceback.format_exc())
         
         # Log the summary table
         summary_table = generate_summary_table(experiment_results)
@@ -271,75 +298,75 @@ def format_comparison_results_html(comparisons: List[Dict[str, Any]]) -> str:
         <meta charset="UTF-8">
         <title>ML Experiment Comparison Results</title>
         <style>
-            body {
+            body {{
                 font-family: Arial, sans-serif;
                 background-color: #f9f9f9;
                 margin: 40px;
                 color: #333;
-            }
+            }}
 
-            h1, h2 {
+            h1, h2 {{
                 color: #444;
                 text-align: center;
-            }
+            }}
 
-            .container {
+            .container {{
                 max-width: 1000px;
                 margin: 0 auto;
-            }
+            }}
 
-            table {
+            table {{
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 30px;
                 background-color: #fff;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            }
+            }}
 
-            th, td {
+            th, td {{
                 padding: 12px 16px;
                 border-bottom: 1px solid #ddd;
                 text-align: center;
-            }
+            }}
 
-            th {
+            th {{
                 background-color: #2c7be5;
                 color: #fff;
                 font-weight: 600;
-            }
+            }}
 
-            tr:nth-child(even) {
+            tr:nth-child(even) {{
                 background-color: #f2f2f2;
-            }
+            }}
 
-            .highlight {
+            .highlight {{
                 font-weight: bold;
                 color: #2c7be5;
-            }
+            }}
 
-            .stat-significant {
+            .stat-significant {{
                 color: #28a745;
                 font-weight: bold;
-            }
+            }}
 
-            .stat-not-significant {
+            .stat-not-significant {{
                 color: #dc3545;
                 font-weight: bold;
-            }
+            }}
 
-            .footer {
+            .footer {{
                 font-size: 0.85em;
                 color: #888;
                 text-align: center;
                 margin-top: 40px;
-            }
+            }}
         </style>
     </head>
     <body>
         <div class="container">
             <h1>Comparison Results</h1>
-            {comparison_tables}
-            <div class="footer">Generated on: {date}</div>
+            {0}
+            <div class="footer">Generated on: {1}</div>
         </div>
     </body>
     </html>
@@ -394,10 +421,7 @@ def format_comparison_results_html(comparisons: List[Dict[str, Any]]) -> str:
     from datetime import datetime
     current_date = datetime.now().strftime("%Y-%m-%d")
     
-    return html_template.format(
-        comparison_tables="\n".join(comparison_tables),
-        date=current_date
-    )
+    return html_template.format("\n".join(comparison_tables), current_date)
 
 def main():
     """Main entry point for comparative analysis"""
