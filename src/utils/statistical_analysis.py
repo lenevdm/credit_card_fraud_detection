@@ -23,13 +23,19 @@ def cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
     Returns"
         float: Cohen's d effect size
     """
-    differences = group1 - group2
-
-    mean_diff = np.mean(differences)
-
-    std_diff = np.std(differences, ddof=1) + 1e-10  # Add epsilon to avoid division by zero
+    n1, n2 = len(group1), len(group2)
+    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
     
-    return mean_diff / std_diff
+    # Pooled standard deviation
+    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    
+    # Add small epsilon to avoid division by zero
+    pooled_std = pooled_std + 1e-10
+    
+    # Mean difference
+    mean_diff = np.mean(group1) - np.mean(group2)
+    
+    return mean_diff / pooled_std
 
 def interpret_cohens_d(d: float) -> str:
     """
