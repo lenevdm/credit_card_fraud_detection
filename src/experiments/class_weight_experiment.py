@@ -37,7 +37,6 @@ class ClassWeightExperiment(BaseExperiment):
         Returns:
             Dictionary with original data and added class weights
         """
-
         print("\nCalculating class weights for imbalanced data...")
         start_time = time.time()
 
@@ -47,6 +46,7 @@ class ClassWeightExperiment(BaseExperiment):
         
         # Store initial memory usage
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = initial_memory
 
         # Get original class distribution
         y_train_flat = data['y_train'].ravel()
@@ -63,9 +63,15 @@ class ClassWeightExperiment(BaseExperiment):
         # Create class weight dictionary for Keras
         class_weight_dict = {i: weight for i, weight in zip(classes, class_weights)}
 
+        # Update peak memory after weight calculation
+        current_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = max(peak_memory_seen, current_memory)
+        
+        # Calculate actual memory increase
+        peak_memory_usage = max(0, peak_memory_seen - initial_memory)
+
         # Calculate detailed metadata
         calculation_time = time.time() - start_time
-        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
 
         # Print weight info
         print("\nClass Weight Results:")
@@ -79,7 +85,7 @@ class ClassWeightExperiment(BaseExperiment):
         print(f"Fraudulent (Class 1): {class_weight_dict[1]:.4f}")
         print(f"Weight ratio: {class_weight_dict[1]/class_weight_dict[0]:.2f}:1")
         print(f"\nPerformance metrics:")
-        print(f"Memory used: {peak_memory:.2f} MB")
+        print(f"Memory used: {peak_memory_usage:.2f} MB")
         print(f"Time taken: {calculation_time:.2f} seconds")
 
         # Return processed data with class weights
@@ -91,17 +97,12 @@ class ClassWeightExperiment(BaseExperiment):
             'original_distribution': original_dist.tolist(),
             'class_weights': class_weight_dict,
             'calculation_time': calculation_time,
-            'peak_memory_usage': peak_memory,
+            'peak_memory_usage': peak_memory_usage,
             'weight_ratio': class_weight_dict[1] / class_weight_dict[0]
         }
 
         # Store current data for logging
         self.current_data = processed_data
-
-        # Print info for debugging
-        print(f"\nMLflow tracking info:")
-        print(f"Experiment name: {self.experiment_name}")
-        print(f"Experiment ID: {self.experiment_id if hasattr(self, 'experiment_id') else 'Not set'}")
 
         return processed_data
 
@@ -135,13 +136,10 @@ class ClassWeightExperiment(BaseExperiment):
 
 def main():
     """Run the Class Weight experiment"""
-    
     experiment = ClassWeightExperiment()
-    
     try:
         results = experiment.run_experiment("data/creditcard.csv")
         experiment.print_results(results)
-        
     except Exception as e:
         print(f"Experiment failed: {str(e)}")
         raise
