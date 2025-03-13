@@ -1,6 +1,9 @@
 """Final baseline experiment implementation for credit card fraud detection"""
 
 from typing import Dict, Any, List
+import time
+import psutil
+import numpy as np
 from src.experiments.base_experiment import BaseExperiment
 from config.experiment_config import ExperimentConfig
 
@@ -20,7 +23,7 @@ class BaselineExperimentFinal(BaseExperiment):
     def preprocess_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Implements required preprocessing for baseline experiment.
-        For baseline, this simply returns the data unchanged.
+        For baseline, this tracks memory usage but returns data unchanged.
         
         Args:
             data: Dictionary containing train/val/test splits
@@ -28,13 +31,55 @@ class BaselineExperimentFinal(BaseExperiment):
         Returns:
             Same data structure, unmodified for baseline
         """
-         # Make sure we're returning data in the same structure that other techniques return
-        print("Debug - baseline preprocess_data called")
-        print("Debug - input data keys:", data.keys())
+        print("\nPreparing baseline data...")
+        start_time = time.time()
         
-        # Return the data with consistent structure
-        processed_data = {k: v for k, v in data.items()}
-        print("Debug - returning processed data with keys:", processed_data.keys())
+        # Add validation of input data
+        if np.isnan(data['X_train']).any():
+            raise ValueError("Input data contains NaN values")
+        
+        # Store initial memory usage
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = initial_memory
+
+        # Get original class distribution
+        original_dist = np.bincount(data['y_train'].ravel())
+
+        # Update peak memory
+        current_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = max(peak_memory_seen, current_memory)
+        
+        # Calculate actual memory increase
+        peak_memory_usage = max(0, peak_memory_seen - initial_memory)
+
+        # Calculate processing time
+        processing_time = time.time() - start_time
+
+        # Print baseline info
+        print("\nBaseline Data Preparation:")
+        print("-" * 40)
+        print(f"Original class distribution:")
+        print(f"Non-fraudulent: {original_dist[0]} ({original_dist[0]/sum(original_dist)*100:.2f}%)")
+        print(f"Fraudulent: {original_dist[1]} ({original_dist[1]/sum(original_dist)*100:.2f}%)")
+        print(f"Class ratio: {original_dist[0]/original_dist[1]:.2f}:1")
+        print(f"\nPerformance metrics:")
+        print(f"Memory used: {peak_memory_usage:.2f} MB")
+        print(f"Time taken: {processing_time:.2f} seconds")
+        
+        # Return processed data with metadata
+        processed_data = data.copy()
+        
+        # Add metadata
+        processed_data['baseline_metadata'] = {
+            'original_distribution': original_dist.tolist(),
+            'processing_time': processing_time,
+            'peak_memory_usage': peak_memory_usage,
+            'class_ratio': original_dist[0] / original_dist[1]
+        }
+
+        # Store current data for logging
+        self.current_data = processed_data
+        
         return processed_data
     
     def log_experiment_params(self, tracker: Any) -> None:
@@ -51,6 +96,15 @@ class BaselineExperimentFinal(BaseExperiment):
             "data_modification": "none",
             "class_balancing": "none"
         })
+
+        # Log baseline metadata if available
+        if hasattr(self, 'current_data') and 'baseline_metadata' in self.current_data:
+            metadata = self.current_data['baseline_metadata']
+            tracker.log_parameters({
+                'original_class_ratio': metadata['class_ratio'],
+                'processing_memory_mb': f"{metadata['peak_memory_usage']:.2f}",
+                'processing_time_seconds': f"{metadata['processing_time']:.2f}"
+            })
 
     def _validate_metrics_list(self) -> bool:
         """
@@ -113,13 +167,10 @@ class BaselineExperimentFinal(BaseExperiment):
 
 def main():
     """Run the final baseline experiment"""
-    
     experiment = BaselineExperimentFinal()
-    
     try:
         results = experiment.run_experiment("data/creditcard.csv")
         experiment.print_results(results)
-        
     except Exception as e:
         print(f"Experiment failed: {str(e)}")
         raise
