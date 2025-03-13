@@ -233,6 +233,19 @@ class ExperimentTracker:
         
         return MLFlowCallback(self)
     
+    def track_memory_usage(initial_memory: float) -> float:
+        """
+        Track peak memory usage relative to initial memory
+        
+        Args:
+            initial_memory: Initial memory usage in MB
+            
+        Returns:
+            float: Peak memory increase in MB
+        """
+        current_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        return max(0, current_memory - initial_memory)
+    
     def __enter__(self):
         """Start MLflow run when entering context"""
         mlflow.start_run(run_name=self.experiment_name)
