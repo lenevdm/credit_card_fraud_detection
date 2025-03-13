@@ -48,6 +48,7 @@ class SMOTEENNExperiment(BaseExperiment):
         
         # Store initial memory usage
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = initial_memory
 
         try:
             # Create SMOTE instance
@@ -84,11 +85,19 @@ class SMOTEENNExperiment(BaseExperiment):
                 data['X_train'],
                 data['y_train'].ravel()
             )
+
+            # Update peak memory after processing
+            current_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            peak_memory_seen = max(peak_memory_seen, current_memory)
+            
+            # Calculate actual memory increase
+            peak_memory_usage = max(0, peak_memory_seen - initial_memory)
+
         except Exception as e:
             print(f"\nError during SMOTE-ENN processing:")
             print(f"Error type: {type(e).__name__}")
             print(f"Error message: {str(e)}")
-            raise  # Re-raise the exception after logging
+            raise
 
         # Print processing details
         print("\nSMOTE-ENN Processing Details:")
@@ -101,12 +110,8 @@ class SMOTEENNExperiment(BaseExperiment):
         print(f"- n_neighbors: {ExperimentConfig.SMOTEENN.ENN_K_NEIGHBORS}")
         
         original_count = len(data['y_train'])
-        synthetic_count = len(y_train_resampled) - original_count
-        removed_count = original_count - len(y_train_resampled)
-
-        print(f"Synthetic samples created: {synthetic_count}")
-        print(f"Samples removed by ENN: {removed_count}")
-        print(f"Net change in dataset size: {len(y_train_resampled) - original_count}")
+        resampled_count = len(y_train_resampled)
+        samples_removed = original_count - resampled_count
 
         # Validate resampled data
         if np.isnan(X_train_resampled).any():
@@ -117,19 +122,7 @@ class SMOTEENNExperiment(BaseExperiment):
 
         # Calculate detailed metadata
         resampling_time = time.time() - start_time
-        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
-        samples_after = len(y_train_resampled)
-        samples_removed = len(data['y_train']) - samples_after
         
-        metadata = {
-            'original_distribution': original_dist.tolist(),
-            'resampled_distribution': resampled_dist.tolist(),
-            'resampling_time': resampling_time,
-            'peak_memory_usage': peak_memory,
-            'samples_removed': samples_removed,
-            'final_ratio': resampled_dist[0] / resampled_dist[1]
-        }
-
         # Print resampling info
         print("\nResampling Results:")
         print("-" * 40)
@@ -141,7 +134,7 @@ class SMOTEENNExperiment(BaseExperiment):
         print(f"Fraudulent: {resampled_dist[1]} ({resampled_dist[1]/sum(resampled_dist)*100:.2f}%)")
         print(f"\nPerformance metrics:")
         print(f"Samples removed by ENN: {samples_removed:,}")
-        print(f"Memory used: {peak_memory:.2f} MB")
+        print(f"Memory used: {peak_memory_usage:.2f} MB")
         print(f"Time taken: {resampling_time:.2f} seconds")
 
         # Reshape target variables
@@ -155,7 +148,14 @@ class SMOTEENNExperiment(BaseExperiment):
             'y_val': data['y_val'],
             'X_test': data['X_test'],
             'y_test': data['y_test'],
-            'resampling_metadata': metadata
+            'resampling_metadata': {
+                'original_distribution': original_dist.tolist(),
+                'resampled_distribution': resampled_dist.tolist(),
+                'resampling_time': resampling_time,
+                'peak_memory_usage': peak_memory_usage,
+                'samples_removed': samples_removed,
+                'final_ratio': resampled_dist[0] / resampled_dist[1]
+            }
         }
 
         # Store current data for logging
@@ -164,13 +164,18 @@ class SMOTEENNExperiment(BaseExperiment):
         return processed_data
 
     def log_experiment_params(self, tracker: Any) -> None:
-        """Log SMOTE-ENN specific parameters and metadata"""
+        """
+        Log SMOTE-ENN specific parameters and metadata
+        """
         super().log_experiment_params(tracker)
 
         tracker.log_parameters({
             'experiment_type': 'smoteenn',
             'data_modification': 'hybrid',
-            'class_balancing': 'smoteenn'
+            'class_balancing': 'smoteenn',
+            'smote_k_neighbors': ExperimentConfig.SMOTEENN.K_NEIGHBORS,
+            'enn_k_neighbors': ExperimentConfig.SMOTEENN.ENN_K_NEIGHBORS,
+            'sampling_strategy': ExperimentConfig.SMOTEENN.SAMPLING_STRATEGY
         })
 
         if hasattr(self, 'current_data') and 'resampling_metadata' in self.current_data:
