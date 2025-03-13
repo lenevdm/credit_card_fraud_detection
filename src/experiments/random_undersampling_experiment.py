@@ -21,10 +21,7 @@ class RandomUndersamplingExperiment(BaseExperiment):
     """
     
     def __init__(self, n_runs: int = None):
-        """
-        Initialize Random Undersampling experiment
-        
-        """
+        """Initialize Random Undersampling experiment"""
         super().__init__(
             experiment_name=ExperimentConfig.RandomUndersampling.NAME,
             n_runs=n_runs
@@ -43,12 +40,13 @@ class RandomUndersamplingExperiment(BaseExperiment):
         print("\nApplying Random Undersampling...")
         start_time = time.time()
        
-       # Add validation of input data
+        # Add validation of input data
         if np.isnan(data['X_train']).any():
             raise ValueError("Input data contains NaN values")
         
         # Store initial memory usage
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = initial_memory
 
         # Initialize RandomUnderSampler with less aggressive strategy
         undersampler = RandomUnderSampler(
@@ -64,6 +62,13 @@ class RandomUndersamplingExperiment(BaseExperiment):
             data['X_train'],
             data['y_train'].ravel()
         )
+
+        # Update peak memory after resampling
+        current_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = max(peak_memory_seen, current_memory)
+        
+        # Calculate actual memory increase
+        peak_memory_usage = max(0, peak_memory_seen - initial_memory)
 
         # Validate resampled data
         if np.isnan(X_train_resampled).any():
@@ -81,7 +86,6 @@ class RandomUndersamplingExperiment(BaseExperiment):
 
         # Calculate detailed metadata
         resampling_time = time.time() - start_time
-        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
         removed_samples = len(data['y_train']) - len(y_train_resampled)
 
         # Print resampling info
@@ -97,7 +101,7 @@ class RandomUndersamplingExperiment(BaseExperiment):
         print(f"Final ratio: {resampled_dist[0]/resampled_dist[1]:.2f}:1")
         print(f"\nPerformance metrics:")
         print(f"Samples removed: {removed_samples:,}")
-        print(f"Memory used: {peak_memory:.2f} MB")
+        print(f"Memory used: {peak_memory_usage:.2f} MB")
         print(f"Time taken: {resampling_time:.2f} seconds")
 
         # Reshape target variables
@@ -115,7 +119,7 @@ class RandomUndersamplingExperiment(BaseExperiment):
                 'original_distribution': original_dist.tolist(),
                 'resampled_distribution': resampled_dist.tolist(),
                 'resampling_time': resampling_time,
-                'peak_memory_usage': peak_memory,
+                'peak_memory_usage': peak_memory_usage,  # Using peak_memory_usage here
                 'samples_removed': removed_samples,
                 'final_ratio': resampled_dist[0] / resampled_dist[1]
             }
@@ -145,7 +149,7 @@ class RandomUndersamplingExperiment(BaseExperiment):
                 'original_class_ratio': metadata['original_distribution'][0] / metadata['original_distribution'][1],
                 'final_class_ratio': metadata['final_ratio'],
                 'samples_removed': metadata['samples_removed'],
-                'resampling_memory_mb': f"{metadata['peak_memory_usage']:.2f}",
+                'resampling_memory_mb': f"{metadata['peak_memory_usage']:.2f}",  # Using peak_memory_usage here
                 'resampling_time_seconds': f"{metadata['resampling_time']:.2f}"
             })
 
@@ -155,13 +159,10 @@ class RandomUndersamplingExperiment(BaseExperiment):
 
 def main():
     """Run the Random Undersampling experiment"""
-    
     experiment = RandomUndersamplingExperiment()
-    
     try:
         results = experiment.run_experiment("data/creditcard.csv")
         experiment.print_results(results)
-        
     except Exception as e:
         print(f"Experiment failed: {str(e)}")
         raise
