@@ -1,4 +1,4 @@
-"""SMOTE=based experiment implementation for credit card fraud detection. Inherits from base_experiment"""
+"""SMOTE-based experiment implementation for credit card fraud detection. Inherits from base_experiment"""
 
 from typing import Dict, Any
 import time
@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore', category=FutureWarning, module='imblearn')
 
 class SMOTEExperiment(BaseExperiment):
     """
-    SMOTE-based experiment implemenation
+    SMOTE-based experiment implementation
     Applies SMOTE oversampling to training data only.
     """
 
@@ -37,10 +37,6 @@ class SMOTEExperiment(BaseExperiment):
             Dictionary with resampled training data and original val/test data
         
         """
-         # Suppress specific warnings
-        with warnings.catch_warnings():
-            warnings.filterwarnings('ignore', category=FutureWarning)
-        
         print("\nApplying SMOTE oversampling...")
         start_time = time.time()
 
@@ -50,12 +46,12 @@ class SMOTEExperiment(BaseExperiment):
         
         # Store initial memory usage
         initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = initial_memory
 
         # Initialize SMOTE
         smote = SMOTE(
             k_neighbors=ExperimentConfig.SMOTE.K_NEIGHBORS, 
-            random_state=ExperimentConfig.SMOTE.RANDOM_STATE,
-            n_jobs=-1  # Add parallel processing
+            random_state=ExperimentConfig.SMOTE.RANDOM_STATE
         )
 
         # Get original class distribution
@@ -66,6 +62,13 @@ class SMOTEExperiment(BaseExperiment):
             data['X_train'],
             data['y_train'].ravel()
         )
+
+        # Update peak memory after SMOTE
+        current_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory_seen = max(peak_memory_seen, current_memory)
+        
+        # Calculate actual memory increase
+        peak_memory_usage = max(0, peak_memory_seen - initial_memory)
 
         # Validate resampled data
         if np.isnan(X_train_resampled).any():
@@ -80,16 +83,15 @@ class SMOTEExperiment(BaseExperiment):
                 f"SMOTE failed to achieve balanced classes. Final ratio: {resampled_dist[0] / resampled_dist[1]:.2f}:1"
             )
 
-         # Calculate detailed metadata
+        # Calculate detailed metadata
         resampling_time = time.time() - start_time
-        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 - initial_memory
         synthetic_samples = len(y_train_resampled) - len(data['y_train'])
         
         metadata = {
             'original_distribution': original_dist.tolist(),
             'resampled_distribution': resampled_dist.tolist(),
             'resampling_time': resampling_time,
-            'peak_memory_usage': peak_memory,
+            'peak_memory_usage': peak_memory_usage,
             'synthetic_samples_generated': synthetic_samples,
             'final_ratio': resampled_dist[0] / resampled_dist[1]
         }
@@ -107,10 +109,8 @@ class SMOTEExperiment(BaseExperiment):
         print(f"Final ratio: {resampled_dist[0]/resampled_dist[1]:.2f}:1")
         print(f"\nPerformance metrics:")
         print(f"Synthetic samples generated: {synthetic_samples:,}")
-        print(f"Memory used: {peak_memory:.2f} MB")
+        print(f"Memory used: {peak_memory_usage:.2f} MB")
         print(f"Time taken: {resampling_time:.2f} seconds")
-
-        print(f"\nResampling completed in {resampling_time:.2f} seconds")
 
         # Reshape target variables
         y_train_resampled = np.expand_dims(y_train_resampled, axis=1)
@@ -123,14 +123,7 @@ class SMOTEExperiment(BaseExperiment):
             'y_val': data['y_val'],
             'X_test': data['X_test'],
             'y_test': data['y_test'],
-            'resampling_metadata': {
-                'original_distribution': original_dist.tolist(),
-                'resampled_distribution': resampled_dist.tolist(),
-                'resampling_time': resampling_time,
-                'peak_memory_usage': peak_memory,
-                'synthetic_samples_generated': synthetic_samples,
-                'final_ratio': resampled_dist[0] / resampled_dist[1]
-            }
+            'resampling_metadata': metadata
         }
 
         # Store current data for logging
@@ -152,7 +145,7 @@ class SMOTEExperiment(BaseExperiment):
             'class_balancing': 'smote'
         })
 
-        # Log resampling metadata
+        # Log resampling metadata if available
         if hasattr(self, 'current_data') and 'resampling_metadata' in self.current_data:
             metadata = self.current_data['resampling_metadata']
             tracker.log_parameters({
@@ -169,16 +162,13 @@ class SMOTEExperiment(BaseExperiment):
 
 def main():
     """Run the SMOTE experiment"""
-
     experiment = SMOTEExperiment()
-
     try:
         results = experiment.run_experiment("data/creditcard.csv")
         experiment.print_results(results)
-
     except Exception as e:
         print(f"Experiment failed: {str(e)}")
-        raise 
+        raise
 
 if __name__ == "__main__":
     main()
