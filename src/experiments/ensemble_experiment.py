@@ -45,7 +45,6 @@ class EnsembleExperiment(BaseExperiment):
         
         self.technique_weights = ExperimentConfig.Ensemble.TECHNIQUE_WEIGHTS
         self.decision_threshold = ExperimentConfig.Ensemble.DECISION_THRESHOLD
-        self.optimize_threshold = ExperimentConfig.Ensemble.OPTIMIZE_THRESHOLD
         
         # Storage for trained models and metadata
         self.models = {}
@@ -164,10 +163,7 @@ class EnsembleExperiment(BaseExperiment):
         
         return training_metadata
 
-    def optimize_threshold(
-        self, 
-        data: Dict[str, Any]
-    ) -> float:
+    def optimize_threshold(self, data: Dict[str, Any]) -> float:
         """
         Find optimal decision threshold using validation data
         
@@ -221,8 +217,8 @@ class EnsembleExperiment(BaseExperiment):
         fp = np.sum((binary_preds == 1) & (y_val.ravel() == 0))
         fn = np.sum((binary_preds == 0) & (y_val.ravel() == 1))
         
-        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
-        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        sensitivity = tp / (tp + fn + 1e-10)  # Add small epsilon
+        specificity = tn / (tn + fp + 1e-10)  # Add small epsilon
         g_mean = np.sqrt(sensitivity * specificity)
         
         # Store optimization results
