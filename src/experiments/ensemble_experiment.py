@@ -5,6 +5,7 @@ import time
 import os
 import numpy as np
 import psutil
+import mlflow
 from sklearn.metrics import precision_recall_curve, roc_curve
 
 from src.experiments.base_experiment import BaseExperiment
@@ -28,6 +29,9 @@ class EnsembleExperiment(BaseExperiment):
             experiment_name=ExperimentConfig.Ensemble.NAME,
             n_runs=n_runs
         )
+
+        # Set up MLflow tracking
+        mlflow.set_tracking_uri("file:./mlruns")
         
         # Initialize component experiments
         self.technique_experiments = {
@@ -411,16 +415,20 @@ class EnsembleExperiment(BaseExperiment):
         Args:
             tracker: ExperimentTracker instance
         """
+        print("\nLogging base parameters...")
         super().log_experiment_params(tracker)
         
+        print("Logging ensemble-specific parameters...")
         # Log basic ensemble config
         tracker.log_parameters({
             'experiment_type': 'ensemble',
             'combination_method': 'probability_averaging',
             'techniques_used': ','.join(self.technique_experiments.keys()),
             'initial_threshold': self.decision_threshold,
-            'threshold_optimization': self.optimize_threshold
+            'threshold_optimization': ExperimentConfig.Ensemble.OPTIMIZE_THRESHOLD
         })
+
+        print("Logging technique weights...")
         
         # Log technique weights
         for technique, weight in self.technique_weights.items():
@@ -482,8 +490,11 @@ class EnsembleExperiment(BaseExperiment):
         if not os.path.exists(data_path):
             raise FileNotFoundError(f"Data file not found at: {data_path}")
         
+        print("\nStarting MLflow tracking setup...")
+        
         with ExperimentTracker(self.experiment_name) as tracker:
             try:
+                print("Logging experiment parameters...")
                 # Log experiment parameters
                 self.log_experiment_params(tracker)
                 
@@ -564,6 +575,12 @@ class EnsembleExperiment(BaseExperiment):
 
 def main():
     """Run the Ensemble experiment"""
+
+    # Check MLflow directory
+    mlflow_dir = "./mlruns"
+    if not os.path.exists(mlflow_dir):
+        os.makedirs(mlflow_dir)
+        print(f"Created MLflow directory at {mlflow_dir}")
     
     experiment = EnsembleExperiment()
     
