@@ -2,6 +2,7 @@
 
 from typing import Dict, Any, List, Tuple, Optional
 import time
+import os
 import numpy as np
 import psutil
 from sklearn.metrics import precision_recall_curve, roc_curve
@@ -13,6 +14,7 @@ from src.experiments.random_undersampling_experiment import RandomUndersamplingE
 from src.experiments.class_weight_experiment import ClassWeightExperiment
 from src.models.baseline_model import FraudDetectionModel
 from config.experiment_config import ExperimentConfig
+from src.utils.mlflow_utils import ExperimentTracker
 
 class EnsembleExperiment(BaseExperiment):
     """
@@ -308,7 +310,7 @@ class EnsembleExperiment(BaseExperiment):
         training_metadata = self.train_models(processed_data)
         
         # Optimize threshold if enabled
-        if self.optimize_threshold:
+        if ExperimentConfig.Ensemble.OPTIMIZE_THRESHOLD:  # Changed from self.optimize_threshold
             self.decision_threshold = self.optimize_threshold(processed_data)
         
         # Get test data
@@ -322,7 +324,7 @@ class EnsembleExperiment(BaseExperiment):
         metrics = self.evaluate_ensemble(y_test, y_pred, y_proba, training_metadata)
         
         return metrics
-
+    
     def evaluate_ensemble(
         self,
         y_true: np.ndarray,
@@ -405,6 +407,160 @@ class EnsembleExperiment(BaseExperiment):
         print(f"MCC: {metrics['mcc']:.4f}")
         
         return metrics
+
+    def log_experiment_params(self, tracker: Any) -> None:
+        """
+        Log ensemble-specific parameters and metadata
+        
+        Args:
+            tracker: ExperimentTracker instance
+        """
+        super().log_experiment_params(tracker)
+        
+        # Log basic ensemble config
+        tracker.log_parameters({
+            'experiment_type': 'ensemble',
+            'combination_method': 'probability_averaging',
+            'techniques_used': ','.join(self.technique_experiments.keys()),
+            'initial_threshold': self.decision_threshold,
+            'threshold_optimization': self.optimize_threshold
+        })
+        
+        # Log technique weights
+        for technique, weight in self.technique_weights.items():
+            if technique in self.technique_experiments:
+                tracker.log_parameters({
+                    f'weight_{technique}': weight
+                })
+        
+        # Log preprocessing metadata if available
+        if hasattr(self, 'current_data') and 'ensemble_metadata' in self.current_data:
+            metadata = self.current_data['ensemble_metadata']
+            tracker.log_parameters({
+                'preprocessing_time': metadata['processing_time'],
+                'preprocessing_memory': metadata['peak_memory_usage']
+            })
+        
+        # Log threshold optimization results if available
+        if self.threshold_optimization_results:
+            tracker.log_parameters({
+                'optimized_threshold': self.threshold_optimization_results['best_threshold'],
+                'threshold_f1': self.threshold_optimization_results['best_f1'],
+                'threshold_g_mean': self.threshold_optimization_results['g_mean'],
+                'optimization_time': self.threshold_optimization_results['optimization_time']
+            })
+
+    def log_training_metadata(self, tracker: Any, training_metadata: Dict[str, Any]) -> None:
+        """
+        Log training-related metadata for all techniques
+        
+        Args:
+            tracker: ExperimentTracker instance
+            training_metadata: Dictionary containing training information
+        """
+        # Log individual technique metrics
+        for technique, metadata in training_metadata.items():
+            if technique != 'ensemble':
+                tracker.log_metrics({
+                    f'{technique}_training_time': metadata['training_time'],
+                    f'{technique}_memory_usage': metadata['memory_usage']
+                })
+        
+        # Log ensemble totals
+        ensemble_metadata = training_metadata['ensemble']
+        tracker.log_metrics({
+            'total_training_time': ensemble_metadata['total_training_time'],
+            'peak_memory_usage': ensemble_metadata['peak_memory_usage']
+        })
+
+    def run_experiment(self, data_path: str) -> Dict[str, Any]:
+        """
+        Run multiple training iterations and aggregate results
+        
+        Args:
+            data_path: Path to the dataset
+            
+        Returns:
+            Dictionary containing aggregated metrics
+        """
+        if not os.path.exists(data_path):
+            raise FileNotFoundError(f"Data file not found at: {data_path}")
+        
+        with ExperimentTracker(self.experiment_name) as tracker:
+            try:
+                # Log experiment parameters
+                self.log_experiment_params(tracker)
+                
+                successful_runs = 0
+                failed_runs = []
+                self.metrics_list = []
+                
+                # Run multiple iterations
+                for run in range(self.n_runs):
+                    print(f"\nStarting Run {run + 1}/{self.n_runs}")
+                    
+                    try:
+                        # Run single experiment iteration
+                        results = self.run_single_experiment(data_path)
+                        
+                        # Store metrics for this run
+                        self.metrics_list.append(results)
+                        
+                        # Log individual run metrics
+                        run_metrics = {f"run_{run}_{k}": v for k, v in results.items()
+                                     if k != 'curves'}
+                        tracker.log_metrics(run_metrics)
+                        
+                        # Log visualizations for individual run
+                        if ExperimentConfig.SAVE_PLOTS:
+                            tracker.log_visualization_artifacts(
+                                metrics=results,
+                                metrics_list=None,
+                                prefix=f"run_{run}_"
+                            )
+                        
+                        successful_runs += 1
+                        
+                    except Exception as e:
+                        failed_runs.append((run, str(e)))
+                        print(f"Run {run + 1} failed: {str(e)}")
+                        continue
+                    
+                # Check for enough successful runs
+                if successful_runs < self.n_runs * 0.5:
+                    raise RuntimeError(
+                        f"Too many failed runs. Only {successful_runs}/{self.n_runs} "
+                        f"completed successfully. Failed runs: {failed_runs}"
+                    )
+                
+                # Calculate aggregate metrics
+                if len(self.metrics_list) > 0:
+                    agg_metrics = self._aggregate_metrics()
+                    tracker.log_metrics(agg_metrics)
+                    
+                    # Create final visualizations
+                    if ExperimentConfig.SAVE_PLOTS:
+                        final_metrics = self.metrics_list[-1].copy()
+                        tracker.log_visualization_artifacts(
+                            metrics=final_metrics,
+                            metrics_list=self.metrics_list,
+                            prefix="final_"
+                        )
+                    
+                    # Log failed runs info
+                    if failed_runs:
+                        tracker.log_parameters({
+                            "failed_runs": str(failed_runs),
+                            "successful_runs": successful_runs
+                        })
+                    
+                    return agg_metrics
+                
+                raise RuntimeError("No successful runs completed")
+                
+            except Exception as e:
+                print(f"Experiment failed: {str(e)}")
+                raise
 
     def _get_results_header(self) -> str:
         """Override header for ensemble results"""
