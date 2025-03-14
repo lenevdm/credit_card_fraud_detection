@@ -1,10 +1,10 @@
 """Ensemble experiment implementation using probability averaging from multiple techniques"""
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple, Optional
 import time
 import numpy as np
 import psutil
-from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import precision_recall_curve, roc_curve
 
 from src.experiments.base_experiment import BaseExperiment
 from src.experiments.base_runs_final import BaselineExperimentFinal
@@ -242,6 +242,169 @@ class EnsembleExperiment(BaseExperiment):
         print(f"Time taken: {time.time() - start_time:.2f} seconds")
         
         return best_threshold
+
+    def ensemble_predict(
+        self, 
+        X: np.ndarray,
+        threshold: Optional[float] = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Generate ensemble predictions by averaging probabilities
+        
+        Args:
+            X: Input features
+            threshold: Optional custom threshold (uses self.decision_threshold if None)
+            
+        Returns:
+            Tuple of (binary predictions, averaged probabilities)
+        """
+        if not self.models:
+            raise ValueError("No trained models available for prediction")
+            
+        # Get predictions from all models
+        print("\nGenerating ensemble predictions...")
+        predictions = []
+        
+        for name, model in self.models.items():
+            print(f"Getting predictions from {name} model...")
+            probs = model.model.predict(X, verbose=0)
+            predictions.append(probs)
+        
+        # Average probabilities with weights
+        avg_probs = np.zeros_like(predictions[0])
+        weight_sum = 0
+        
+        for i, probs in enumerate(predictions):
+            technique_name = list(self.models.keys())[i]
+            weight = self.technique_weights.get(technique_name, 1.0)
+            avg_probs += probs * weight
+            weight_sum += weight
+        
+        avg_probs /= weight_sum
+        
+        # Apply threshold
+        threshold_to_use = threshold if threshold is not None else self.decision_threshold
+        binary_predictions = (avg_probs > threshold_to_use).astype(int)
+        
+        return binary_predictions, avg_probs
+
+    def run_single_experiment(self, data_path: str) -> Dict[str, Any]:
+        """
+        Run a single experiment iteration
+        
+        Args:
+            data_path: Path to the data file
+            
+        Returns:
+            Dictionary of metrics
+        """
+        # Prepare data
+        data = self.data_prep.prepare_data(data_path)
+        
+        # Preprocess data for all techniques
+        processed_data = self.preprocess_data(data)
+        
+        # Train models
+        training_metadata = self.train_models(processed_data)
+        
+        # Optimize threshold if enabled
+        if self.optimize_threshold:
+            self.decision_threshold = self.optimize_threshold(processed_data)
+        
+        # Get test data
+        X_test = processed_data['original']['X_test']
+        y_test = processed_data['original']['y_test']
+        
+        # Get ensemble predictions
+        y_pred, y_proba = self.ensemble_predict(X_test)
+        
+        # Create model evaluation
+        metrics = self.evaluate_ensemble(y_test, y_pred, y_proba, training_metadata)
+        
+        return metrics
+
+    def evaluate_ensemble(
+        self,
+        y_true: np.ndarray,
+        y_pred: np.ndarray,
+        y_proba: np.ndarray,
+        training_metadata: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Evaluate ensemble performance
+        
+        Args:
+            y_true: True labels
+            y_pred: Predicted labels
+            y_proba: Prediction probabilities
+            training_metadata: Dictionary containing training information
+            
+        Returns:
+            Dictionary of evaluation metrics
+        """
+        from sklearn.metrics import (
+            accuracy_score, precision_score, recall_score, f1_score,
+            roc_auc_score, average_precision_score, matthews_corrcoef,
+            confusion_matrix
+        )
+        
+        # Calculate confusion matrix values
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+        
+        # Calculate standard metrics
+        metrics = {
+            'accuracy': accuracy_score(y_true, y_pred),
+            'precision': precision_score(y_true, y_pred),
+            'recall': recall_score(y_true, y_pred),
+            'f1_score': f1_score(y_true, y_pred),
+            'roc_auc': roc_auc_score(y_true, y_proba),
+            'auprc': average_precision_score(y_true, y_proba),
+            'mcc': matthews_corrcoef(y_true, y_pred),
+            'true_positives': tp,
+            'true_negatives': tn,
+            'false_positives': fp,
+            'false_negatives': fn
+        }
+        
+        # Calculate G-mean
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        metrics['g_mean'] = np.sqrt(sensitivity * specificity)
+        
+        # Add resource usage metrics
+        metrics['training_time'] = training_metadata['ensemble']['total_training_time']
+        metrics['peak_memory_usage'] = training_metadata['ensemble']['peak_memory_usage']
+        
+        # Add prediction curves data
+        metrics['curves'] = {}
+        
+        # Calculate PR curve
+        precision, recall, thresholds = precision_recall_curve(y_true, y_proba)
+        metrics['curves']['pr'] = {
+            'precision': precision,
+            'recall': recall,
+            'thresholds': thresholds
+        }
+        
+        # Calculate ROC curve
+        fpr, tpr, thresholds = roc_curve(y_true, y_proba)
+        metrics['curves']['roc'] = {
+            'fpr': fpr,
+            'tpr': tpr,
+            'thresholds': thresholds
+        }
+        
+        print("\nEnsemble Evaluation Results:")
+        print(f"Accuracy: {metrics['accuracy']:.4f}")
+        print(f"Precision: {metrics['precision']:.4f}")
+        print(f"Recall: {metrics['recall']:.4f}")
+        print(f"F1 Score: {metrics['f1_score']:.4f}")
+        print(f"ROC AUC: {metrics['roc_auc']:.4f}")
+        print(f"PR AUC: {metrics['auprc']:.4f}")
+        print(f"G-Mean: {metrics['g_mean']:.4f}")
+        print(f"MCC: {metrics['mcc']:.4f}")
+        
+        return metrics
 
     def _get_results_header(self) -> str:
         """Override header for ensemble results"""
