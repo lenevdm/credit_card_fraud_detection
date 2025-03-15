@@ -13,74 +13,74 @@ Comparison Results: BaselineExperimentFinal vs EnsembleExperiment
 ==================================================
 
 ACCURACY:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0003
-95% CI: [0.0003, 0.0003]
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0002
+95% CI: [0.0002, 0.0002]
 Effect size: negligible (identical values) (d = 0.000)
 p-value: 1.0000 (adjusted: 1.0000)
 
 
 PRECISION:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.1254
-95% CI: [0.1254, 0.1254]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
-
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0835
+95% CI: [0.0760, 0.0910]
+Effect size: large (d = 13.503)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
 
 RECALL:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0510
-95% CI: [-0.0510, -0.0510]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
-
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0388
+95% CI: [-0.0527, -0.0249]
+Effect size: large (d = -4.388)
+p-value: 0.0015 (adjusted: 0.0026)
+* Statistically significant (after correction)
 
 F1_SCORE:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0492
-95% CI: [0.0492, 0.0492]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
-
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0273
+95% CI: [0.0246, 0.0301]
+Effect size: large (d = 6.007)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
 
 ROC_AUC:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0018
-95% CI: [-0.0018, -0.0018]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0005
+95% CI: [-0.0007, 0.0016]
+Effect size: small (d = 0.370)
+p-value: 0.3214 (adjusted: 0.4017)
 
 
 AUPRC:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0330
-95% CI: [-0.0330, -0.0330]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0149
+95% CI: [-0.0724, 0.0426]
+Effect size: medium (d = -0.575)
+p-value: 0.5122 (adjusted: 0.5691)
 
 
 G_MEAN:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0276
-95% CI: [-0.0276, -0.0276]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
-
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0212
+95% CI: [-0.0288, -0.0135]
+Effect size: large (d = -4.359)
+p-value: 0.0015 (adjusted: 0.0026)
+* Statistically significant (after correction)
 
 MCC:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0433
-95% CI: [0.0433, 0.0433]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
-
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0249
+95% CI: [0.0218, 0.0280]
+Effect size: large (d = 5.387)
+p-value: 0.0000 (adjusted: 0.0001)
+* Statistically significant (after correction)
 
 TRAINING_TIME:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): -429.8290
-95% CI: [-429.8290, -429.8290]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
-
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -396.9081
+95% CI: [-424.9963, -368.8200]
+Effect size: large (d = -24.802)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
 
 PEAK_MEMORY_USAGE:
-Mean difference (BaselineExperimentFinal - EnsembleExperiment): -162.3320
-95% CI: [-162.3320, -162.3320]
-Effect size: negligible (identical values) (d = 0.000)
-p-value: 1.0000 (adjusted: 1.0000)
-
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -120.5344
+95% CI: [-176.4794, -64.5894]
+Effect size: large (d = -3.527)
+p-value: 0.0039 (adjusted: 0.0056)
+* Statistically significant (after correction)
 
 ================================================================================
 
