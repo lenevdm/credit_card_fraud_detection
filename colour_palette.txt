@@ -2,9 +2,11 @@
 #ffb14e
 #fa8775
 #ea5f94
-#cd34b5
+#cd34b5 fraud
 #9d02d7
-#17208D 
+#17208D not fraud
+#FADDD8
+
 
 ["#ffd700",
 "#ffb14e",
