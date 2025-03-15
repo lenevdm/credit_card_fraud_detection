@@ -1,6 +1,6 @@
 """Utility functions for visualizing model performance metrics"""
 
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -14,8 +14,8 @@ def plot_pr_curve(precision: np.ndarray, recall: np.ndarray, auprc: float) -> pl
         # Calculate the no-skill baseline (proportion of positive class)
         no_skill_baseline = len([x for x in recall if x > 0]) / len(recall)
         
-        plt.plot(recall, precision, color='blue', lw=2)
-        plt.axhline(y=no_skill_baseline, color='r', linestyle='--', label='No Skill')
+        plt.plot(recall, precision, color='#cd34b5', lw=2)
+        plt.axhline(y=no_skill_baseline, color='#ffb14e', linestyle='--', label='No Skill')
         plt.xlabel('Recall')
         plt.ylabel('Precision')
         plt.title(f'Precision-Recall Curve (AUPRC = {auprc:.3f})')
@@ -31,8 +31,8 @@ def plot_roc_curve(fpr: np.ndarray, tpr: np.ndarray, roc_auc: float) -> plt.Figu
     """Plot ROC curve"""
     try:
         plt.figure(figsize=(10, 6))
-        plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.3f})')
-        plt.plot([0, 1], [0, 1], color='r', linestyle='--', label='Random')
+        plt.plot(fpr, tpr, color='#9d02d7', lw=2, label=f'ROC curve (AUC = {roc_auc:.3f})')
+        plt.plot([0, 1], [0, 1], color='#ffb14e', linestyle='--', label='Random')
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate')
@@ -50,16 +50,30 @@ def plot_confusion_matrix(tn: int, fp: int, fn: int, tp: int) -> plt.Figure:
     try:
         plt.figure(figsize=(8, 6))
         cm = np.array([[tn, fp], [fn, tp]])
-        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
-                    xticklabels=['Negative', 'Positive'],
-                    yticklabels=['Negative', 'Positive'])
+
+        # Use the flare palette as a colormap
+        flare_cmap = sns.color_palette("flare", as_cmap=True)
+
+        sns.heatmap(
+            cm,
+            annot=True,
+            fmt='d',
+            cmap=flare_cmap,
+            xticklabels=['Negative', 'Positive'],
+            yticklabels=['Negative', 'Positive']
+        )
+
         plt.title('Confusion Matrix')
         plt.xlabel('Predicted')
         plt.ylabel('Actual')
         return plt.gcf()
+
     except Exception as e:
         plt.close('all')
         raise e
+
+import matplotlib.pyplot as plt
+from typing import List, Dict
 
 def plot_performance_resources(metrics_list: List[Dict]) -> plt.Figure:
     """Plot relationship between model performance and resource usage across runs"""
@@ -73,8 +87,20 @@ def plot_performance_resources(metrics_list: List[Dict]) -> plt.Figure:
         g_means = [m['g_mean'] for m in metrics_list]
         
         # Memory usage vs performance
-        ax1.scatter(memory_usage, f1_scores, label='F1 Score', alpha=0.6)
-        ax1.scatter(memory_usage, g_means, label='G-Mean', alpha=0.6)
+        ax1.scatter(
+            memory_usage,
+            f1_scores,
+            label='F1 Score',
+            color='#fa8775',    # Custom color
+            alpha=0.6
+        )
+        ax1.scatter(
+            memory_usage,
+            g_means,
+            label='G-Mean',
+            color='#9d02d7',    # Custom color
+            alpha=0.6
+        )
         ax1.set_xlabel('Peak Memory Usage (MB)')
         ax1.set_ylabel('Performance Metric')
         ax1.set_title('Performance vs Memory Usage')
@@ -82,8 +108,20 @@ def plot_performance_resources(metrics_list: List[Dict]) -> plt.Figure:
         ax1.grid(True)
         
         # Training time vs performance
-        ax2.scatter(training_time, f1_scores, label='F1 Score', alpha=0.6)
-        ax2.scatter(training_time, g_means, label='G-Mean', alpha=0.6)
+        ax2.scatter(
+            training_time,
+            f1_scores,
+            label='F1 Score',
+            color='#fa8775',
+            alpha=0.6
+        )
+        ax2.scatter(
+            training_time,
+            g_means,
+            label='G-Mean',
+            color='#9d02d7',
+            alpha=0.6
+        )
         ax2.set_xlabel('Training Time (seconds)')
         ax2.set_ylabel('Performance Metric')
         ax2.set_title('Performance vs Training Time')
@@ -92,9 +130,11 @@ def plot_performance_resources(metrics_list: List[Dict]) -> plt.Figure:
         
         plt.tight_layout()
         return fig
+    
     except Exception as e:
         plt.close('all')
         raise e
+
 
 def plot_metric_correlations(metrics_list: List[Dict]) -> plt.Figure:
     """Create a correlation heatmap of all metrics"""
@@ -104,7 +144,7 @@ def plot_metric_correlations(metrics_list: List[Dict]) -> plt.Figure:
         correlations = metrics_df[numerical_metrics].corr()
 
         plt.figure(figsize=(12, 10))
-        sns.heatmap(correlations, annot=True, cmap='coolwarm', center=0, fmt='.2f', square=True)
+        sns.heatmap(correlations, annot=True, cmap='plasma', center=0, fmt='.2f', square=True)
         plt.title('Metric Correlations')
         return plt.gcf()
     except Exception as e:
@@ -118,16 +158,28 @@ def plot_metric_distributions(metrics_list: List[Dict]) -> plt.Figure:
         
         fig, axes = plt.subplots(2, 2, figsize=(15, 10))
         axes = axes.ravel()
-        
+
+        # Define your custom color
+        custom_color = '#fa8775'
+
         for idx, metric in enumerate(metrics_of_interest):
             values = [m[metric] for m in metrics_list]
-            sns.histplot(values, kde=True, ax=axes[idx])
+            
+            sns.histplot(
+                values,
+                kde=True,
+                ax=axes[idx],
+                color=custom_color,  # <Set the color here
+                kde_kws={'color': custom_color}  #Match KDE line color
+            )
+            
             axes[idx].set_title(f'{metric.replace("_", " ").title()} Distribution')
             axes[idx].set_xlabel('Value')
             axes[idx].set_ylabel('Count')
         
         plt.tight_layout()
         return fig
+    
     except Exception as e:
         plt.close('all')
         raise e
@@ -136,26 +188,32 @@ def plot_resource_timeline(metrics_list: List[Dict]) -> plt.Figure:
     """Plot timeline of resource usage during training"""
     try:
         fig, ax1 = plt.subplots(figsize=(12, 6))
-        
+
         # Create x-axis values
         times = np.arange(len(metrics_list))
         memory_usage = [m['peak_memory_usage'] for m in metrics_list]
         
+        # Define custom colors
+        memory_color = '#17208D'  # Deep blue for memory
+        time_color = '#fa8775'    # Peach for time
+        
         # Plot memory usage
         ax1.set_xlabel('Training Steps')
-        ax1.set_ylabel('Memory Usage (MB)', color='tab:blue')
-        ax1.plot(times, memory_usage, color='tab:blue')
-        ax1.tick_params(axis='y', labelcolor='tab:blue')
-        
+        ax1.set_ylabel('Memory Usage (MB)', color=memory_color)
+        ax1.plot(times, memory_usage, color=memory_color, linewidth=2)
+        ax1.tick_params(axis='y', labelcolor=memory_color)
+
         # Create second y-axis for training time
         ax2 = ax1.twinx()
         training_times = [m['training_time'] for m in metrics_list]
-        ax2.set_ylabel('Training Time (s)', color='tab:orange')
-        ax2.plot(times, training_times, color='tab:orange')
-        ax2.tick_params(axis='y', labelcolor='tab:orange')
+        ax2.set_ylabel('Training Time (s)', color=time_color)
+        ax2.plot(times, training_times, color=time_color, linewidth=2)
+        ax2.tick_params(axis='y', labelcolor=time_color)
         
         plt.title('Resource Usage Timeline')
+        plt.tight_layout()
         return fig
+
     except Exception as e:
         plt.close('all')
         raise e
@@ -249,10 +307,14 @@ def plot_metric_curves(metrics_dict: Dict, metrics_list: Optional[List[Dict]] = 
         plt.close('all')
         raise e
     
+import matplotlib.pyplot as plt
+import numpy as np
+from typing import Dict, List
+
 def plot_technique_comparison_pr(metrics_by_technique: Dict[str, List[Dict[str, float]]]) -> plt.Figure:
     """Plot precision and recall comparison across techniques"""
     try:
-        fig, ax = plt.subplots(figsize=(10,6))
+        fig, ax = plt.subplots(figsize=(10, 6))
 
         techniques = list(metrics_by_technique.keys())
         x = np.arange(len(techniques))
@@ -263,21 +325,48 @@ def plot_technique_comparison_pr(metrics_by_technique: Dict[str, List[Dict[str, 
         
         prec_err = [np.std([m['precision'] for m in metrics_by_technique[t]]) for t in techniques]
         recall_err = [np.std([m['recall'] for m in metrics_by_technique[t]]) for t in techniques]
-        
-        ax.bar(x - width/2, precisions, width, label='Precision', yerr=prec_err, capsize=5)
-        ax.bar(x + width/2, recalls, width, label='Recall', yerr=recall_err, capsize=5)
-        
+
+        # Define custom colors
+        precision_color = '#9d02d7'  # Purple
+        recall_color = '#ffb14e'     # Orange
+
+        # Plot bars with custom colors
+        ax.bar(
+            x - width/2,
+            precisions,
+            width,
+            label='Precision',
+            yerr=prec_err,
+            capsize=5,
+            color=precision_color
+        )
+        ax.bar(
+            x + width/2,
+            recalls,
+            width,
+            label='Recall',
+            yerr=recall_err,
+            capsize=5,
+            color=recall_color
+        )
+
         ax.set_ylabel('Score')
         ax.set_title('Precision-Recall Trade-off by Technique')
         ax.set_xticks(x)
         ax.set_xticklabels(techniques)
         ax.legend()
-        
+
+        plt.tight_layout()
         return fig
+
     except Exception as e:
         plt.close('all')
         raise e
     
+import matplotlib.pyplot as plt
+import numpy as np
+from typing import Dict, List
+
 def plot_metric_distributions_by_technique(
     metrics_by_technique: Dict[str, List[Dict[str, float]]],
     metric_name: str
@@ -285,7 +374,7 @@ def plot_metric_distributions_by_technique(
     """Create violin plots showing metric distribution across techniques"""
     try:
         plt.figure(figsize=(10, 6))
-        
+
         data = []
         labels = []
         for technique, metrics in metrics_by_technique.items():
@@ -293,16 +382,38 @@ def plot_metric_distributions_by_technique(
             data.append(values)
             labels.append(technique)
         
-        plt.violinplot(data, showmeans=True)
+        # Create violin plot and capture the parts
+        vp = plt.violinplot(data, showmeans=True)
+
+        # Set custom color for each violin body
+        custom_color = '#ea5f94'
+        for body in vp['bodies']:
+            body.set_facecolor(custom_color)
+            body.set_edgecolor(custom_color)
+            body.set_alpha(0.8)  # Optional transparency
+
+        # Set colors for mean lines, min/max lines if desired
+        vp['cbars'].set_color(custom_color)
+        vp['cmins'].set_color(custom_color)
+        vp['cmaxes'].set_color(custom_color)
+        vp['cmeans'].set_color(custom_color)
+
         plt.xticks(range(1, len(labels) + 1), labels)
         plt.ylabel(metric_name)
         plt.title(f'{metric_name} Distribution by Technique')
-        
+
+        plt.tight_layout()
         return plt.gcf()
+
     except Exception as e:
         plt.close('all')
         raise e
+
     
+import matplotlib.pyplot as plt
+import numpy as np
+from typing import Dict, List
+
 def plot_performance_radar(metrics_by_technique: Dict[str, List[Dict[str, float]]]) -> plt.Figure:
     """Create radar plot comparing key metrics across techniques"""
     try:
@@ -322,17 +433,23 @@ def plot_performance_radar(metrics_by_technique: Dict[str, List[Dict[str, float]
         
         fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(projection='polar'))
         
-        for technique, means in technique_means.items():
+        # Define colors for techniques
+        colors = ['#17208D', '#ea5f94']  # Blue and Pink
+        
+        # Plot each technique with assigned color
+        for i, (technique, means) in enumerate(technique_means.items()):
+            color = colors[i % len(colors)]  # Cycle through colors if more than 2 techniques
             means = np.concatenate((means, [means[0]]))  # complete the circle
             angles_plot = np.concatenate((angles, [angles[0]]))  # complete the circle
-            ax.plot(angles_plot, means, 'o-', linewidth=2, label=technique)
-            ax.fill(angles_plot, means, alpha=0.25)
+            ax.plot(angles_plot, means, 'o-', linewidth=2, label=technique, color=color)
+            ax.fill(angles_plot, means, alpha=0.25, color=color)
         
         ax.set_xticks(angles)
         ax.set_xticklabels(metrics)
         ax.set_title('Performance Metrics Comparison')
         ax.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1))
         
+        plt.tight_layout()
         return fig
     except Exception as e:
         plt.close('all')
