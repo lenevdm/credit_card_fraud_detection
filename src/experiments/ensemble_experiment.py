@@ -169,7 +169,7 @@ class EnsembleExperiment(BaseExperiment):
 
     def optimize_threshold(self, data: Dict[str, Any]) -> float:
         """
-        Find optimal decision threshold using validation data
+        Find optimal decision threshold using validation data with enhanced optimization
         
         Args:
             data: Processed data dictionary
@@ -180,14 +180,12 @@ class EnsembleExperiment(BaseExperiment):
         print("\nOptimizing decision threshold...")
         start_time = time.time()
         
-        # Get validation data from original dataset
+        # Get validation data
         X_val = data['original']['X_val']
         y_val = data['original']['y_val']
         
         # Get predictions from all models
         val_probs = []
-        
-        # Get model predictions
         for name, model in self.models.items():
             print(f"Getting predictions from {name} model...")
             probs = model.model.predict(X_val, verbose=0)
@@ -195,35 +193,52 @@ class EnsembleExperiment(BaseExperiment):
         
         # Average probabilities with weights
         avg_probs = np.zeros_like(val_probs[0])
+        weight_sum = 0
         for i, probs in enumerate(val_probs):
             technique_name = list(self.models.keys())[i]
             weight = self.technique_weights.get(technique_name, 1.0)
             avg_probs += probs * weight
+            weight_sum += weight
         
-        avg_probs /= sum(self.technique_weights.values())
+        avg_probs /= weight_sum
         
-        # Find optimal threshold using PR curve
+        # Calculate metrics for different thresholds
         precision, recall, thresholds = precision_recall_curve(y_val, avg_probs)
         
-        # Calculate F1 score for each threshold
-        # Add a small epsilon to avoid division by zero
-        epsilon = 1e-10
+        # Calculate F1 scores
+        epsilon = 1e-10  # Small value to prevent division by zero
         f1_scores = 2 * precision * recall / (precision + recall + epsilon)
         
-        # Find threshold with highest F1 score
-        best_idx = np.argmax(f1_scores)
-        best_threshold = thresholds[best_idx] if best_idx < len(thresholds) else 0.5
+        # Find threshold that maximizes F1
+        f1_threshold = thresholds[np.argmax(f1_scores)]
+        best_f1 = np.max(f1_scores)
         
-        # Calculate g-mean for the best threshold
-        binary_preds = (avg_probs > best_threshold).astype(int)
-        tp = np.sum((binary_preds == 1) & (y_val.ravel() == 1))
-        tn = np.sum((binary_preds == 0) & (y_val.ravel() == 0))
-        fp = np.sum((binary_preds == 1) & (y_val.ravel() == 0))
-        fn = np.sum((binary_preds == 0) & (y_val.ravel() == 1))
+        # Find PR break-even point (where precision ≈ recall)
+        pr_diff = np.abs(precision[:-1] - recall[:-1])  # Exclude last point
+        pr_threshold = thresholds[np.argmin(pr_diff)]
         
-        sensitivity = tp / (tp + fn + 1e-10)  # Add small epsilon
-        specificity = tn / (tn + fp + 1e-10)  # Add small epsilon
-        g_mean = np.sqrt(sensitivity * specificity)
+        # Calculate G-mean for both thresholds
+        def calculate_gmean(threshold):
+            binary_preds = (avg_probs > threshold).astype(int)
+            tp = np.sum((binary_preds == 1) & (y_val.ravel() == 1))
+            tn = np.sum((binary_preds == 0) & (y_val.ravel() == 0))
+            fp = np.sum((binary_preds == 1) & (y_val.ravel() == 0))
+            fn = np.sum((binary_preds == 0) & (y_val.ravel() == 1))
+            
+            sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+            specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+            return np.sqrt(sensitivity * specificity)
+        
+        f1_gmean = calculate_gmean(f1_threshold)
+        pr_gmean = calculate_gmean(pr_threshold)
+        
+        # Choose final threshold based on G-mean performance
+        if f1_gmean > pr_gmean:
+            best_threshold = f1_threshold
+            final_gmean = f1_gmean
+        else:
+            best_threshold = pr_threshold
+            final_gmean = pr_gmean
         
         # Store optimization results
         self.threshold_optimization_results = {
@@ -232,15 +247,20 @@ class EnsembleExperiment(BaseExperiment):
             'thresholds': thresholds,
             'f1_scores': f1_scores,
             'best_threshold': best_threshold,
-            'best_f1': f1_scores[best_idx],
-            'g_mean': g_mean,
+            'best_f1': best_f1,
+            'f1_threshold': f1_threshold,
+            'pr_threshold': pr_threshold,
+            'final_gmean': final_gmean,
             'optimization_time': time.time() - start_time
         }
         
+        # Print detailed results
         print("\nThreshold Optimization Results:")
-        print(f"Optimal threshold: {best_threshold:.4f}")
-        print(f"Best F1 Score: {f1_scores[best_idx]:.4f}")
-        print(f"G-Mean: {g_mean:.4f}")
+        print(f"F1-optimized threshold: {f1_threshold:.4f}")
+        print(f"PR break-even threshold: {pr_threshold:.4f}")
+        print(f"Final chosen threshold: {best_threshold:.4f}")
+        print(f"Best F1 Score: {best_f1:.4f}")
+        print(f"Final G-Mean: {final_gmean:.4f}")
         print(f"Time taken: {time.time() - start_time:.2f} seconds")
         
         return best_threshold
