@@ -1,0 +1,31 @@
+credit_card_fraud_detection/
+├── src/
+│   ├── __init__.py
+│   ├── data/
+│   │    __init__.py
+│   │   └── data_preparation.py
+|   |── experiments/
+│   |   ├── __init__.py
+│   |   └── base_runs_final.py
+│   |   └── base_experiment.py
+│   |   └── class_weight_experiment.py
+|   |   └── comparative_analysis.py
+│   |   └── ensemble_experiment.py
+|   |   └── random_undersampling_experiment.py
+|   |   └── smote_experiment.py
+|   |   └── smoteenn_experiment.py
+│   |   └── prototype_baseline_experiment.p
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── baseline_model.py
+│   └── utils/
+│       ├── __init__.py
+│       ├── mlflow_utils.py
+|       ├── statistical_analysis.py
+│       └── visualization_utils.py
+├── config/
+│   ├── __init__.py
+│   ├── model_config.py
+│   └── experiment_config.py
+└── data/
+    └── creditcard.csv
