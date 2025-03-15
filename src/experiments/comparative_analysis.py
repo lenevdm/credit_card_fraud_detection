@@ -12,6 +12,8 @@ from src.experiments.smote_experiment import SMOTEExperiment
 from src.experiments.random_undersampling_experiment import RandomUndersamplingExperiment
 from src.experiments.smoteenn_experiment import SMOTEENNExperiment
 from src.experiments.class_weight_experiment import ClassWeightExperiment
+from src.experiments.ensemble_experiment import EnsembleExperiment
+
 
 def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
     """
@@ -32,7 +34,8 @@ def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str,
         'smote': SMOTEExperiment(),
         'random_undersampling': RandomUndersamplingExperiment(),
         'smoteenn': SMOTEENNExperiment(),
-        'class_weight': ClassWeightExperiment()
+        'class_weight': ClassWeightExperiment(),
+        'ensemble': EnsembleExperiment()
     }
     
     results = {}
