@@ -170,6 +170,7 @@ class EnsembleExperiment(BaseExperiment):
     def optimize_threshold(self, data: Dict[str, Any]) -> float:
         """
         Find optimal decision threshold using validation data with enhanced optimization
+        that prioritizes precision.
         
         Args:
             data: Processed data dictionary
@@ -210,35 +211,54 @@ class EnsembleExperiment(BaseExperiment):
         f1_scores = 2 * precision * recall / (precision + recall + epsilon)
         
         # Find threshold that maximizes F1
-        f1_threshold = thresholds[np.argmax(f1_scores)]
-        best_f1 = np.max(f1_scores)
+        f1_idx = np.argmax(f1_scores[:-1])  # Exclude last point which might not have a threshold
+        f1_threshold = thresholds[f1_idx]
+        best_f1 = f1_scores[f1_idx]
         
-        # Find PR break-even point (where precision ≈ recall)
-        pr_diff = np.abs(precision[:-1] - recall[:-1])  # Exclude last point
-        pr_threshold = thresholds[np.argmin(pr_diff)]
+        # Calculate precision at each threshold
+        # The precision from precision_recall_curve already gives us this,
+        # but it's in reverse order of thresholds, so we need to match them up
+        precisions_at_thresholds = precision[:-1]  # Exclude last point which has no threshold
         
-        # Calculate G-mean for both thresholds
-        def calculate_gmean(threshold):
-            binary_preds = (avg_probs > threshold).astype(int)
+        # Define precision target based on baseline performance
+        precision_target = 0.80  # Target precision to match baseline-like performance
+        
+        # Find highest threshold that gives precision >= target
+        # We need to be careful since precision typically increases with threshold
+        precision_threshold_pairs = [(t, p) for t, p in zip(thresholds, precisions_at_thresholds) if p >= precision_target]
+        
+        if precision_threshold_pairs:
+            # From thresholds meeting precision target, choose the one with lowest value
+            # (which will give highest recall while maintaining precision target)
+            # Sort by threshold ascending
+            precision_threshold_pairs.sort(key=lambda x: x[0])
+            best_threshold = precision_threshold_pairs[0][0]
+            
+            # Calculate corresponding metrics for chosen threshold
+            binary_preds = (avg_probs > best_threshold).astype(int)
             tp = np.sum((binary_preds == 1) & (y_val.ravel() == 1))
-            tn = np.sum((binary_preds == 0) & (y_val.ravel() == 0))
             fp = np.sum((binary_preds == 1) & (y_val.ravel() == 0))
             fn = np.sum((binary_preds == 0) & (y_val.ravel() == 1))
+            tn = np.sum((binary_preds == 0) & (y_val.ravel() == 0))
             
-            sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
-            specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
-            return np.sqrt(sensitivity * specificity)
-        
-        f1_gmean = calculate_gmean(f1_threshold)
-        pr_gmean = calculate_gmean(pr_threshold)
-        
-        # Choose final threshold based on G-mean performance
-        if f1_gmean > pr_gmean:
-            best_threshold = f1_threshold
-            final_gmean = f1_gmean
+            precision_at_best = tp / (tp + fp) if (tp + fp) > 0 else 0
+            recall_at_best = tp / (tp + fn) if (tp + fn) > 0 else 0
+            f1_at_best = 2 * precision_at_best * recall_at_best / (precision_at_best + recall_at_best + epsilon)
+            g_mean_at_best = np.sqrt((tp / (tp + fn)) * (tn / (tn + fp))) if (tp + fn) > 0 and (tn + fp) > 0 else 0
         else:
-            best_threshold = pr_threshold
-            final_gmean = pr_gmean
+            # Fall back to F1-optimizing threshold if target precision can't be met
+            best_threshold = f1_threshold
+            precision_at_best = precision[f1_idx]
+            recall_at_best = recall[f1_idx]
+            f1_at_best = best_f1
+            
+            # Calculate G-mean for F1 threshold
+            binary_preds = (avg_probs > best_threshold).astype(int)
+            tp = np.sum((binary_preds == 1) & (y_val.ravel() == 1))
+            fn = np.sum((binary_preds == 0) & (y_val.ravel() == 1))
+            tn = np.sum((binary_preds == 0) & (y_val.ravel() == 0))
+            fp = np.sum((binary_preds == 1) & (y_val.ravel() == 0))
+            g_mean_at_best = np.sqrt((tp / (tp + fn)) * (tn / (tn + fp))) if (tp + fn) > 0 and (tn + fp) > 0 else 0
         
         # Store optimization results
         self.threshold_optimization_results = {
@@ -247,20 +267,25 @@ class EnsembleExperiment(BaseExperiment):
             'thresholds': thresholds,
             'f1_scores': f1_scores,
             'best_threshold': best_threshold,
-            'best_f1': best_f1,
+            'precision_at_best': precision_at_best,
+            'recall_at_best': recall_at_best,
+            'f1_at_best': f1_at_best,
+            'g_mean': g_mean_at_best,
+            'optimization_time': time.time() - start_time,
             'f1_threshold': f1_threshold,
-            'pr_threshold': pr_threshold,
-            'final_gmean': final_gmean,
-            'optimization_time': time.time() - start_time
+            'f1_best': best_f1,
+            'precision_target': precision_target
         }
         
         # Print detailed results
         print("\nThreshold Optimization Results:")
         print(f"F1-optimized threshold: {f1_threshold:.4f}")
-        print(f"PR break-even threshold: {pr_threshold:.4f}")
-        print(f"Final chosen threshold: {best_threshold:.4f}")
-        print(f"Best F1 Score: {best_f1:.4f}")
-        print(f"Final G-Mean: {final_gmean:.4f}")
+        print(f"Precision-priority threshold: {best_threshold:.4f}")
+        print(f"Target precision: {precision_target:.4f}")
+        print(f"Achieved precision: {precision_at_best:.4f}")
+        print(f"Achieved recall: {recall_at_best:.4f}")
+        print(f"Achieved F1 Score: {f1_at_best:.4f}")
+        print(f"Achieved G-Mean: {g_mean_at_best:.4f}")
         print(f"Time taken: {time.time() - start_time:.2f} seconds")
         
         return best_threshold
