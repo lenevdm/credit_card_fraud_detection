@@ -60,3 +60,32 @@ def test_smote_generation(sample_imbalanced_data):
     assert np.array_equal(processed_data['y_val'], sample_imbalanced_data['y_val'])
     assert np.array_equal(processed_data['X_test'], sample_imbalanced_data['X_test'])
     assert np.array_equal(processed_data['y_test'], sample_imbalanced_data['y_test'])
+
+def test_random_undersampling(sample_imbalanced_data):
+    """Test random undersampling reduces majority class correctly"""
+    experiment = RandomUndersamplingExperiment()
+    
+    # Process data with random undersampling
+    processed_data = experiment.preprocess_data(sample_imbalanced_data)
+    
+    # Get class distributions
+    original_class_counts = np.bincount(sample_imbalanced_data['y_train'].ravel())
+    resampled_class_counts = np.bincount(processed_data['y_train'].ravel())
+    
+    # Check minority class unchanged
+    assert resampled_class_counts[1] == original_class_counts[1]
+    
+    # Check majority class reduced to specified ratio
+    expected_majority = int(original_class_counts[1] / ExperimentConfig.RandomUndersampling.SAMPLING_STRATEGY)
+    assert resampled_class_counts[0] == expected_majority
+    
+    # Check data integrity
+    assert not np.any(np.isnan(processed_data['X_train']))
+    assert not np.any(np.isnan(processed_data['y_train']))
+    
+    # Check validation and test sets unchanged
+    assert np.array_equal(processed_data['X_val'], sample_imbalanced_data['X_val'])
+    assert np.array_equal(processed_data['y_val'], sample_imbalanced_data['y_val'])
+    assert np.array_equal(processed_data['X_test'], sample_imbalanced_data['X_test'])
+    assert np.array_equal(processed_data['y_test'], sample_imbalanced_data['y_test'])
+
