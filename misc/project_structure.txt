@@ -14,7 +14,6 @@ credit_card_fraud_detection/
 |   |   └── random_undersampling_experiment.py
 |   |   └── smote_experiment.py
 |   |   └── smoteenn_experiment.py
-│   |   └── prototype_baseline_experiment.p
 │   ├── models/
 │   │   ├── __init__.py
 │   │   └── baseline_model.py
@@ -28,4 +27,12 @@ credit_card_fraud_detection/
 │   ├── model_config.py
 │   └── experiment_config.py
 └── data/
-    └── creditcard.csv
+|    └── creditcard.csv
+|
+├── tests/
+│   ├── __init__.py
+│   ├── conftest.py                    # Shared fixtures
+│   ├── test_data_preparation.py       # Data pipeline tests
+│   ├── test_baseline_model.py         # Model tests
+│   ├── test_balancing_techniques.py   # Tests for SMOTE, RUS, etc.
+│   └── test_evaluation_metrics.py     # Metrics calculation tests
