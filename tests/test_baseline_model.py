@@ -32,8 +32,12 @@ def test_model_initialization(model):
     layers = model.model.layers
     assert len(layers) == 7  # Input + 3 Dense/Dropout pairs + Output
     
-    # Check input shape
-    assert layers[0].input_shape == (None, ModelConfig.INPUT_DIM)
+    # Create test input and run a forward pass to build the model
+    sample_input = tf.random.normal((1, ModelConfig.INPUT_DIM))
+    _ = model.model(sample_input)
+    
+    # Check first layer's input dimension through the layer's weights shape
+    assert layers[0].kernel.shape[0] == ModelConfig.INPUT_DIM
     
     # Check hidden layer sizes
     assert layers[0].units == 64  # First hidden layer
@@ -43,6 +47,11 @@ def test_model_initialization(model):
     # Check output layer
     assert layers[-1].units == 1
     assert layers[-1].activation.__name__ == 'sigmoid'
+    
+    # Check dropout rates
+    dropout_layers = [layer for layer in layers if isinstance(layer, tf.keras.layers.Dropout)]
+    for dropout_layer in dropout_layers:
+        assert dropout_layer.rate == model.config.DROPOUT_RATE
 
 def test_model_forward_pass(model, sample_batch):
     """Test model can perform forward pass"""
