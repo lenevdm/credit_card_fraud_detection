@@ -1,33 +1,34 @@
+
 credit_card_fraud_detection/
 ├── src/
 │   ├── __init__.py
 │   ├── data/
 │   │    __init__.py
-│   │   └── data_preparation.py
+│   │   └── data_preparation.py            # Handles data preprocessing
 |   |── experiments/
 │   |   ├── __init__.py
-│   |   └── base_runs_final.py
-│   |   └── base_experiment.py
-│   |   └── class_weight_experiment.py
-|   |   └── comparative_analysis.py
-│   |   └── ensemble_experiment.py
-|   |   └── random_undersampling_experiment.py
-|   |   └── smote_experiment.py
-|   |   └── smoteenn_experiment.py
+│   |   └── base_runs_final.py                 # Baseline experiment with no balancing
+│   |   └── base_experiment.py                 # BaseExperiment abstract class to inherit from
+│   |   └── class_weight_experiment.py         # Class weight adjustment
+|   |   └── comparative_analysis.py            # Runs all experiments and performs statistical analysis and comparison
+│   |   └── ensemble_experiment.py             # Ensembel (SMOTE-ENN, RUS, Class weighting plus baseline model)
+|   |   └── random_undersampling_experiment.py # RUS undersampling
+|   |   └── smote_experiment.py                # SMOTE oversampling
+|   |   └── smoteenn_experiment.py             # SMOTE with cleanup
 │   ├── models/
 │   │   ├── __init__.py
-│   │   └── baseline_model.py
+│   │   └── baseline_model.py           # The MLP model
 │   └── utils/
 │       ├── __init__.py
-│       ├── mlflow_utils.py
-|       ├── statistical_analysis.py
-│       └── visualization_utils.py
+│       ├── mlflow_utils.py             # Controls metric and artefact logging to MLflow server
+|       ├── statistical_analysis.py     # Statistical analysis functions like paired t-tests, Cohen's d
+│       └── visualization_utils.py      # Defines visualizations for model evaluation metrics that are generated for each run and logged in MLflow
 ├── config/
 │   ├── __init__.py
-│   ├── model_config.py
-│   └── experiment_config.py
+│   ├── model_config.py                 # Model-specific configurations (learning rate, epochs, metrics of interest)
+│   └── experiment_config.py            # Experiment-specific configs for each method
 └── data/
-|    └── creditcard.csv
+|    └── creditcard.csv                 # Raw data
 |
 ├── tests/
 │   ├── __init__.py
