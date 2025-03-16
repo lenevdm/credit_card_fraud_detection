@@ -27,11 +27,18 @@ def test_load_and_split_proportions(data_preparation, sample_data, tmp_path):
     
     # Check split proportions
     n_total = len(sample_data)
-    expected_test_size = int(n_total * data_preparation.config.TEST_SIZE)
-    expected_val_size = int(n_total * data_preparation.config.VAL_SIZE)
     
+    # First split takes 20% for test
+    expected_test_size = int(n_total * data_preparation.config.TEST_SIZE)
+    
+    # Second split takes 20% of remaining 80% for validation
+    remaining_samples = n_total - expected_test_size
+    expected_val_size = int(remaining_samples * data_preparation.config.VAL_SIZE)
+    
+    # Check sizes
     assert len(data['X_test']) == expected_test_size
     assert len(data['X_val']) == expected_val_size
+    assert len(data['X_train']) == n_total - expected_test_size - expected_val_size
 
 def test_class_distribution_maintenance(data_preparation, sample_data, tmp_path):
     """Test that class distributions are maintained in splits"""
