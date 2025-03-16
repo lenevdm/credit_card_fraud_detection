@@ -51,3 +51,25 @@ def mock_metrics_list():
         })
     
     return technique1_metrics, technique2_metrics
+
+def test_cohens_d_calculation():
+    """Test Cohen's d effect size calculation"""
+    # Create two samples with known effect size
+    group1 = np.random.normal(10, 2, 100)  # mean=10, sd=2
+    group2 = np.random.normal(12, 2, 100)  # mean=12, sd=2
+    
+    # Expected d = (12-10)/2 = 1.0 (large effect)
+    d = cohens_d(group1, group2)
+    
+    # Allow for some sampling variation
+    assert 0.9 < d < 1.1
+    
+    # Test interpretation
+    interpretation = interpret_cohens_d(d)
+    assert interpretation == "large"
+    
+    # Test with smaller effect
+    group3 = np.random.normal(10, 2, 100)
+    group4 = np.random.normal(10.5, 2, 100)  # mean difference of 0.5, d should be ~0.25
+    small_d = cohens_d(group3, group4)
+    assert interpret_cohens_d(small_d) == "small"
