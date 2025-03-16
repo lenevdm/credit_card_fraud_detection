@@ -9,6 +9,7 @@ class DataPreparation:
     Handles loading and preprocessing of credit card fraud data
     """
     def __init__(self, random_state=None):
+        self.config = ModelConfig  # Store config as instance attribute
         self.random_state = random_state or ModelConfig.RANDOM_SEED
         self.scaler = StandardScaler()
 
