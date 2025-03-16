@@ -131,7 +131,7 @@ def test_multiple_comparison_correction():
     assert set(adjusted.keys()) == set(comparisons.keys())
 
     # Check adjusted p-values are present
-    for metric in ajudste:
+    for metric in adjusted:
         assert 'p_value_adjusted' in adjusted[metric]
 
     # BH correct maintain order but increase p-values
@@ -148,3 +148,42 @@ def test_multiple_comparison_correction():
         
         # Adjusted p-values should be >= original p-values
         assert adjusted[current_metric]['p_value_adjusted'] >= comparisons[current_metric]['p_value']
+
+def test_compare_techniques(mock_metrics_list):
+    """Test the comprehensive technique comparison function"""
+    technique1_metrics, technique2_metrics = mock_metrics_list
+    
+    # Define metrics to compare
+    metrics_of_interest = ['precision', 'recall', 'f1_score', 'roc_auc', 'g_mean']
+    
+    # Compare techniques
+    comparison_results = compare_techniques(
+        'Technique1',
+        technique1_metrics,
+        'Technique2',
+        technique2_metrics,
+        metrics_of_interest
+    )
+    
+    # Check structure of results
+    assert 'technique_names' in comparison_results
+    assert 'comparisons' in comparison_results
+    
+    # Check technique names are correctly stored
+    assert comparison_results['technique_names']['technique1'] == 'Technique1'
+    assert comparison_results['technique_names']['technique2'] == 'Technique2'
+    
+    # Check all metrics are compared
+    assert set(comparison_results['comparisons'].keys()) == set(metrics_of_interest)
+    
+    # Check each metric comparison has the expected fields
+    for metric in metrics_of_interest:
+        metric_comparison = comparison_results['comparisons'][metric]
+        assert 'mean_difference' in metric_comparison
+        assert 'p_value' in metric_comparison
+        assert 'p_value_adjusted' in metric_comparison
+        assert 'ci_lower' in metric_comparison
+        assert 'ci_upper' in metric_comparison
+        assert 'cohens_d' in metric_comparison
+        assert 'effect_size' in metric_comparison
+        assert 'is_significant' in metric_comparison
