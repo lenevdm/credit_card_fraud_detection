@@ -16,7 +16,7 @@ def sample_data():
 
     # Create imbalanced classes (1% fraud)
     y = np.zeros(n_samples)
-    fraud_indices = np.random.choice(n_samples, size=init(n_samples * 0.01), replace=False)
+    fraud_indices = np.random.choice(n_samples, size=int(n_samples * 0.01), replace=False)
     y[fraud_indices] = 1
 
     # Create DataFrame with feature names
