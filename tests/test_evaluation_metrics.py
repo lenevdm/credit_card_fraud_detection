@@ -219,3 +219,64 @@ def test_confidence_interval_calculation():
     # Verify that confidence interval contains true mean (10)
     assert ci[0] < 10 < ci[1]
 
+class MockBaselineExperiment(BaseExperiment):
+    """Mock experiment class for testing aggregate metrics calculation"""
+    def __init__(self, metrics_list):
+        # Skip parent initialization
+        self.metrics_list = metrics_list
+        self.n_runs = len(metrics_list)
+    
+    def preprocess_data(self, data):
+        """Mock implementation of required abstract method"""
+        pass
+
+def test_aggregate_metrics():
+    """Test the aggregate metrics calculation in BaseExperiment"""
+    # Create mock metrics list
+    np.random.seed(42)
+    
+    metrics_list = []
+    for i in range(30):
+        metrics_list.append({
+            'accuracy': 0.99 + np.random.normal(0, 0.001),
+            'precision': 0.8 + np.random.normal(0, 0.01),
+            'recall': 0.75 + np.random.normal(0, 0.01),
+            'f1_score': 0.77 + np.random.normal(0, 0.01),
+            'roc_auc': 0.85 + np.random.normal(0, 0.01),
+            'auprc': 0.6 + np.random.normal(0, 0.01),
+            'g_mean': 0.85 + np.random.normal(0, 0.01),
+            'mcc': 0.7 + np.random.normal(0, 0.01),
+            'training_time': 1.0 + np.random.normal(0, 0.1),
+            'peak_memory_usage': 10.0 + np.random.normal(0, 1.0),
+            'curves': {
+                'pr': {'precision': [0.9, 0.8], 'recall': [0.1, 0.2]},
+                'roc': {'fpr': [0, 0.1], 'tpr': [0, 0.8]}
+            }
+        })
+    
+    # Create mock experiment
+    experiment = MockBaselineExperiment(metrics_list)
+    
+    # Compute aggregate metrics
+    agg_metrics = experiment._aggregate_metrics()
+    
+    # Check that all metrics have mean, std, and confidence intervals
+    expected_metrics = [
+        'accuracy', 'precision', 'recall', 'f1_score', 
+        'roc_auc', 'auprc', 'g_mean', 'mcc',
+        'training_time', 'peak_memory_usage'
+    ]
+    
+    for metric in expected_metrics:
+        assert f"{metric}_mean" in agg_metrics
+        assert f"{metric}_std" in agg_metrics
+        assert f"{metric}_ci_lower" in agg_metrics
+        assert f"{metric}_ci_upper" in agg_metrics
+        
+        # Check that confidence interval contains mean
+        assert agg_metrics[f"{metric}_ci_lower"] <= agg_metrics[f"{metric}_mean"]
+        assert agg_metrics[f"{metric}_mean"] <= agg_metrics[f"{metric}_ci_upper"]
+        
+        # Calculate mean manually to verify
+        expected_mean = np.mean([m[metric] for m in metrics_list])
+        assert abs(agg_metrics[f"{metric}_mean"] - expected_mean) < 1e-10
