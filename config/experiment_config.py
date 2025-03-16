@@ -4,7 +4,7 @@ class ExperimentConfig:
 
     # Base experiment settings
     BASE_EXPERIMENT_NAME = "fraud_detection"
-    N_RUNS = 5
+    N_RUNS = 30
     CONFIDENCE_LEVEL = 0.95
 
     # Metrics to track
@@ -59,13 +59,13 @@ class ExperimentConfig:
         TECHNIQUES = ['baseline', 'random_undersampling', 'smoteenn', 'class_weight']
         # Defin technique weights for the weighted averaging
         TECHNIQUE_WEIGHTS = {
-            'baseline': 3.0,  # Higher weight for baseline (better precision)
-            'random_undersampling': 1.0,
-            'smoteenn': 1.0,
-            'class_weight': 1.0
+            'baseline': 5.0,  # Higher weight for baseline (better precision)
+            'random_undersampling': 0.5,
+            'smoteenn': 0.5,
+            'class_weight': 0.5
         }
         # Default threshold for final classification
-        DECISION_THRESHOLD = 0.5
+        DECISION_THRESHOLD = 0.7 # Increase to favour precision
         # Whether to optimize threshold using validation data
         OPTIMIZE_THRESHOLD = True
         RANDOM_STATE = 42
