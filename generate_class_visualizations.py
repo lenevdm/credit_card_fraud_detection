@@ -28,7 +28,7 @@ def plot_class_distribution(class_counts: Dict[int, int], title: str = "Class Di
     percentages = [count/total*100 for count in counts]
     
     # Create bar chart
-    bars = plt.bar(classes, counts, color=['#3498db', '#e74c3c'])
+    bars = plt.bar(classes, counts, color=['#17208D', '#ea5f94'])
     
     # Add count and percentage labels on top of bars
     for i, (count, percentage) in enumerate(zip(counts, percentages)):
@@ -69,11 +69,22 @@ def plot_class_distributions_comparison(
         else:
             ratios[technique] = float('inf')  # Handle case where class 1 has zero samples
     
-    # Create subplots: one row of pie charts, and a bar chart for ratios
-    fig, axes = plt.subplots(2, n_techniques, figsize=(n_techniques*4, 8))
+    # Calculate how many pie charts per row (ceil of n_techniques/2)
+    charts_per_row = (n_techniques + 1) // 2
+    
+    # Create subplots: two rows of pie charts, and a bar chart for ratios
+    fig, axes = plt.subplots(3, charts_per_row, figsize=(charts_per_row*4, 10))
+    
+    # Make axes 2D if it isn't already (happens when charts_per_row is 1)
+    if n_techniques <= 1:
+        axes = np.array(axes).reshape(3, 1)
     
     # Create pie chart for each technique
     for i, technique in enumerate(techniques):
+        # Calculate row and column
+        row = i // charts_per_row
+        col = i % charts_per_row
+        
         counts = distributions[technique]
         labels = ['Non-Fraud', 'Fraud']
         sizes = [counts.get(0, 0), counts.get(1, 0)]
@@ -86,17 +97,23 @@ def plot_class_distributions_comparison(
         labels = [f'{label}\n{percentage:.1f}%' for label, percentage in zip(labels, percentages)]
         
         # Plot pie chart
-        axes[0, i].pie(sizes, labels=labels, autopct='', startangle=90, colors=['#3498db', '#e74c3c'])
-        axes[0, i].set_title(f'{technique}')
+        axes[row, col].pie(sizes, labels=labels, autopct='', startangle=90, colors=['#17208D', '#ea5f94'])
+        axes[row, col].set_title(f'{technique}')
     
-    # Create bar chart of class ratios
+    # Hide unused pie chart subplots
+    for i in range(n_techniques, charts_per_row * 2):
+        row = i // charts_per_row
+        col = i % charts_per_row
+        axes[row, col].axis('off')
+    
+    # Create bar chart of class ratios across the bottom row
     technique_names = list(ratios.keys())
     ratio_values = list(ratios.values())
     
     # Plot horizontal bar chart across the bottom row
-    bars = axes[1, 0].barh(technique_names, ratio_values, color='#2ecc71')
-    axes[1, 0].set_title('Class Ratio (Non-Fraud:Fraud)')
-    axes[1, 0].set_xlabel('Ratio')
+    bars = axes[2, 0].barh(technique_names, ratio_values, color='#17208D')
+    axes[2, 0].set_title('Class Ratio (Non-Fraud:Fraud)')
+    axes[2, 0].set_xlabel('Ratio')
     
     # Add ratio labels
     for i, ratio in enumerate(ratio_values):
@@ -104,11 +121,11 @@ def plot_class_distributions_comparison(
             label = "∞"
         else:
             label = f"{ratio:.2f}:1"
-        axes[1, 0].text(ratio + max(ratio_values) * 0.02, i, label, va='center')
+        axes[2, 0].text(ratio + max(ratio_values) * 0.02, i, label, va='center')
     
     # Hide empty subplots in the ratio row
-    for i in range(1, n_techniques):
-        axes[1, i].axis('off')
+    for i in range(1, charts_per_row):
+        axes[2, i].axis('off')
     
     plt.tight_layout()
     return fig
@@ -145,7 +162,7 @@ def plot_before_after_comparison(
         percentages = [count/total*100 for count in count_values]
         
         # Create bar chart
-        bars = ax.bar(classes, count_values, color=['#3498db', '#e74c3c'])
+        bars = ax.bar(classes, count_values, color=['#17208D', '#ea5f94'])
         
         # Add count and percentage labels
         for i, (count, percentage) in enumerate(zip(count_values, percentages)):
