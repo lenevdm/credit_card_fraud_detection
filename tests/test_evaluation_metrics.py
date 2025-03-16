@@ -112,3 +112,39 @@ def test_paired_t_test(mock_metrics_list):
     
     # Check that confidence intervals are properly calculated
     assert recall_test['ci_lower'] < recall_test['mean_difference'] < recall_test['ci_upper']
+
+def test_multiple_comparison_correction():
+    """Test p-value adjustment for multiple comparisons"""
+    # Create mock comparison results with know p-values
+    comparisons = {
+        'precision': {'p_value': 0.01, 'mean_difference': 0.05},
+        'recall': {'p_value': 0.02, 'mean_difference': -0.1},
+        'f1_score': {'p_value': 0.03, 'mean_difference': 0.02},
+        'roc_auc': {'p_value': 0.04, 'mean_difference': 0.01},
+        'g_mean': {'p_value': 0.05, 'mean_difference': 0.03}
+    }
+
+    # Adjust p-values using BH
+    adjusted = adjust_pvalues(comparisons)
+
+    # Check all metrics are preserved
+    assert set(adjusted.keys()) == set(comparisons.keys())
+
+    # Check adjusted p-values are present
+    for metric in ajudste:
+        assert 'p_value_adjusted' in adjusted[metric]
+
+    # BH correct maintain order but increase p-values
+    metrics = list(comparisons.keys())
+    for i in range(len(metrics) - 1):
+        current_metric = metrics[i]
+        next_metric = metrics[i+1]
+
+        # Original p-values should be in ascending order for this test
+        assert comparisons[current_metric]['p_value'] <= comparisons[next_metric]['p_value']
+        
+        # Adjusted p-values should maintain the same order
+        assert adjusted[current_metric]['p_value_adjusted'] <= adjusted[next_metric]['p_value_adjusted']
+        
+        # Adjusted p-values should be >= original p-values
+        assert adjusted[current_metric]['p_value_adjusted'] >= comparisons[current_metric]['p_value']
