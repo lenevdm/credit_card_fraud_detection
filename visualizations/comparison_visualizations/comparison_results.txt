@@ -1,0 +1,1123 @@
+COMPREHENSIVE STATISTICAL ANALYSIS OF FRAUD DETECTION TECHNIQUES
+================================================================================
+
+Number of runs per technique: 2
+Metrics analyzed: accuracy, precision, recall, f1_score, roc_auc, auprc, g_mean, mcc, training_time, peak_memory_usage
+
+================================================================================
+
+
+
+================================================================================
+Comparison Results: BaselineExperimentFinal vs SMOTEExperiment
+==================================================
+
+ACCURACY:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): 0.0086
+95% CI: [0.0081, 0.0091]
+Effect size: large (d = 9.408)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): 0.6603
+95% CI: [0.6499, 0.6708]
+Effect size: large (d = 35.688)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): -0.0976
+95% CI: [-0.1074, -0.0879]
+Effect size: large (d = -5.464)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): 0.5534
+95% CI: [0.5431, 0.5638]
+Effect size: large (d = 26.088)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): 0.0084
+95% CI: [0.0075, 0.0092]
+Effect size: large (d = 4.694)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): 0.0007
+95% CI: [-0.0104, 0.0119]
+Effect size: negligible (d = 0.034)
+p-value: 0.8964 (adjusted: 0.8964)
+
+
+G_MEAN:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): -0.0487
+95% CI: [-0.0541, -0.0432]
+Effect size: large (d = -4.775)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): 0.4440
+95% CI: [0.4353, 0.4528]
+Effect size: large (d = 24.634)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): -0.0221
+95% CI: [-0.0525, 0.0083]
+Effect size: small (d = -0.366)
+p-value: 0.1481 (adjusted: 0.1646)
+
+
+PEAK_MEMORY_USAGE:
+Mean difference (BaselineExperimentFinal - SMOTEExperiment): 3.3682
+95% CI: [2.2884, 4.4480]
+Effect size: large (d = 1.485)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: BaselineExperimentFinal vs RandomUndersamplingExperiment
+==================================================
+
+ACCURACY:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.0199
+95% CI: [0.0081, 0.0317]
+Effect size: large (d = 0.894)
+p-value: 0.0017 (adjusted: 0.0034)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.7221
+95% CI: [0.7060, 0.7382]
+Effect size: large (d = 27.289)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.0197
+95% CI: [-0.0856, 0.1251]
+Effect size: negligible (d = 0.095)
+p-value: 0.7045 (adjusted: 0.7045)
+
+
+F1_SCORE:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.6534
+95% CI: [0.6321, 0.6748]
+Effect size: large (d = 15.462)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.1114
+95% CI: [0.0046, 0.2182]
+Effect size: medium (d = 0.551)
+p-value: 0.0415 (adjusted: 0.0518)
+
+
+AUPRC:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.1369
+95% CI: [0.0517, 0.2221]
+Effect size: large (d = 0.855)
+p-value: 0.0027 (adjusted: 0.0044)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.0575
+95% CI: [-0.0399, 0.1550]
+Effect size: small (d = 0.305)
+p-value: 0.2371 (adjusted: 0.2635)
+
+
+MCC:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 0.5526
+95% CI: [0.5176, 0.5876]
+Effect size: large (d = 8.072)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): -0.0549
+95% CI: [-0.0903, -0.0195]
+Effect size: medium (d = -0.798)
+p-value: 0.0036 (adjusted: 0.0051)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (BaselineExperimentFinal - RandomUndersamplingExperiment): 3.5792
+95% CI: [2.4873, 4.6711]
+Effect size: large (d = 1.604)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: BaselineExperimentFinal vs SMOTEENNExperiment
+==================================================
+
+ACCURACY:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): 0.0077
+95% CI: [0.0074, 0.0080]
+Effect size: large (d = 13.168)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): 0.6477
+95% CI: [0.6394, 0.6560]
+Effect size: large (d = 40.709)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): -0.0966
+95% CI: [-0.1064, -0.0868]
+Effect size: large (d = -5.394)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): 0.5348
+95% CI: [0.5269, 0.5427]
+Effect size: large (d = 33.483)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): 0.0096
+95% CI: [0.0086, 0.0107]
+Effect size: large (d = 5.200)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): 0.0256
+95% CI: [0.0189, 0.0323]
+Effect size: large (d = 1.849)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): -0.0486
+95% CI: [-0.0542, -0.0430]
+Effect size: large (d = -4.757)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): 0.4285
+95% CI: [0.4218, 0.4352]
+Effect size: large (d = 31.455)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): -0.0654
+95% CI: [-0.0925, -0.0383]
+Effect size: large (d = -1.105)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (BaselineExperimentFinal - SMOTEENNExperiment): 3.4940
+95% CI: [2.3298, 4.6582]
+Effect size: large (d = 1.542)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: BaselineExperimentFinal vs ClassWeightExperiment
+==================================================
+
+ACCURACY:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): 0.0223
+95% CI: [0.0210, 0.0236]
+Effect size: large (d = 8.967)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): 0.7427
+95% CI: [0.7351, 0.7503]
+Effect size: large (d = 52.202)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): -0.1071
+95% CI: [-0.1168, -0.0975]
+Effect size: large (d = -5.986)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): 0.6850
+95% CI: [0.6775, 0.6925]
+Effect size: large (d = 49.078)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): 0.0010
+95% CI: [0.0001, 0.0020]
+Effect size: medium (d = 0.628)
+p-value: 0.0351 (adjusted: 0.0351)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): 0.0367
+95% CI: [0.0298, 0.0436]
+Effect size: large (d = 2.574)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): -0.0470
+95% CI: [-0.0525, -0.0415]
+Effect size: large (d = -4.600)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): 0.5661
+95% CI: [0.5583, 0.5739]
+Effect size: large (d = 39.090)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): -0.1071
+95% CI: [-0.1372, -0.0770]
+Effect size: large (d = -1.800)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (BaselineExperimentFinal - ClassWeightExperiment): 3.7582
+95% CI: [2.5060, 5.0104]
+Effect size: large (d = 1.671)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: BaselineExperimentFinal vs EnsembleExperiment
+==================================================
+
+ACCURACY:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0002
+95% CI: [0.0001, 0.0002]
+Effect size: large (d = 4.450)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0849
+95% CI: [0.0747, 0.0951]
+Effect size: large (d = 4.988)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0330
+95% CI: [-0.0432, -0.0228]
+Effect size: large (d = -1.757)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0300
+95% CI: [0.0245, 0.0356]
+Effect size: large (d = 3.011)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0008
+95% CI: [-0.0004, 0.0020]
+Effect size: small (d = 0.337)
+p-value: 0.2041 (adjusted: 0.2041)
+
+
+AUPRC:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0105
+95% CI: [-0.0177, -0.0033]
+Effect size: medium (d = -0.612)
+p-value: 0.0055 (adjusted: 0.0061)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -0.0182
+95% CI: [-0.0240, -0.0124]
+Effect size: large (d = -1.700)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): 0.0281
+95% CI: [0.0228, 0.0333]
+Effect size: large (d = 2.961)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -539.8708
+95% CI: [-563.8603, -515.8814]
+Effect size: large (d = -11.883)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (BaselineExperimentFinal - EnsembleExperiment): -81.8997
+95% CI: [-111.4133, -52.3861]
+Effect size: large (d = -1.461)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: SMOTEExperiment vs RandomUndersamplingExperiment
+==================================================
+
+ACCURACY:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.0113
+95% CI: [-0.0005, 0.0230]
+Effect size: medium (d = 0.506)
+p-value: 0.0595 (adjusted: 0.0661)
+
+
+PRECISION:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.0618
+95% CI: [0.0481, 0.0754]
+Effect size: large (d = 2.288)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.1173
+95% CI: [0.0082, 0.2265]
+Effect size: medium (d = 0.568)
+p-value: 0.0361 (adjusted: 0.0535)
+
+
+F1_SCORE:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.1000
+95% CI: [0.0766, 0.1234]
+Effect size: large (d = 2.171)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.1031
+95% CI: [-0.0037, 0.2098]
+Effect size: medium (d = 0.509)
+p-value: 0.0580 (adjusted: 0.0661)
+
+
+AUPRC:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.1362
+95% CI: [0.0523, 0.2201]
+Effect size: large (d = 0.849)
+p-value: 0.0024 (adjusted: 0.0061)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.1062
+95% CI: [0.0066, 0.2058]
+Effect size: medium (d = 0.563)
+p-value: 0.0375 (adjusted: 0.0535)
+
+
+MCC:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.1086
+95% CI: [0.0725, 0.1447]
+Effect size: large (d = 1.550)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): -0.0328
+95% CI: [-0.0546, -0.0110]
+Effect size: medium (d = -0.784)
+p-value: 0.0045 (adjusted: 0.0090)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (SMOTEExperiment - RandomUndersamplingExperiment): 0.2109
+95% CI: [-0.3243, 0.7462]
+Effect size: negligible (d = 0.180)
+p-value: 0.4268 (adjusted: 0.4268)
+
+
+
+Comparison Results: SMOTEExperiment vs SMOTEENNExperiment
+==================================================
+
+ACCURACY:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): -0.0009
+95% CI: [-0.0015, -0.0003]
+Effect size: large (d = -0.851)
+p-value: 0.0047 (adjusted: 0.0117)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): -0.0126
+95% CI: [-0.0222, -0.0030]
+Effect size: medium (d = -0.751)
+p-value: 0.0117 (adjusted: 0.0167)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): 0.0010
+95% CI: [-0.0011, 0.0031]
+Effect size: small (d = 0.207)
+p-value: 0.3256 (adjusted: 0.4070)
+
+
+F1_SCORE:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): -0.0186
+95% CI: [-0.0325, -0.0047]
+Effect size: medium (d = -0.766)
+p-value: 0.0104 (adjusted: 0.0167)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): 0.0013
+95% CI: [0.0004, 0.0021]
+Effect size: medium (d = 0.659)
+p-value: 0.0034 (adjusted: 0.0115)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): 0.0249
+95% CI: [0.0146, 0.0352]
+Effect size: large (d = 1.435)
+p-value: 0.0000 (adjusted: 0.0002)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): 0.0001
+95% CI: [-0.0010, 0.0012]
+Effect size: negligible (d = 0.036)
+p-value: 0.8695 (adjusted: 0.8695)
+
+
+MCC:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): -0.0155
+95% CI: [-0.0271, -0.0040]
+Effect size: medium (d = -0.771)
+p-value: 0.0103 (adjusted: 0.0167)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): -0.0433
+95% CI: [-0.0552, -0.0314]
+Effect size: large (d = -1.890)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (SMOTEExperiment - SMOTEENNExperiment): 0.1258
+95% CI: [-0.4541, 0.7057]
+Effect size: negligible (d = 0.101)
+p-value: 0.6606 (adjusted: 0.7340)
+
+
+
+Comparison Results: SMOTEExperiment vs ClassWeightExperiment
+==================================================
+
+ACCURACY:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): 0.0137
+95% CI: [0.0123, 0.0152]
+Effect size: large (d = 5.168)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): 0.0824
+95% CI: [0.0741, 0.0906]
+Effect size: large (d = 5.413)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): -0.0095
+95% CI: [-0.0125, -0.0065]
+Effect size: large (d = -1.952)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): 0.1315
+95% CI: [0.1190, 0.1441]
+Effect size: large (d = 5.715)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): -0.0074
+95% CI: [-0.0083, -0.0064]
+Effect size: large (d = -4.382)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): 0.0360
+95% CI: [0.0273, 0.0447]
+Effect size: large (d = 2.036)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): 0.0017
+95% CI: [0.0001, 0.0032]
+Effect size: medium (d = 0.647)
+p-value: 0.0394 (adjusted: 0.0437)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): 0.1221
+95% CI: [0.1107, 0.1335]
+Effect size: large (d = 5.882)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): -0.0850
+95% CI: [-0.0970, -0.0730]
+Effect size: large (d = -3.584)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (SMOTEExperiment - ClassWeightExperiment): 0.3900
+95% CI: [-0.2606, 1.0405]
+Effect size: small (d = 0.323)
+p-value: 0.2300 (adjusted: 0.2300)
+
+
+
+Comparison Results: SMOTEExperiment vs EnsembleExperiment
+==================================================
+
+ACCURACY:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -0.0085
+95% CI: [-0.0089, -0.0080]
+Effect size: large (d = -9.225)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -0.5754
+95% CI: [-0.5857, -0.5651]
+Effect size: large (d = -32.233)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (SMOTEExperiment - EnsembleExperiment): 0.0646
+95% CI: [0.0610, 0.0683]
+Effect size: large (d = 8.626)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -0.5234
+95% CI: [-0.5351, -0.5117]
+Effect size: large (d = -25.115)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -0.0076
+95% CI: [-0.0088, -0.0064]
+Effect size: large (d = -3.267)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -0.0112
+95% CI: [-0.0216, -0.0008]
+Effect size: medium (d = -0.558)
+p-value: 0.0354 (adjusted: 0.0354)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (SMOTEExperiment - EnsembleExperiment): 0.0305
+95% CI: [0.0285, 0.0325]
+Effect size: large (d = 7.544)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -0.4160
+95% CI: [-0.4259, -0.4060]
+Effect size: large (d = -23.588)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -539.8487
+95% CI: [-563.8414, -515.8561]
+Effect size: large (d = -11.882)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (SMOTEExperiment - EnsembleExperiment): -85.2680
+95% CI: [-114.6935, -55.8425]
+Effect size: large (d = -1.522)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: RandomUndersamplingExperiment vs SMOTEENNExperiment
+==================================================
+
+ACCURACY:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.0122
+95% CI: [-0.0241, -0.0003]
+Effect size: medium (d = -0.548)
+p-value: 0.0444 (adjusted: 0.0634)
+
+
+PRECISION:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.0744
+95% CI: [-0.0881, -0.0607]
+Effect size: large (d = -2.941)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.1163
+95% CI: [-0.2256, -0.0071]
+Effect size: medium (d = -0.563)
+p-value: 0.0377 (adjusted: 0.0629)
+
+
+F1_SCORE:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.1186
+95% CI: [-0.1424, -0.0948]
+Effect size: large (d = -2.702)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.1018
+95% CI: [-0.2087, 0.0051]
+Effect size: medium (d = -0.503)
+p-value: 0.0612 (adjusted: 0.0765)
+
+
+AUPRC:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.1113
+95% CI: [-0.1956, -0.0270]
+Effect size: medium (d = -0.697)
+p-value: 0.0115 (adjusted: 0.0287)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.1061
+95% CI: [-0.2058, -0.0065]
+Effect size: medium (d = -0.563)
+p-value: 0.0377 (adjusted: 0.0629)
+
+
+MCC:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.1241
+95% CI: [-0.1614, -0.0869]
+Effect size: large (d = -1.798)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.0105
+95% CI: [-0.0325, 0.0115]
+Effect size: small (d = -0.261)
+p-value: 0.3370 (adjusted: 0.3744)
+
+
+PEAK_MEMORY_USAGE:
+Mean difference (RandomUndersamplingExperiment - SMOTEENNExperiment): -0.0852
+95% CI: [-0.8011, 0.6308]
+Effect size: negligible (d = -0.073)
+p-value: 0.8095 (adjusted: 0.8095)
+
+
+
+Comparison Results: RandomUndersamplingExperiment vs ClassWeightExperiment
+==================================================
+
+ACCURACY:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): 0.0024
+95% CI: [-0.0095, 0.0144]
+Effect size: negligible (d = 0.109)
+p-value: 0.6794 (adjusted: 0.6794)
+
+
+PRECISION:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): 0.0206
+95% CI: [0.0079, 0.0333]
+Effect size: large (d = 0.848)
+p-value: 0.0025 (adjusted: 0.0126)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): -0.1269
+95% CI: [-0.2361, -0.0176]
+Effect size: medium (d = -0.614)
+p-value: 0.0244 (adjusted: 0.0487)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): 0.0315
+95% CI: [0.0087, 0.0544]
+Effect size: medium (d = 0.730)
+p-value: 0.0085 (adjusted: 0.0282)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): -0.1104
+95% CI: [-0.2172, -0.0036]
+Effect size: medium (d = -0.546)
+p-value: 0.0432 (adjusted: 0.0618)
+
+
+AUPRC:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): -0.1002
+95% CI: [-0.1854, -0.0150]
+Effect size: medium (d = -0.627)
+p-value: 0.0228 (adjusted: 0.0487)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): -0.1045
+95% CI: [-0.2043, -0.0048]
+Effect size: medium (d = -0.555)
+p-value: 0.0406 (adjusted: 0.0618)
+
+
+MCC:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): 0.0135
+95% CI: [-0.0237, 0.0508]
+Effect size: negligible (d = 0.195)
+p-value: 0.4642 (adjusted: 0.5491)
+
+
+TRAINING_TIME:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): -0.0522
+95% CI: [-0.0741, -0.0302]
+Effect size: large (d = -1.284)
+p-value: 0.0000 (adjusted: 0.0004)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (RandomUndersamplingExperiment - ClassWeightExperiment): 0.1790
+95% CI: [-0.3498, 0.7078]
+Effect size: negligible (d = 0.157)
+p-value: 0.4942 (adjusted: 0.5491)
+
+
+
+Comparison Results: RandomUndersamplingExperiment vs EnsembleExperiment
+==================================================
+
+ACCURACY:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.0197
+95% CI: [-0.0315, -0.0080]
+Effect size: large (d = -0.887)
+p-value: 0.0018 (adjusted: 0.0026)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.6372
+95% CI: [-0.6514, -0.6230]
+Effect size: large (d = -24.498)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.0527
+95% CI: [-0.1617, 0.0562]
+Effect size: small (d = -0.255)
+p-value: 0.3305 (adjusted: 0.3305)
+
+
+F1_SCORE:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.6234
+95% CI: [-0.6457, -0.6012]
+Effect size: large (d = -14.817)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.1107
+95% CI: [-0.2173, -0.0040]
+Effect size: medium (d = -0.547)
+p-value: 0.0425 (adjusted: 0.0531)
+
+
+AUPRC:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.1474
+95% CI: [-0.2298, -0.0651]
+Effect size: large (d = -0.921)
+p-value: 0.0010 (adjusted: 0.0017)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.0757
+95% CI: [-0.1751, 0.0237]
+Effect size: small (d = -0.402)
+p-value: 0.1303 (adjusted: 0.1447)
+
+
+MCC:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -0.5246
+95% CI: [-0.5607, -0.4885]
+Effect size: large (d = -7.674)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -539.8159
+95% CI: [-563.8055, -515.8264]
+Effect size: large (d = -11.882)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (RandomUndersamplingExperiment - EnsembleExperiment): -85.4789
+95% CI: [-115.0202, -55.9376]
+Effect size: large (d = -1.526)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: SMOTEENNExperiment vs ClassWeightExperiment
+==================================================
+
+ACCURACY:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): 0.0146
+95% CI: [0.0133, 0.0160]
+Effect size: large (d = 5.723)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): 0.0950
+95% CI: [0.0888, 0.1012]
+Effect size: large (d = 7.962)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): -0.0105
+95% CI: [-0.0131, -0.0080]
+Effect size: large (d = -2.091)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): 0.1501
+95% CI: [0.1407, 0.1596]
+Effect size: large (d = 8.204)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): -0.0086
+95% CI: [-0.0096, -0.0076]
+Effect size: large (d = -4.919)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): 0.0111
+95% CI: [0.0066, 0.0156]
+Effect size: large (d = 1.391)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): 0.0016
+95% CI: [0.0000, 0.0031]
+Effect size: medium (d = 0.593)
+p-value: 0.0438 (adjusted: 0.0487)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): 0.1377
+95% CI: [0.1288, 0.1466]
+Effect size: large (d = 8.061)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): -0.0417
+95% CI: [-0.0517, -0.0317]
+Effect size: large (d = -2.025)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (SMOTEENNExperiment - ClassWeightExperiment): 0.2642
+95% CI: [-0.4373, 0.9656]
+Effect size: small (d = 0.219)
+p-value: 0.4473 (adjusted: 0.4473)
+
+
+
+Comparison Results: SMOTEENNExperiment vs EnsembleExperiment
+==================================================
+
+ACCURACY:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -0.0075
+95% CI: [-0.0078, -0.0072]
+Effect size: large (d = -12.876)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -0.5628
+95% CI: [-0.5715, -0.5542]
+Effect size: large (d = -37.151)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): 0.0636
+95% CI: [0.0591, 0.0682]
+Effect size: large (d = 8.370)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -0.5048
+95% CI: [-0.5134, -0.4962]
+Effect size: large (d = -32.623)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -0.0089
+95% CI: [-0.0102, -0.0075]
+Effect size: large (d = -3.722)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+AUPRC:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -0.0361
+95% CI: [-0.0420, -0.0302]
+Effect size: large (d = -2.909)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): 0.0304
+95% CI: [0.0280, 0.0328]
+Effect size: large (d = 7.427)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -0.4004
+95% CI: [-0.4077, -0.3931]
+Effect size: large (d = -30.563)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -539.8054
+95% CI: [-563.7967, -515.8142]
+Effect size: large (d = -11.881)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (SMOTEENNExperiment - EnsembleExperiment): -85.3937
+95% CI: [-115.1206, -55.6669]
+Effect size: large (d = -1.524)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+
+Comparison Results: ClassWeightExperiment vs EnsembleExperiment
+==================================================
+
+ACCURACY:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -0.0222
+95% CI: [-0.0235, -0.0209]
+Effect size: large (d = -8.900)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PRECISION:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -0.6578
+95% CI: [-0.6648, -0.6508]
+Effect size: large (d = -49.198)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+RECALL:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): 0.0741
+95% CI: [0.0698, 0.0785]
+Effect size: large (d = 9.793)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+F1_SCORE:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -0.6550
+95% CI: [-0.6615, -0.6485]
+Effect size: large (d = -48.941)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+ROC_AUC:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -0.0002
+95% CI: [-0.0013, 0.0008]
+Effect size: negligible (d = -0.112)
+p-value: 0.6421 (adjusted: 0.6421)
+
+
+AUPRC:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -0.0472
+95% CI: [-0.0537, -0.0407]
+Effect size: large (d = -3.667)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+G_MEAN:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): 0.0288
+95% CI: [0.0267, 0.0310]
+Effect size: large (d = 7.014)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+MCC:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -0.5381
+95% CI: [-0.5448, -0.5314]
+Effect size: large (d = -38.448)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+TRAINING_TIME:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -539.7637
+95% CI: [-563.7546, -515.7729]
+Effect size: large (d = -11.881)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+PEAK_MEMORY_USAGE:
+Mean difference (ClassWeightExperiment - EnsembleExperiment): -85.6579
+95% CI: [-115.2059, -56.1100]
+Effect size: large (d = -1.529)
+p-value: 0.0000 (adjusted: 0.0000)
+* Statistically significant (after correction)
+
+================================================================================
+
+Analysis completed successfully.
