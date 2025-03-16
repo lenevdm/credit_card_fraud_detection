@@ -187,3 +187,35 @@ def test_compare_techniques(mock_metrics_list):
         assert 'cohens_d' in metric_comparison
         assert 'effect_size' in metric_comparison
         assert 'is_significant' in metric_comparison
+
+def test_confidence_interval_calculation():
+    """Test confidence interval calculation with known distribution"""
+    # Create sample with known distribution
+    np.random.seed(42)
+    sample = np.random.normal(loc=10, scale=2, size=100)
+    
+    # Calculate mean and std dev
+    mean = np.mean(sample)
+    std = np.std(sample, ddof=1)  # Using sample standard deviation
+    
+    # Calculate 95% confidence interval
+    n = len(sample)
+    ci = stats.t.interval(
+        0.95,  # 95% confidence level
+        df=n-1,  # degrees of freedom
+        loc=mean,
+        scale=std/np.sqrt(n)
+    )
+    
+    # Expected 95% CI for normal distribution with mean=10, std=2, n=100  is approximately mean ± 0.4
+    expected_lower = mean - 0.4
+    expected_upper = mean + 0.4
+    
+    # Allow for some random variation
+    tolerance = 0.1
+    assert abs(ci[0] - expected_lower) < tolerance
+    assert abs(ci[1] - expected_upper) < tolerance
+    
+    # Verify that confidence interval contains true mean (10)
+    assert ci[0] < 10 < ci[1]
+
