@@ -1,6 +1,14 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
 import mlflow
+import numpy as np
+import time
+import psutil
+import math
+from sklearn.metrics import (classification_report, confusion_matrix, 
+                        f1_score, average_precision_score, roc_auc_score,
+                        precision_recall_curve, roc_curve, matthews_corrcoef)
+import matplotlib.pyplot as plt
 from src.utils.mlflow_utils import ExperimentTracker
 from config.model_config import ModelConfig
 
@@ -114,15 +122,6 @@ class FraudDetectionModel:
         Returns:
             dict: Dictionary containing detailed evaluation metrics
         """
-        import numpy as np
-        import time
-        import psutil
-        import math
-        from sklearn.metrics import (classification_report, confusion_matrix, 
-                               f1_score, average_precision_score, roc_auc_score,
-                               precision_recall_curve, roc_curve, matthews_corrcoef)
-        import matplotlib.pyplot as plt
-
         # Start timing
         start_time = time.time()
         
