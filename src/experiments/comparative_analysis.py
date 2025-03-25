@@ -14,6 +14,19 @@ from src.experiments.smoteenn_experiment import SMOTEENNExperiment
 from src.experiments.class_weight_experiment import ClassWeightExperiment
 from src.experiments.ensemble_experiment import EnsembleExperiment
 
+def validate_memory_metrics(metrics: Dict[str, float]) -> Dict[str, float]:
+    """Validate and clean memory related metrics"""
+    validated = metrics.copy()
+
+    # Ensure memory usage is non-negative
+    if 'peak_memory_usage_mean' in validated:
+        validated['peak_memory_usage_mean'] = max(0, validated['peak_memory_usage_mean'])
+
+    # Handle standard deviation if present
+    if 'peak_memory_usage_std' in validated:
+        validated['peak_memory_usage_std'] = abs(validated['peak_memory_usage_std'])
+
+    return validated
 
 def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str, Any]:
     """
@@ -44,6 +57,15 @@ def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str,
         print(f"\nRunning {name.upper()} Experiment...")
         try:
             experiment_results = experiment.run_experiment(data_path)
+            
+            # Add debug logging
+            print(f"\nDebug - Memory usage for {name}:")
+            print(f"Raw value: {experiment_results.get('peak_memory_usage_mean', 'N/A')}")
+            
+            # Validate metrics
+            experiment_results = validate_memory_metrics(experiment_results)
+            print(f"Validated value: {experiment_results.get('peak_memory_usage_mean', 'N/A')}")
+            
             results[name] = {
                 'experiment': experiment,
                 'results': experiment_results
@@ -162,7 +184,7 @@ def analyze_technique_comparisons(
         combined_results = (
             "COMPREHENSIVE STATISTICAL ANALYSIS OF FRAUD DETECTION TECHNIQUES\n" +
             "=" * 80 + "\n\n" +
-            "Number of runs per technique: 2\n" +  # Update this to use actual n_runs
+            "Number of runs per technique: 30\n" +  # Update this to use actual n_runs
             "Metrics analyzed: " + ", ".join(ExperimentConfig.METRICS_OF_INTEREST) + "\n\n" +
             "=" * 80 + "\n\n" +
             "\n\n" + "=" * 80 + "\n\n".join(all_formatted_results) +
@@ -266,7 +288,8 @@ def generate_summary_table(
     summary_data = []
     
     for technique, data in experiment_results.items():
-        results = data['results']
+        #results = data['results']
+        results = validate_memory_metrics(data['results'])
         
         # Extract key metrics
         metrics = {
@@ -280,7 +303,7 @@ def generate_summary_table(
             'G-Mean': f"{results['g_mean_mean']:.4f} ± {results['g_mean_std']:.4f}",
             'MCC': f"{results['mcc_mean']:.4f} ± {results['mcc_std']:.4f}",
             'Training Time (s)': f"{results['training_time_mean']:.2f}",
-            'Memory Usage (MB)': f"{results['peak_memory_usage_mean']:.2f}"
+            'Memory Usage (MB)': f"{max(0, results['peak_memory_usage_mean']):.2f}"
         }
         
         summary_data.append(metrics)
