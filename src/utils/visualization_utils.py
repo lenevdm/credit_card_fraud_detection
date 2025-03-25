@@ -512,10 +512,10 @@ def plot_fp_fn_comparison(metrics_by_technique: Dict[str, List[Dict[str, float]]
         fn_color = '#ea5f94'  # pink
         tp_color = '#17208D'  # deep blue
         
-        # Create bars with smaller offsets
-        fp_bars = ax.bar(x - width/3, list(fp_means.values()), width/3, label='False Positives', color=fp_color)
-        fn_bars = ax.bar(x, list(fn_means.values()), width/3, label='False Negatives', color=fn_color)
-        tp_bars = ax.bar(x + width/3, list(tp_means.values()), width/3, label='True Positives', color=tp_color)
+        # Create bars
+        fp_bars = ax.bar(x - width, list(fp_means.values()), width, label='False Positives', color=fp_color)
+        fn_bars = ax.bar(x, list(fn_means.values()), width, label='False Negatives', color=fn_color)
+        tp_bars = ax.bar(x + width, list(tp_means.values()), width, label='True Positives', color=tp_color)
         
         # Add labels and title
         ax.set_xlabel('Technique', fontsize=12, fontweight='bold')

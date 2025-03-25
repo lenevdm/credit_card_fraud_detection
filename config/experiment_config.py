@@ -4,7 +4,7 @@ class ExperimentConfig:
 
     # Base experiment settings
     BASE_EXPERIMENT_NAME = "fraud_detection"
-    N_RUNS = 10
+    N_RUNS = 30
     CONFIDENCE_LEVEL = 0.95
 
     # Metrics to track

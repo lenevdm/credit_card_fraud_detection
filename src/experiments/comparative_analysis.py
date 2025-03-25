@@ -50,10 +50,10 @@ def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str,
     experiments = {
         'baseline': BaselineExperimentFinal(),
         'smote': SMOTEExperiment(),
-        #'random_undersampling': RandomUndersamplingExperiment(),
-        #'smoteenn': SMOTEENNExperiment(),
-        #'class_weight': ClassWeightExperiment(),
-        #'ensemble': EnsembleExperiment()
+        'random_undersampling': RandomUndersamplingExperiment(),
+        'smoteenn': SMOTEENNExperiment(),
+        'class_weight': ClassWeightExperiment(),
+        'ensemble': EnsembleExperiment()
     }
     
     results = {}
