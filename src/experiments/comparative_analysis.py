@@ -13,6 +13,11 @@ from src.experiments.random_undersampling_experiment import RandomUndersamplingE
 from src.experiments.smoteenn_experiment import SMOTEENNExperiment
 from src.experiments.class_weight_experiment import ClassWeightExperiment
 from src.experiments.ensemble_experiment import EnsembleExperiment
+from src.utils.visualization_utils import (
+    plot_multiple_techniques_radar,
+    plot_fp_fn_comparison,
+    plot_all_metrics_comparison
+)
 
 def validate_memory_metrics(metrics: Dict[str, float]) -> Dict[str, float]:
     """Validate and clean memory related metrics"""
@@ -45,10 +50,10 @@ def run_multiple_techniques(data_path: str = "data/creditcard.csv") -> Dict[str,
     experiments = {
         'baseline': BaselineExperimentFinal(),
         'smote': SMOTEExperiment(),
-        'random_undersampling': RandomUndersamplingExperiment(),
-        'smoteenn': SMOTEENNExperiment(),
-        'class_weight': ClassWeightExperiment(),
-        'ensemble': EnsembleExperiment()
+        #'random_undersampling': RandomUndersamplingExperiment(),
+        #'smoteenn': SMOTEENNExperiment(),
+        #'class_weight': ClassWeightExperiment(),
+        #'ensemble': EnsembleExperiment()
     }
     
     results = {}
@@ -153,6 +158,8 @@ def analyze_technique_comparisons(
                                 print(f"Error saving plot {plot_name}: {str(e)}")
                                 # If there's an error, try to close all figures to clean up
                                 plt.close('all')
+
+                    
                     
                     # Format and store this comparison's results
                     formatted_results = format_comparison_results(comparison)
@@ -212,6 +219,46 @@ def analyze_technique_comparisons(
             print("Exception details:", e.__class__.__name__)
             import traceback
             print(traceback.format_exc())
+        
+        # Prepare data for technique visualizations
+        metrics_by_technique = {}
+        for technique, data in experiment_results.items():
+            if hasattr(data['experiment'], 'metrics_list') and data['experiment'].metrics_list:
+                metrics_by_technique[technique] = data['experiment'].metrics_list
+
+        if metrics_by_technique:
+            try:
+                print("\nGenerating multi-technique visualizations...")
+                
+                # 1. Generate and save multi-technique radar plot
+                print("Creating radar plot...")
+                radar_plot = plot_multiple_techniques_radar(metrics_by_technique)
+                radar_plot_path = "multi_technique_radar.png"
+                radar_plot.savefig(radar_plot_path)
+                mlflow.log_artifact(radar_plot_path)
+                plt.close(radar_plot)
+                
+                # 2. Generate and save FP-FN comparison chart
+                print("Creating false positives and false negatives comparison...")
+                fp_fn_plot = plot_fp_fn_comparison(metrics_by_technique)
+                fp_fn_plot_path = "fp_fn_comparison.png"
+                fp_fn_plot.savefig(fp_fn_plot_path)
+                mlflow.log_artifact(fp_fn_plot_path)
+                plt.close(fp_fn_plot)
+                
+                # 3. Generate and save all metrics comparison in a single figure
+                print("Creating all metrics comparison chart...")
+                all_metrics_plot = plot_all_metrics_comparison(metrics_by_technique)
+                all_metrics_plot_path = "all_metrics_comparison.png"
+                all_metrics_plot.savefig(all_metrics_plot_path)
+                mlflow.log_artifact(all_metrics_plot_path)
+                plt.close(all_metrics_plot)
+                
+            except Exception as e:
+                print(f"Error generating visualizations: {str(e)}")
+                print("Exception details:", e.__class__.__name__)
+                import traceback
+                print(traceback.format_exc())
         
         # Log the summary table
         summary_table = generate_summary_table(experiment_results)

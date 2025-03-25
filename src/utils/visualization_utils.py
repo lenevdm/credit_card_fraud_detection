@@ -389,3 +389,294 @@ def plot_performance_radar(metrics_by_technique: Dict[str, List[Dict[str, float]
     except Exception as e:
         plt.close('all')
         raise e
+    
+def plot_multiple_techniques_radar(metrics_by_technique: Dict[str, List[Dict[str, float]]]) -> plt.Figure:
+    """
+    Create radar plot comparing key metrics across all techniques
+    
+    Args:
+        metrics_by_technique: Dictionary with technique names as keys and lists of metric dictionaries as values
+        
+    Returns:
+        Matplotlib figure object
+    """
+    try:
+        metrics = ['precision', 'recall', 'f1_score', 'g_mean', 'roc_auc']
+        num_metrics = len(metrics)
+        
+        # Compute means for each metric and technique
+        technique_means = {}
+        for technique, technique_metrics in metrics_by_technique.items():
+            technique_means[technique] = [
+                np.mean([m[metric] for m in technique_metrics])
+                for metric in metrics
+            ]
+        
+        # Create radar plot
+        angles = np.linspace(0, 2*np.pi, num_metrics, endpoint=False)
+        
+        fig, ax = plt.subplots(figsize=(12, 10), subplot_kw=dict(projection='polar'))
+        
+        # Use custom color palette
+        colors = [
+            '#17208D',   # deep blue
+            '#9d02d7',  # purple
+            '#cd34b5',  # magenta
+            '#ea5f94',  # pink
+            '#fa8775',  # salmon
+            '#ffb14e',  # orange
+            '#ffd700',  # gold
+        ]
+        
+        # Plot each technique with assigned color
+        for i, (technique, means) in enumerate(technique_means.items()):
+            color = colors[i % len(colors)]  # Cycle through colors
+            means = np.concatenate((means, [means[0]]))  # complete the circle
+            angles_plot = np.concatenate((angles, [angles[0]]))  # complete the circle
+            ax.plot(angles_plot, means, 'o-', linewidth=2, label=technique, color=color)
+            ax.fill(angles_plot, means, alpha=0.1, color=color)
+        
+        # Set labels and ticks
+        ax.set_xticks(angles)
+        ax.set_xticklabels(metrics)
+        
+        # Add labels in bold and slightly larger font
+        # for label, angle in zip(metrics, angles):
+            #  # Adjust label position for better alignment
+            #  # 1.3 is a factor to push labels slightly outward from the circle
+         #     x = 1.3 * np.cos(angle)
+         #     y = 1.3 * np.sin(angle)
+         #  #     ax.text(angle, 1.3, label, 
+          #           ha='center' if 0 <= angle < np.pi else 'right' if angle == 0 else 'left',
+          #           va='center', 
+           #          fontweight='bold', 
+           #          fontsize=12)
+            
+        # Set y-limits slightly beyond the data range for better visualization
+        max_value = max([max(means) for means in technique_means.values()])
+        ax.set_ylim(0, max_value * 1.1)
+        
+        # Add grid lines
+        ax.grid(True, linestyle='--', alpha=0.7)
+        
+        # Set background color for aesthetic appeal (very light)
+        #ax.set_facecolor('#FADDD8')
+        
+        # Add title
+        ax.set_title('Performance Comparison Across All Techniques', fontsize=15, fontweight='bold')
+        
+        # Add legend with better positioning
+        ax.legend(loc='upper right', bbox_to_anchor=(0.1, 0.1), fontsize=12)
+        
+        plt.tight_layout()
+        return fig
+    except Exception as e:
+        plt.close('all')
+        raise e
+    
+def plot_fp_fn_comparison(metrics_by_technique: Dict[str, List[Dict[str, float]]]) -> plt.Figure:
+    """
+    Create grouped bar chart comparing false positives and false negatives across techniques
+    
+    Args:
+        metrics_by_technique: Dictionary with technique names as keys and lists of metric dictionaries as values
+        
+    Returns:
+        Matplotlib figure object
+    """
+    try:
+        # Calculate mean FP and FN for each technique
+        fp_means = {}
+        fn_means = {}
+        tp_means = {}
+        
+        for technique, metrics_list in metrics_by_technique.items():
+            fp_values = [m.get('false_positives', 0) for m in metrics_list]
+            fn_values = [m.get('false_negatives', 0) for m in metrics_list]
+            tp_values = [m.get('true_positives', 0) for m in metrics_list]
+            
+            fp_means[technique] = np.mean(fp_values)
+            fn_means[technique] = np.mean(fn_values)
+            tp_means[technique] = np.mean(tp_values)
+        
+        # Create figure
+        fig, ax = plt.subplots(figsize=(12, 8))
+        
+        # Set up x positions
+        techniques = list(fp_means.keys())
+        x = np.arange(len(techniques))
+        width = 0.35
+        
+        # Use custom colors from the palette
+        fp_color = '#fa8775'  # salmon
+        fn_color = '#ea5f94'  # pink
+        tp_color = '#17208D'  # deep blue
+        
+        # Create bars with smaller offsets
+        fp_bars = ax.bar(x - width/3, list(fp_means.values()), width/3, label='False Positives', color=fp_color)
+        fn_bars = ax.bar(x, list(fn_means.values()), width/3, label='False Negatives', color=fn_color)
+        tp_bars = ax.bar(x + width/3, list(tp_means.values()), width/3, label='True Positives', color=tp_color)
+        
+        # Add labels and title
+        ax.set_xlabel('Technique', fontsize=12, fontweight='bold')
+        ax.set_ylabel('Count', fontsize=12, fontweight='bold')
+        ax.set_title('False Positives vs False Negatives vs True Positives by Technique', fontsize=14, fontweight='bold')
+        ax.set_xticks(x)
+        ax.set_xticklabels(techniques, rotation=45, ha='right')
+        
+        # Add value labels on top of bars
+        def add_labels(bars):
+            for bar in bars:
+                height = bar.get_height()
+                ax.annotate(f'{height:.1f}',
+                           xy=(bar.get_x() + bar.get_width() / 2, height),
+                           xytext=(0, 3),  # 3 points vertical offset
+                           textcoords="offset points",
+                           ha='center', va='bottom', fontweight='bold')
+        
+        add_labels(fp_bars)
+        add_labels(fn_bars)
+        add_labels(tp_bars)
+        
+        # Add legend
+        ax.legend()
+        
+        # Add grid for readability
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        
+        # Set background color
+        #ax.set_facecolor('#FADDD8')
+        
+        # Calculate total error rate and add as text
+        # for i, technique in enumerate(techniques):
+        #    total_errors = fp_means[technique] + fn_means[technique]
+        #    ax.text(i, max(fp_means[technique], fn_means[technique]) * 1.1, 
+        #           f'Total: {total_errors:.1f}', ha='center', fontweight='bold')
+        
+        plt.tight_layout()
+        return fig
+    except Exception as e:
+        plt.close('all')
+        raise e
+       
+def plot_all_metrics_comparison(metrics_by_technique: Dict[str, List[Dict[str, float]]]) -> plt.Figure:
+    """
+    Create a grid of bar charts comparing all metrics across techniques
+    
+    Args:
+        metrics_by_technique: Dictionary with technique names as keys and lists of metric dictionaries as values
+        
+    Returns:
+        Matplotlib figure with all metric comparisons
+    """
+    try:
+        # Metrics to plot
+        metrics_of_interest = ['accuracy', 'precision', 'recall', 'f1_score', 'roc_auc', 
+                              'auprc', 'g_mean', 'mcc']
+        
+        # Calculate grid layout
+        n_metrics = len(metrics_of_interest)
+        n_cols = 3  # 3 columns in the grid
+        n_rows = (n_metrics + n_cols - 1) // n_cols  # Calculate needed rows
+        
+        # Create figure with subplots
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(18, 5 * n_rows))
+        axes = axes.flatten()  # Flatten to easily iterate
+        
+        # Custom color palette
+        colors = [
+            '#17208D',   # deep blue
+            '#9d02d7',   # purple
+            '#cd34b5',   # magenta
+            '#ea5f94',   # pink
+            '#fa8775',   # salmon
+            '#ffb14e',   # orange
+            '#ffd700'    # gold
+        ]
+        
+        # Map techniques to consistent colors
+        techniques = list(metrics_by_technique.keys())
+        technique_colors = {technique: colors[i % len(colors)] for i, technique in enumerate(techniques)}
+        
+        # For debugging: check first metrics entry to understand structure
+        if techniques and metrics_by_technique[techniques[0]]:
+            sample_metric = metrics_by_technique[techniques[0]][0]
+            print(f"Debug - Sample metric keys: {list(sample_metric.keys())}")
+        
+        # Create a subplot for each metric
+        for idx, metric in enumerate(metrics_of_interest):
+            ax = axes[idx]
+            print(f"\nProcessing metric: {metric} for subplot {idx}")
+            
+            # Calculate mean and std for each technique
+            means = {}
+            std_devs = {}
+            
+            for technique, metrics_list in metrics_by_technique.items():
+                # Extract the raw values for this specific metric
+                raw_values = []
+                for m in metrics_list:
+                    if metric in m:
+                        raw_values.append(float(m[metric]))
+                
+                if raw_values:
+                    means[technique] = np.mean(raw_values)
+                    std_devs[technique] = np.std(raw_values)
+                    print(f"  {technique}: Found {len(raw_values)} values, mean={means[technique]:.4f}, std={std_devs[technique]:.4f}")
+                else:
+                    print(f"  {technique}: No values found for {metric}")
+                    means[technique] = 0
+                    std_devs[technique] = 0
+            
+            # Set up x positions
+            x = np.arange(len(techniques))
+            
+            # Create bars with error bars
+            bars = ax.bar(x, list(means.values()), 
+                         yerr=list(std_devs.values()),
+                         capsize=5, 
+                         color=[technique_colors[t] for t in techniques])
+            
+            # Add labels and title
+            ax.set_xlabel('Technique', fontsize=10, fontweight='bold')
+            ax.set_ylabel(metric.replace('_', ' ').title(), fontsize=10, fontweight='bold')
+            ax.set_title(f'{metric.replace("_", " ").title()} Comparison', fontsize=12, fontweight='bold')
+            ax.set_xticks(x)
+            ax.set_xticklabels([t.capitalize() for t in techniques], rotation=45, ha='right', fontsize=8)
+            
+            # Add value labels on top of bars
+            for i, bar in enumerate(bars):
+                height = bar.get_height()
+                ax.annotate(f'{height:.3f}',
+                           xy=(bar.get_x() + bar.get_width() / 2, height),
+                           xytext=(0, 3),  # 3 points vertical offset
+                           textcoords="offset points",
+                           ha='center', va='bottom', fontsize=8)
+            
+            # Add grid for readability
+            ax.grid(axis='y', linestyle='--', alpha=0.7)
+            
+            # Set y-axis limits slightly beyond data range
+            max_value = max(means.values()) + max(std_devs.values()) if means.values() else 1
+            ax.set_ylim(0, max_value * 1.1)
+        
+        # Remove any unused subplots
+        for idx in range(len(metrics_of_interest), len(axes)):
+            fig.delaxes(axes[idx])
+        
+        # Add a single legend for all subplots at the bottom of the figure
+        handles = [plt.Rectangle((0, 0), 1, 1, color=color) for color in colors[:len(techniques)]]
+        fig.legend(handles, [t.capitalize() for t in techniques], 
+                  loc='lower center', ncol=len(techniques), bbox_to_anchor=(0.5, 0), 
+                  fontsize=12)
+            
+        plt.tight_layout()
+        plt.subplots_adjust(bottom=0.1)  # Make room for the legend
+            
+        return fig
+    except Exception as e:
+        plt.close('all')
+        print(f"Error in plot_all_metrics_comparison: {e}")
+        import traceback
+        print(traceback.format_exc())
+        raise e
