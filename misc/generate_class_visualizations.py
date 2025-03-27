@@ -196,20 +196,20 @@ def get_class_distributions():
     # Define distribution values from your existing experiments
     distributions = {
         "Original": {
-            0: 181961,  # Non-fraudulent
-            1: 315      # Fraudulent
+            0: 284807,  # Non-fraudulent
+            1: 492      # Fraudulent
         },
         "SMOTE": {
-            0: 181961,  # Non-fraudulent (unchanged)
-            1: 181961   # Fraudulent (matched to non-fraudulent)
+            0: 284807,  # Non-fraudulent (unchanged)
+            1: 284807   # Fraudulent (matched to non-fraudulent)
         },
         "Random Undersampling": {
-            0: 315,     # Non-fraudulent (reduced to match fraudulent)
+            0: 630,     # Non-fraudulent (reduced to match fraudulent)
             1: 315      # Fraudulent (unchanged)
         },
         "SMOTE-ENN": {
-            0: 181961 * 0.9,  # Approximate after cleaning
-            1: 181961 * 0.9   # Approximate after cleaning
+            0: 180694 * 0.9,  # Approximate after cleaning
+            1: 109139 * 0.9   # Approximate after cleaning
         },
         "Class Weight": {
             0: 181961,  # Non-fraudulent (unchanged)
